@@ -34,6 +34,8 @@ import com.ceta.cinema.ui.screen.showtime.ShowtimePickerScreen
 import com.ceta.cinema.ui.screen.booking.CheckoutScreen
 import com.ceta.cinema.ui.screen.booking.ComboScreen
 import com.ceta.cinema.ui.screen.booking.PaymentResultScreen
+import com.ceta.cinema.ui.screen.ticket.TicketDetailScreen
+import com.ceta.cinema.ui.screen.ticket.TicketsTab
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.ceta.cinema.ui.theme.Ceta
@@ -106,6 +108,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
         composable(Routes.SEAT_MAP, arguments = listOf(navArgument("showtimeId") { type = NavType.LongType })) {
             SeatMapScreen(onBack = { nav.popBackStack() }, onBooked = { nav.navigate(Routes.combo(it)) })
         }
+        composable(Routes.TICKET_DETAIL, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) { TicketDetailScreen(onBack = { nav.popBackStack() }) }
         composable(Routes.COMBO, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) { entry ->
             val id = entry.arguments?.getLong("bookingId") ?: 0L
             ComboScreen(onBack = { nav.popBackStack() }, onNext = { nav.navigate(Routes.checkout(id)) }, onChooseSeats = { nav.popBackStack(Routes.SEAT_MAP, inclusive = false) })
@@ -131,6 +134,10 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                         onMovie = { nav.navigate(Routes.movieDetail(it)) }, onBook = { nav.navigate(Routes.showtimes(it)) },
                         onSearch = { nav.navigate(Routes.SEARCH) }, onNotifications = {}, onOffers = {}, onCinemas = {},
                         onResume = { nav.navigate(Routes.checkout(it)) },
+                    )
+                    Tab.TICKETS -> TicketsTab(
+                        onTicket = { nav.navigate(Routes.ticketDetail(it)) }, onBook = { main.openTab(Tab.HOME) },
+                        onSignIn = { nav.navigate(Routes.LOGIN) },
                     )
                     Tab.ACCOUNT -> AccountTab(settings, known, main::setDark, main::setLanguage,
                         onSignIn = { nav.navigate(Routes.LOGIN) }, onSignOut = main::signOut)
