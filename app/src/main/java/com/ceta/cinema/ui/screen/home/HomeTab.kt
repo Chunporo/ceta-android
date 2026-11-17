@@ -71,9 +71,7 @@ fun HomeTab(
 private fun TopRow(unread: Long, onNotifications: () -> Unit, onCinemas: () -> Unit) {
     val c = Ceta.colors
     Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(c.ac), contentAlignment = Alignment.Center) {
-            Text("C", color = Color.White, style = MaterialTheme.typography.titleMedium)
-        }
+        CetaLogo(32.dp)
         Spacer(Modifier.width(8.dp))
         Text("CETA", color = c.tx, style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.weight(1f))
