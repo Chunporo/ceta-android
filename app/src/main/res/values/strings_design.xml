@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from the CETA app design (CETA App.dc.html). Names are ds_<key>. -->
+<resources>
+    <string name="ds_skip" formatted="false">Bỏ qua</string>
+    <string name="ds_login" formatted="false">Đăng nhập</string>
+    <string name="ds_login_sub" formatted="false">Nhập số điện thoại để đặt vé, tích điểm và nhận ưu đãi thành viên.</string>
+    <string name="ds_phone" formatted="false">Số điện thoại</string>
+    <string name="ds_phone_ph" formatted="false">912 345 678</string>
+    <string name="ds_phone_err" formatted="false">Số điện thoại cần 9–10 chữ số.</string>
+    <string name="ds_cont" formatted="false">Tiếp tục</string>
+    <string name="ds_or" formatted="false">hoặc</string>
+    <string name="ds_google" formatted="false">Tiếp tục với Google</string>
+    <string name="ds_zalo" formatted="false">Tiếp tục với Zalo</string>
+    <string name="ds_guest" formatted="false">Xem phim không cần đăng nhập</string>
+    <string name="ds_terms" formatted="false">Bằng việc tiếp tục, bạn đồng ý với Điều khoản sử dụng và Chính sách bảo mật của CETA.</string>
+    <string name="ds_otp_title" formatted="false">Nhập mã xác thực</string>
+    <string name="ds_otp_sent_pre" formatted="false">Mã 6 số đã được gửi tới +84 </string>
+    <string name="ds_otp_demo" formatted="false">Điền mã demo</string>
+    <string name="ds_verify" formatted="false">Xác nhận</string>
+    <string name="ds_resend" formatted="false">Gửi lại mã sau 0:42</string>
+    <string name="ds_otp_err" formatted="false">Mã gồm 6 chữ số.</string>
+    <string name="ds_hello" formatted="false">Xin chào, Minh</string>
+    <string name="ds_hello_sub" formatted="false">Hôm nay bạn muốn xem gì?</string>
+    <string name="ds_search_ph" formatted="false">Tìm phim, thể loại…</string>
+    <string name="ds_now_showing" formatted="false">Đang chiếu</string>
+    <string name="ds_coming_soon" formatted="false">Sắp chiếu</string>
+    <string name="ds_view_all" formatted="false">Xem tất cả</string>
+    <string name="ds_promos" formatted="false">Ưu đãi cho bạn</string>
+    <string name="ds_book_now" formatted="false">Đặt vé</string>
+    <string name="ds_remind" formatted="false">Nhắc tôi khi mở bán</string>
+    <string name="ds_reminded" formatted="false">Đã bật nhắc</string>
+    <string name="ds_nav_home" formatted="false">Trang chủ</string>
+    <string name="ds_nav_cinemas" formatted="false">Rạp</string>
+    <string name="ds_nav_tickets" formatted="false">Vé của tôi</string>
+    <string name="ds_nav_promos" formatted="false">Ưu đãi</string>
+    <string name="ds_nav_account" formatted="false">Tài khoản</string>
+    <string name="ds_cinemas_title" formatted="false">Rạp CETA</string>
+    <string name="ds_hcm" formatted="false">TP. Hồ Chí Minh</string>
+    <string name="ds_hn" formatted="false">Hà Nội</string>
+    <string name="ds_today_shows" formatted="false">Suất chiếu hôm nay</string>
+    <string name="ds_tickets_title" formatted="false">Vé của tôi</string>
+    <string name="ds_upcoming" formatted="false">Sắp tới</string>
+    <string name="ds_watched" formatted="false">Đã xem</string>
+    <string name="ds_empty_tickets" formatted="false">Bạn chưa có vé nào sắp tới.</string>
+    <string name="ds_empty_cta" formatted="false">Đặt vé ngay</string>
+    <string name="ds_promos_title" formatted="false">Ưu đãi</string>
+    <string name="ds_save_code" formatted="false">Lưu mã</string>
+    <string name="ds_saved" formatted="false">Đã lưu</string>
+    <string name="ds_until" formatted="false">HSD </string>
+    <string name="ds_points" formatted="false">điểm CETA</string>
+    <string name="ds_to_next" formatted="false">Còn 2.550 điểm để lên hạng CETA VIP</string>
+    <string name="ds_stat_tickets" formatted="false">Vé đã xem</string>
+    <string name="ds_stat_vouchers" formatted="false">Voucher</string>
+    <string name="ds_stat_reviews" formatted="false">Đánh giá</string>
+    <string name="ds_lang" formatted="false">Ngôn ngữ</string>
+    <string name="ds_dark_mode" formatted="false">Giao diện tối</string>
+    <string name="ds_profile" formatted="false">Thông tin cá nhân</string>
+    <string name="ds_history" formatted="false">Lịch sử giao dịch</string>
+    <string name="ds_pay_methods" formatted="false">Phương thức thanh toán</string>
+    <string name="ds_help" formatted="false">Trung tâm hỗ trợ</string>
+    <string name="ds_logout" formatted="false">Đăng xuất</string>
+    <string name="ds_recent" formatted="false">Tìm kiếm gần đây</string>
+    <string name="ds_genres" formatted="false">Thể loại</string>
+    <string name="ds_no_results" formatted="false">Không tìm thấy phim phù hợp.</string>
+    <string name="ds_synopsis" formatted="false">Nội dung</string>
+    <string name="ds_more" formatted="false">Xem thêm</string>
+    <string name="ds_less" formatted="false">Thu gọn</string>
+    <string name="ds_cast" formatted="false">Đạo diễn &amp; diễn viên</string>
+    <string name="ds_director" formatted="false">Đạo diễn</string>
+    <string name="ds_actor" formatted="false">Diễn viên</string>
+    <string name="ds_release" formatted="false">Khởi chiếu</string>
+    <string name="ds_language" formatted="false">Ngôn ngữ</string>
+    <string name="ds_from_price" formatted="false">Giá từ</string>
+    <string name="ds_trailer" formatted="false">Trailer</string>
+    <string name="ds_official_trailer" formatted="false">Trailer chính thức</string>
+    <string name="ds_votes" formatted="false">đánh giá</string>
+    <string name="ds_all" formatted="false">Tất cả</string>
+    <string name="ds_morning" formatted="false">Buổi sáng</string>
+    <string name="ds_afternoon" formatted="false">Buổi chiều</string>
+    <string name="ds_evening" formatted="false">Buổi tối</string>
+    <string name="ds_seats_left" formatted="false"> ghế</string>
+    <string name="ds_no_shows" formatted="false">Không có suất chiếu phù hợp.</string>
+    <string name="ds_sub" formatted="false">Phụ đề</string>
+    <string name="ds_dub" formatted="false">Lồng tiếng</string>
+    <string name="ds_full" formatted="false">Hết vé</string>
+    <string name="ds_screen" formatted="false">MÀN HÌNH</string>
+    <string name="ds_legend_free" formatted="false">Trống</string>
+    <string name="ds_legend_sel" formatted="false">Đang chọn</string>
+    <string name="ds_legend_sold" formatted="false">Đã bán</string>
+    <string name="ds_legend_vip" formatted="false">VIP</string>
+    <string name="ds_legend_couple" formatted="false">Ghế đôi</string>
+    <string name="ds_seats_sel" formatted="false">Ghế đã chọn</string>
+    <string name="ds_no_seat" formatted="false">Chưa chọn ghế</string>
+    <string name="ds_total" formatted="false">Tổng cộng</string>
+    <string name="ds_max_seats" formatted="false">Bạn chỉ chọn tối đa 8 ghế mỗi lần.</string>
+    <string name="ds_pick_seat" formatted="false">Hãy chọn ít nhất 1 ghế.</string>
+    <string name="ds_std" formatted="false">Thường</string>
+    <string name="ds_combo" formatted="false">Bắp nước</string>
+    <string name="ds_combo_sub" formatted="false">Đặt trước, nhận tại quầy không cần xếp hàng</string>
+    <string name="ds_skip_combo" formatted="false">Bỏ qua</string>
+    <string name="ds_hold_expired" formatted="false">Hết thời gian giữ ghế. Vui lòng chọn lại.</string>
+    <string name="ds_payment" formatted="false">Thanh toán</string>
+    <string name="ds_tickets" formatted="false">Vé</string>
+    <string name="ds_combo_line" formatted="false">Bắp nước</string>
+    <string name="ds_discount" formatted="false">Giảm giá</string>
+    <string name="ds_voucher" formatted="false">Mã giảm giá</string>
+    <string name="ds_voucher_ph" formatted="false">Thử CETA20</string>
+    <string name="ds_apply" formatted="false">Áp dụng</string>
+    <string name="ds_voucher_ok" formatted="false">Đã áp dụng CETA20: giảm 20% tiền vé.</string>
+    <string name="ds_voucher_bad" formatted="false">Mã không hợp lệ cho suất chiếu này.</string>
+    <string name="ds_use_points" formatted="false">Dùng 2.000 điểm</string>
+    <string name="ds_points_avail" formatted="false">Giảm 20.000đ · bạn có 2.450 điểm</string>
+    <string name="ds_points_line" formatted="false">Điểm CETA</string>
+    <string name="ds_method" formatted="false">Phương thức thanh toán</string>
+    <string name="ds_pay" formatted="false">Thanh toán </string>
+    <string name="ds_processing" formatted="false">Đang xử lý thanh toán…</string>
+    <string name="ds_card" formatted="false">Thẻ ATM / Visa / Master</string>
+    <string name="ds_momo" formatted="false">Ví MoMo</string>
+    <string name="ds_zalopay" formatted="false">ZaloPay</string>
+    <string name="ds_vnpay" formatted="false">VNPay QR</string>
+    <string name="ds_success" formatted="false">Đặt vé thành công!</string>
+    <string name="ds_success_sub" formatted="false">Vé điện tử đã được lưu trong mục Vé của tôi. Bạn cộng thêm điểm CETA cho đơn này.</string>
+    <string name="ds_view_ticket" formatted="false">Xem vé</string>
+    <string name="ds_back_home" formatted="false">Về trang chủ</string>
+    <string name="ds_booking_code" formatted="false">Mã đặt vé</string>
+    <string name="ds_eticket" formatted="false">Vé điện tử</string>
+    <string name="ds_cinema" formatted="false">Rạp</string>
+    <string name="ds_room" formatted="false">Phòng</string>
+    <string name="ds_date" formatted="false">Ngày</string>
+    <string name="ds_time" formatted="false">Giờ chiếu</string>
+    <string name="ds_seats" formatted="false">Ghế</string>
+    <string name="ds_format" formatted="false">Định dạng</string>
+    <string name="ds_combo_t" formatted="false">Bắp nước</string>
+    <string name="ds_show_qr" formatted="false">Đưa mã QR cho nhân viên soát vé. Tăng độ sáng màn hình để quét nhanh hơn.</string>
+    <string name="ds_save_wallet" formatted="false">Lưu vào ví</string>
+    <string name="ds_directions" formatted="false">Chỉ đường</string>
+    <string name="ds_used" formatted="false">ĐÃ SỬ DỤNG</string>
+    <string name="ds_none" formatted="false">Không có</string>
+    <string name="ds_today" formatted="false">Hôm nay</string>
+    <string name="ds_soon" formatted="false">Tính năng đang phát triển</string>
+    <string name="ds_copied" formatted="false">Đã lưu mã vào ví voucher</string>
+    <string name="ds_remind_on" formatted="false">Sẽ nhắc bạn khi phim mở bán vé</string>
+    <string name="ds_hold" formatted="false">Giữ ghế</string>
+    <string name="ob_title_1">Đặt vé trong 30 giây</string>
+    <string name="ob_body_1">Chọn suất, chọn ghế, thanh toán. Tất cả trong một luồng gọn gàng.</string>
+    <string name="ob_title_2">Ngồi đúng chỗ bạn thích</string>
+    <string name="ob_body_2">Sơ đồ ghế trực quan với ghế thường, VIP và ghế đôi. Thấy rõ chỗ trống theo thời gian thực.</string>
+    <string name="ob_title_3">Tích điểm, nhận ưu đãi</string>
+    <string name="ob_body_3">Mỗi vé đều cộng điểm thành viên CETA. Đổi điểm lấy vé, bắp nước và quà tặng.</string>
+</resources>

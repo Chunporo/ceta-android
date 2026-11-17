@@ -22,6 +22,15 @@ object ErrorMapper {
             "HAS_ACTIVE_TICKETS" -> R.string.error_has_active_tickets
             "ACCOUNT_LOCKED" -> R.string.error_account_locked
             "EMAIL_NOT_VERIFIED" -> R.string.error_email_not_verified
+            "VOUCHER_INVALID" -> R.string.ds_voucher_bad
+            "VOUCHER_NOT_ELIGIBLE" -> R.string.error_voucher_not_eligible
+            "COMBO_UNAVAILABLE" -> R.string.error_combo_unavailable
+            "POINTS_NOT_APPLICABLE" -> R.string.error_points_not_applicable
+            "INSUFFICIENT_POINTS" -> R.string.error_insufficient_points
+            "PAYMENT_ALREADY_STARTED" -> R.string.error_payment_started
+            "BOOKING_NOT_EDITABLE" -> R.string.error_booking_not_editable
+            "REVIEW_NOT_ALLOWED" -> R.string.error_review_not_allowed
+            "ALREADY_ON_SALE" -> R.string.error_already_on_sale
             AuthCodes.INVALID_CREDENTIALS -> R.string.error_invalid_credentials
             AuthCodes.EMAIL_IN_USE -> R.string.error_email_in_use
             AuthCodes.WEAK_PASSWORD -> R.string.error_weak_password

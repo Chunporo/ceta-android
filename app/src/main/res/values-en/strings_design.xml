@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from the CETA app design (CETA App.dc.html). Names are ds_<key>. -->
+<resources>
+    <string name="ds_skip" formatted="false">Skip</string>
+    <string name="ds_login" formatted="false">Sign in</string>
+    <string name="ds_login_sub" formatted="false">Enter your phone number to book tickets, earn points and get member offers.</string>
+    <string name="ds_phone" formatted="false">Phone number</string>
+    <string name="ds_phone_ph" formatted="false">912 345 678</string>
+    <string name="ds_phone_err" formatted="false">Phone number needs 9–10 digits.</string>
+    <string name="ds_cont" formatted="false">Continue</string>
+    <string name="ds_or" formatted="false">or</string>
+    <string name="ds_google" formatted="false">Continue with Google</string>
+    <string name="ds_zalo" formatted="false">Continue with Zalo</string>
+    <string name="ds_guest" formatted="false">Browse without signing in</string>
+    <string name="ds_terms" formatted="false">By continuing you agree to CETA’s Terms of Use and Privacy Policy.</string>
+    <string name="ds_otp_title" formatted="false">Enter verification code</string>
+    <string name="ds_otp_sent_pre" formatted="false">We sent a 6-digit code to +84 </string>
+    <string name="ds_otp_demo" formatted="false">Fill demo code</string>
+    <string name="ds_verify" formatted="false">Verify</string>
+    <string name="ds_resend" formatted="false">Resend code in 0:42</string>
+    <string name="ds_otp_err" formatted="false">The code has 6 digits.</string>
+    <string name="ds_hello" formatted="false">Hi, Minh</string>
+    <string name="ds_hello_sub" formatted="false">What are you watching today?</string>
+    <string name="ds_search_ph" formatted="false">Search movies, genres…</string>
+    <string name="ds_now_showing" formatted="false">Now showing</string>
+    <string name="ds_coming_soon" formatted="false">Coming soon</string>
+    <string name="ds_view_all" formatted="false">See all</string>
+    <string name="ds_promos" formatted="false">Offers for you</string>
+    <string name="ds_book_now" formatted="false">Book tickets</string>
+    <string name="ds_remind" formatted="false">Remind me when on sale</string>
+    <string name="ds_reminded" formatted="false">Reminder on</string>
+    <string name="ds_nav_home" formatted="false">Home</string>
+    <string name="ds_nav_cinemas" formatted="false">Cinemas</string>
+    <string name="ds_nav_tickets" formatted="false">My tickets</string>
+    <string name="ds_nav_promos" formatted="false">Offers</string>
+    <string name="ds_nav_account" formatted="false">Account</string>
+    <string name="ds_cinemas_title" formatted="false">CETA Cinemas</string>
+    <string name="ds_hcm" formatted="false">Ho Chi Minh City</string>
+    <string name="ds_hn" formatted="false">Hanoi</string>
+    <string name="ds_today_shows" formatted="false">Today’s showtimes</string>
+    <string name="ds_tickets_title" formatted="false">My tickets</string>
+    <string name="ds_upcoming" formatted="false">Upcoming</string>
+    <string name="ds_watched" formatted="false">Watched</string>
+    <string name="ds_empty_tickets" formatted="false">No upcoming tickets yet.</string>
+    <string name="ds_empty_cta" formatted="false">Book now</string>
+    <string name="ds_promos_title" formatted="false">Offers</string>
+    <string name="ds_save_code" formatted="false">Save</string>
+    <string name="ds_saved" formatted="false">Saved</string>
+    <string name="ds_until" formatted="false">Valid until </string>
+    <string name="ds_points" formatted="false">CETA points</string>
+    <string name="ds_to_next" formatted="false">2,550 more points to reach CETA VIP</string>
+    <string name="ds_stat_tickets" formatted="false">Movies seen</string>
+    <string name="ds_stat_vouchers" formatted="false">Vouchers</string>
+    <string name="ds_stat_reviews" formatted="false">Reviews</string>
+    <string name="ds_lang" formatted="false">Language</string>
+    <string name="ds_dark_mode" formatted="false">Dark mode</string>
+    <string name="ds_profile" formatted="false">Personal info</string>
+    <string name="ds_history" formatted="false">Transactions</string>
+    <string name="ds_pay_methods" formatted="false">Payment methods</string>
+    <string name="ds_help" formatted="false">Help center</string>
+    <string name="ds_logout" formatted="false">Sign out</string>
+    <string name="ds_recent" formatted="false">Recent searches</string>
+    <string name="ds_genres" formatted="false">Genres</string>
+    <string name="ds_no_results" formatted="false">No matching movies.</string>
+    <string name="ds_synopsis" formatted="false">Synopsis</string>
+    <string name="ds_more" formatted="false">Read more</string>
+    <string name="ds_less" formatted="false">Show less</string>
+    <string name="ds_cast" formatted="false">Director &amp; cast</string>
+    <string name="ds_director" formatted="false">Director</string>
+    <string name="ds_actor" formatted="false">Cast</string>
+    <string name="ds_release" formatted="false">Release</string>
+    <string name="ds_language" formatted="false">Language</string>
+    <string name="ds_from_price" formatted="false">From</string>
+    <string name="ds_trailer" formatted="false">Trailer</string>
+    <string name="ds_official_trailer" formatted="false">Official trailer</string>
+    <string name="ds_votes" formatted="false">ratings</string>
+    <string name="ds_all" formatted="false">All</string>
+    <string name="ds_morning" formatted="false">Morning</string>
+    <string name="ds_afternoon" formatted="false">Afternoon</string>
+    <string name="ds_evening" formatted="false">Evening</string>
+    <string name="ds_seats_left" formatted="false"> left</string>
+    <string name="ds_no_shows" formatted="false">No matching showtimes.</string>
+    <string name="ds_sub" formatted="false">Subtitled</string>
+    <string name="ds_dub" formatted="false">Dubbed</string>
+    <string name="ds_full" formatted="false">Sold out</string>
+    <string name="ds_screen" formatted="false">SCREEN</string>
+    <string name="ds_legend_free" formatted="false">Available</string>
+    <string name="ds_legend_sel" formatted="false">Selected</string>
+    <string name="ds_legend_sold" formatted="false">Sold</string>
+    <string name="ds_legend_vip" formatted="false">VIP</string>
+    <string name="ds_legend_couple" formatted="false">Couple</string>
+    <string name="ds_seats_sel" formatted="false">Selected seats</string>
+    <string name="ds_no_seat" formatted="false">No seats yet</string>
+    <string name="ds_total" formatted="false">Total</string>
+    <string name="ds_max_seats" formatted="false">You can pick up to 8 seats at a time.</string>
+    <string name="ds_pick_seat" formatted="false">Pick at least 1 seat.</string>
+    <string name="ds_std" formatted="false">Standard</string>
+    <string name="ds_combo" formatted="false">Snacks</string>
+    <string name="ds_combo_sub" formatted="false">Pre-order and skip the concession line</string>
+    <string name="ds_skip_combo" formatted="false">Skip</string>
+    <string name="ds_hold_expired" formatted="false">Seat hold expired. Please choose again.</string>
+    <string name="ds_payment" formatted="false">Checkout</string>
+    <string name="ds_tickets" formatted="false">Tickets</string>
+    <string name="ds_combo_line" formatted="false">Snacks</string>
+    <string name="ds_discount" formatted="false">Discount</string>
+    <string name="ds_voucher" formatted="false">Promo code</string>
+    <string name="ds_voucher_ph" formatted="false">Try CETA20</string>
+    <string name="ds_apply" formatted="false">Apply</string>
+    <string name="ds_voucher_ok" formatted="false">CETA20 applied: 20% off tickets.</string>
+    <string name="ds_voucher_bad" formatted="false">This code isn’t valid for this show.</string>
+    <string name="ds_use_points" formatted="false">Use 2,000 points</string>
+    <string name="ds_points_avail" formatted="false">Save 20,000đ · you have 2,450 points</string>
+    <string name="ds_points_line" formatted="false">CETA points</string>
+    <string name="ds_method" formatted="false">Payment method</string>
+    <string name="ds_pay" formatted="false">Pay </string>
+    <string name="ds_processing" formatted="false">Processing payment…</string>
+    <string name="ds_card" formatted="false">ATM / Visa / Master card</string>
+    <string name="ds_momo" formatted="false">MoMo wallet</string>
+    <string name="ds_zalopay" formatted="false">ZaloPay</string>
+    <string name="ds_vnpay" formatted="false">VNPay QR</string>
+    <string name="ds_success" formatted="false">You’re all set!</string>
+    <string name="ds_success_sub" formatted="false">Your e-ticket is saved in My tickets. CETA points have been added for this order.</string>
+    <string name="ds_view_ticket" formatted="false">View ticket</string>
+    <string name="ds_back_home" formatted="false">Back to home</string>
+    <string name="ds_booking_code" formatted="false">Booking code</string>
+    <string name="ds_eticket" formatted="false">E-ticket</string>
+    <string name="ds_cinema" formatted="false">Cinema</string>
+    <string name="ds_room" formatted="false">Hall</string>
+    <string name="ds_date" formatted="false">Date</string>
+    <string name="ds_time" formatted="false">Showtime</string>
+    <string name="ds_seats" formatted="false">Seats</string>
+    <string name="ds_format" formatted="false">Format</string>
+    <string name="ds_combo_t" formatted="false">Snacks</string>
+    <string name="ds_show_qr" formatted="false">Show this QR code at the entrance. Turn up screen brightness for faster scanning.</string>
+    <string name="ds_save_wallet" formatted="false">Add to wallet</string>
+    <string name="ds_directions" formatted="false">Directions</string>
+    <string name="ds_used" formatted="false">USED</string>
+    <string name="ds_none" formatted="false">None</string>
+    <string name="ds_today" formatted="false">Today</string>
+    <string name="ds_soon" formatted="false">Coming in a future version</string>
+    <string name="ds_copied" formatted="false">Code saved to your vouchers</string>
+    <string name="ds_remind_on" formatted="false">We’ll notify you when tickets go on sale</string>
+    <string name="ds_hold" formatted="false">Hold</string>
+    <string name="ob_title_1">Book in 30 seconds</string>
+    <string name="ob_body_1">Pick a showtime, choose seats, pay. All in one tidy flow.</string>
+    <string name="ob_title_2">Sit exactly where you like</string>
+    <string name="ob_body_2">A clear seat map with standard, VIP and couple seats, updated in real time.</string>
+    <string name="ob_title_3">Earn points, unlock offers</string>
+    <string name="ob_body_3">Every ticket earns CETA member points. Redeem them for tickets, snacks and gifts.</string>
+</resources>

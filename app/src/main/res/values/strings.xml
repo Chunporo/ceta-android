@@ -47,4 +47,16 @@
     <string name="forgot_title">Quên mật khẩu</string>
     <string name="forgot_action">Gửi hướng dẫn</string>
     <string name="forgot_done">Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.</string>
+    <string name="retry">Thử lại</string>
+    <string name="back">Quay lại</string>
+    <string name="onboarding_next">Tiếp</string>
+    <string name="onboarding_start">Bắt đầu</string>
+    <string name="error_voucher_not_eligible">Bạn không đủ điều kiện dùng mã này (đơn đầu tiên hoặc mỗi người một lần).</string>
+    <string name="error_combo_unavailable">Combo này hiện không còn bán.</string>
+    <string name="error_points_not_applicable">Đơn hàng chưa đủ giá trị để dùng điểm.</string>
+    <string name="error_insufficient_points">Bạn không đủ điểm CETA.</string>
+    <string name="error_payment_started">Đơn đã chuyển sang thanh toán nên không thể thay đổi nữa.</string>
+    <string name="error_booking_not_editable">Đơn này không còn chỉnh sửa được.</string>
+    <string name="error_review_not_allowed">Bạn chỉ có thể đánh giá phim sau khi đã xem.</string>
+    <string name="error_already_on_sale">Phim này đã mở bán vé rồi.</string>
 </resources>

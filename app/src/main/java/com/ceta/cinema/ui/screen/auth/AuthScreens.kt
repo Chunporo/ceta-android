@@ -73,6 +73,7 @@ fun LoginScreen(
     linkError: ApiError?,
     onRegister: () -> Unit,
     onForgotPassword: () -> Unit,
+    onGuest: () -> Unit,
     vm: LoginViewModel = hiltViewModel(),
 ) {
     val s by vm.state.collectAsState()
@@ -89,6 +90,7 @@ fun LoginScreen(
         Busy(s.loading, R.string.login_email_link, vm::sendLink, outlined = true)
         TextButton(onForgotPassword) { Text(stringResource(R.string.login_forgot)) }
         TextButton(onRegister) { Text(stringResource(R.string.login_register)) }
+        TextButton(onGuest) { Text(stringResource(R.string.ds_guest)) }
     }
 }
 
