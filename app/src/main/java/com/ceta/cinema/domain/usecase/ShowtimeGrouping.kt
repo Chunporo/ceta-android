@@ -13,7 +13,15 @@ data class ShowChip(val showtime: Showtime, val enabled: Boolean)
 
 data class CinemaShows(val cinemaId: Long?, val cinemaName: String, val chips: List<ShowChip>)
 
+/** One movie's times at a cinema, for the Cinemas tab. */
+data class MovieShows(val movieId: String?, val movieTitle: String, val posterUrl: String?, val chips: List<ShowChip>)
+
 object ShowtimeGrouping {
+    fun byMovie(showtimes: List<Showtime>, now: Instant): List<MovieShows> =
+        showtimes.groupBy { it.movieId to (it.movieTitle ?: "") }.map { (key, list) ->
+            MovieShows(key.first, key.second, list.first().posterUrl, list.sortedBy { it.start }.map { chip(it, now) })
+        }.sortedBy { it.movieTitle }
+
     fun chip(showtime: Showtime, now: Instant) = ShowChip(showtime, enabled = !showtime.cancelled && showtime.start.isAfter(now))
 
     fun filter(showtimes: List<Showtime>, format: ShowFormat?): List<Showtime> =

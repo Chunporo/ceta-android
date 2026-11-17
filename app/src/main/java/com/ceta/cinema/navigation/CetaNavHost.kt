@@ -22,7 +22,9 @@ import com.ceta.cinema.ui.screen.auth.EmailLoginScreen
 import com.ceta.cinema.ui.screen.auth.ForgotPasswordScreen
 import com.ceta.cinema.ui.screen.auth.LoginScreen
 import com.ceta.cinema.ui.screen.auth.RegisterScreen
+import com.ceta.cinema.ui.screen.cinema.CinemasTab
 import com.ceta.cinema.ui.screen.home.HomeTab
+import com.ceta.cinema.ui.screen.offers.OffersTab
 import com.ceta.cinema.ui.screen.main.AccountTab
 import com.ceta.cinema.ui.screen.main.MainShell
 import com.ceta.cinema.ui.screen.main.Tab
@@ -132,18 +134,21 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                 when (tab) {
                     Tab.HOME -> HomeTab(
                         onMovie = { nav.navigate(Routes.movieDetail(it)) }, onBook = { nav.navigate(Routes.showtimes(it)) },
-                        onSearch = { nav.navigate(Routes.SEARCH) }, onNotifications = {}, onOffers = {}, onCinemas = {},
+                        onSearch = { nav.navigate(Routes.SEARCH) }, onNotifications = {}, onOffers = { main.openTab(Tab.PROMOS) }, onCinemas = { main.openTab(Tab.CINEMAS) },
                         onResume = { nav.navigate(Routes.checkout(it)) },
                     )
+                    Tab.CINEMAS -> CinemasTab(
+                        onMovie = { nav.navigate(Routes.movieDetail(it)) },
+                        // Booking needs an account; browsing the cinemas does not.
+                        onShow = { id -> if (known) nav.navigate(Routes.seatMap(id)) else nav.navigate(Routes.LOGIN) },
+                    )
+                    Tab.PROMOS -> OffersTab(onLogin = { nav.navigate(Routes.LOGIN) })
                     Tab.TICKETS -> TicketsTab(
                         onTicket = { nav.navigate(Routes.ticketDetail(it)) }, onBook = { main.openTab(Tab.HOME) },
                         onSignIn = { nav.navigate(Routes.LOGIN) },
                     )
                     Tab.ACCOUNT -> AccountTab(settings, known, main::setDark, main::setLanguage,
                         onSignIn = { nav.navigate(Routes.LOGIN) }, onSignOut = main::signOut)
-                    else -> Box(Modifier.fillMaxSize().systemBarsPadding(), contentAlignment = Alignment.Center) {
-                        Text(tab.name, color = Ceta.colors.mu)
-                    }
                 }
             }
         }
