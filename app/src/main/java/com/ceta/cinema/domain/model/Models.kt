@@ -99,6 +99,10 @@ data class Loyalty(
     val redeemBlockPoints: Int, val redeemBlockVnd: Long, val ticketsWatched: Long, val vouchers: Long, val reviews: Long,
 ) {
     val canRedeem: Boolean get() = balance >= redeemBlockPoints
+    val isTopTier: Boolean get() = nextTier == null
+
+    /** How far along the way to the next tier (0..1), for the progress bar. */
+    val progressToNextTier: Float get() = if (isTopTier) 1f else (lifetimeEarned.toFloat() / (lifetimeEarned + pointsToNextTier).coerceAtLeast(1)).coerceIn(0f, 1f)
 }
 
 data class BookingSeat(val seatId: Long, val label: String, val price: Long)

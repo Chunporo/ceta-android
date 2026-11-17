@@ -124,4 +124,18 @@
     <string name="result_order">Order #%1$d</string>
     <string name="pending_resume">You have an order awaiting payment</string>
     <string name="pending_continue">Continue</string>
+    <string name="tier_member">CETA Member</string>
+    <string name="tier_vip">CETA VIP</string>
+    <string name="to_next_tier">%1$s more points to reach CETA VIP</string>
+    <string name="top_tier">You are at the top tier</string>
+    <string name="account_guest_title">Sign in to see your points, tickets and offers</string>
+    <string name="history_empty">No transactions yet.</string>
+    <string name="notifications_empty">No notifications yet.</string>
+    <string name="mark_all_read">Mark all read</string>
+    <string name="status_paid">Paid</string>
+    <string name="status_pending">Awaiting payment</string>
+    <string name="status_cancelled">Cancelled</string>
+    <string name="status_expired">Expired</string>
+    <string name="status_refunded">Refunded</string>
+    <string name="account_hello">Hi, %1$s</string>
 </resources>

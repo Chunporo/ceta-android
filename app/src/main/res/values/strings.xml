@@ -124,4 +124,18 @@
     <string name="result_order">Mã đơn #%1$d</string>
     <string name="pending_resume">Bạn có đơn đang chờ thanh toán</string>
     <string name="pending_continue">Tiếp tục</string>
+    <string name="tier_member">Thành viên CETA</string>
+    <string name="tier_vip">CETA VIP</string>
+    <string name="to_next_tier">Còn %1$s điểm để lên hạng CETA VIP</string>
+    <string name="top_tier">Bạn đang ở hạng cao nhất</string>
+    <string name="account_guest_title">Đăng nhập để xem điểm, vé và ưu đãi của bạn</string>
+    <string name="history_empty">Chưa có giao dịch nào.</string>
+    <string name="notifications_empty">Chưa có thông báo nào.</string>
+    <string name="mark_all_read">Đánh dấu đã đọc</string>
+    <string name="status_paid">Đã thanh toán</string>
+    <string name="status_pending">Chờ thanh toán</string>
+    <string name="status_cancelled">Đã huỷ</string>
+    <string name="status_expired">Hết hạn</string>
+    <string name="status_refunded">Đã hoàn tiền</string>
+    <string name="account_hello">Xin chào, %1$s</string>
 </resources>

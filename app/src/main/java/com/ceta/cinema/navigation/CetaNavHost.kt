@@ -22,6 +22,9 @@ import com.ceta.cinema.ui.screen.auth.EmailLoginScreen
 import com.ceta.cinema.ui.screen.auth.ForgotPasswordScreen
 import com.ceta.cinema.ui.screen.auth.LoginScreen
 import com.ceta.cinema.ui.screen.auth.RegisterScreen
+import com.ceta.cinema.domain.model.BookingStatus
+import com.ceta.cinema.ui.screen.account.HistoryScreen
+import com.ceta.cinema.ui.screen.account.NotificationsScreen
 import com.ceta.cinema.ui.screen.cinema.CinemasTab
 import com.ceta.cinema.ui.screen.home.HomeTab
 import com.ceta.cinema.ui.screen.offers.OffersTab
@@ -111,6 +114,24 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
             SeatMapScreen(onBack = { nav.popBackStack() }, onBooked = { nav.navigate(Routes.combo(it)) })
         }
         composable(Routes.TICKET_DETAIL, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) { TicketDetailScreen(onBack = { nav.popBackStack() }) }
+        composable(Routes.HISTORY) {
+            HistoryScreen(onBack = { nav.popBackStack() }, onOpen = { order ->
+                when (order.status) {
+                    BookingStatus.PAID -> nav.navigate(Routes.ticketDetail(order.id))
+                    BookingStatus.PENDING -> nav.navigate(Routes.checkout(order.id))
+                    else -> Unit
+                }
+            })
+        }
+        composable(Routes.NOTIFICATIONS) {
+            NotificationsScreen(onBack = { nav.popBackStack() }, onOpen = { n ->
+                when {
+                    n.type == "MOVIE_ON_SALE" && n.movieId != null -> nav.navigate(Routes.movieDetail(n.movieId))
+                    n.bookingId != null && n.type in setOf("ORDER_PAID", "SHOWTIME_REMINDER") -> nav.navigate(Routes.ticketDetail(n.bookingId))
+                    n.bookingId != null -> nav.navigate(Routes.HISTORY)
+                }
+            })
+        }
         composable(Routes.COMBO, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) { entry ->
             val id = entry.arguments?.getLong("bookingId") ?: 0L
             ComboScreen(onBack = { nav.popBackStack() }, onNext = { nav.navigate(Routes.checkout(id)) }, onChooseSeats = { nav.popBackStack(Routes.SEAT_MAP, inclusive = false) })
@@ -134,7 +155,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                 when (tab) {
                     Tab.HOME -> HomeTab(
                         onMovie = { nav.navigate(Routes.movieDetail(it)) }, onBook = { nav.navigate(Routes.showtimes(it)) },
-                        onSearch = { nav.navigate(Routes.SEARCH) }, onNotifications = {}, onOffers = { main.openTab(Tab.PROMOS) }, onCinemas = { main.openTab(Tab.CINEMAS) },
+                        onSearch = { nav.navigate(Routes.SEARCH) }, onNotifications = { if (known) nav.navigate(Routes.NOTIFICATIONS) else nav.navigate(Routes.LOGIN) }, onOffers = { main.openTab(Tab.PROMOS) }, onCinemas = { main.openTab(Tab.CINEMAS) },
                         onResume = { nav.navigate(Routes.checkout(it)) },
                     )
                     Tab.CINEMAS -> CinemasTab(
@@ -148,7 +169,8 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                         onSignIn = { nav.navigate(Routes.LOGIN) },
                     )
                     Tab.ACCOUNT -> AccountTab(settings, known, main::setDark, main::setLanguage,
-                        onSignIn = { nav.navigate(Routes.LOGIN) }, onSignOut = main::signOut)
+                        onSignIn = { nav.navigate(Routes.LOGIN) }, onSignOut = main::signOut,
+                        onHistory = { nav.navigate(Routes.HISTORY) }, onSoon = { /* profile, payment methods and help are not built yet */ })
                 }
             }
         }
