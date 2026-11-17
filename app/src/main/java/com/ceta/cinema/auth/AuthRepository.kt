@@ -13,9 +13,12 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /** Email/password and Google sign-in on Firebase Auth; profile stored at users/{uid} in Firestore. */
-class AuthRepository {
+@Singleton
+class AuthRepository @Inject constructor() {
     private val auth = Firebase.auth
     private val db = Firebase.firestore
 
@@ -53,7 +56,7 @@ class AuthRepository {
         val settings = actionCodeSettings {
             url = LINK_URL
             handleCodeInApp = true
-            setAndroidPackageName("com.ceta.cinema", true, null)
+            setAndroidPackageName(com.ceta.cinema.BuildConfig.APPLICATION_ID, true, null)
         }
         auth.sendSignInLinkToEmail(email, settings).await()
     }

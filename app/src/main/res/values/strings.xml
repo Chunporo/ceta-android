@@ -1,1 +1,7 @@
-<resources><string name="app_name">CETA Cinema</string></resources>
+<resources>
+    <string name="app_name">CETA Cinema</string>
+    <string name="login_title">Đăng nhập</string>
+    <string name="login_action">Vào ứng dụng</string>
+    <string name="home_title">Trang chủ</string>
+    <string name="home_sign_out">Đăng xuất</string>
+</resources>

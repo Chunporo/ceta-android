@@ -8,7 +8,9 @@
     {
       "client_info": {
         "mobilesdk_app_id": "1:601662404416:android:ae7f3606d7703017466ca5",
-        "android_client_info": { "package_name": "com.ceta.cinema" }
+        "android_client_info": {
+          "package_name": "com.ceta.cinema"
+        }
       },
       "oauth_client": [
         {
@@ -24,7 +26,85 @@
           "client_type": 3
         }
       ],
-      "api_key": [ { "current_key": "AIzaSyByZefDzUFzkOTY_0j10zCbBI2gXVvY6-s" } ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByZefDzUFzkOTY_0j10zCbBI2gXVvY6-s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "601662404416-n5c4eeukumpaa6lqkt20b9pkf6021n0g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601662404416:android:70afd153f9724191466ca5",
+        "android_client_info": {
+          "package_name": "com.ceta.cinema.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "601662404416-nhjpe8007kj06miqcfn81np2cj58l7pv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ceta.cinema.debug",
+            "certificate_hash": "130b7d35bd5340fd2e01c4e67313f5b68bc500c5"
+          }
+        },
+        {
+          "client_id": "601662404416-n5c4eeukumpaa6lqkt20b9pkf6021n0g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByZefDzUFzkOTY_0j10zCbBI2gXVvY6-s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "601662404416-n5c4eeukumpaa6lqkt20b9pkf6021n0g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601662404416:android:4d9fcf05748f2aed466ca5",
+        "android_client_info": {
+          "package_name": "com.ceta.cinema.staging"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "601662404416-u0ir6sc4754j3pn75fs24dvlbrsp3vnq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ceta.cinema.staging",
+            "certificate_hash": "130b7d35bd5340fd2e01c4e67313f5b68bc500c5"
+          }
+        },
+        {
+          "client_id": "601662404416-n5c4eeukumpaa6lqkt20b9pkf6021n0g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByZefDzUFzkOTY_0j10zCbBI2gXVvY6-s"
+        }
+      ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
