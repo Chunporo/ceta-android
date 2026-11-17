@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "601662404416",
+    "project_id": "ceta-dedff",
+    "storage_bucket": "ceta-dedff.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601662404416:android:ae7f3606d7703017466ca5",
+        "android_client_info": {
+          "package_name": "com.ceta.cinema"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByZefDzUFzkOTY_0j10zCbBI2gXVvY6-s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

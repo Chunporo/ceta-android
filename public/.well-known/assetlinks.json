@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.ceta.cinema",
+    "sha256_cert_fingerprints": ["AD:66:E9:07:0B:68:B4:0F:9B:88:35:F3:94:60:FD:30:36:3D:72:D2:4F:18:EC:A9:AA:EE:62:29:12:07:10:24"]
+  }
+}]

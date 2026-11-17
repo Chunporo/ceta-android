@@ -1,0 +1,37 @@
+{
+  "firestore": {
+    "database": "(default)",
+    "location": "asia-southeast1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "CETA Cinema",
+        "supportEmail": "hackingoxo@gmail.com"
+      }
+    }
+  },
+  "hosting": {
+    "site": "ceta-dedff",
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "!.well-known/**"
+    ],
+    "headers": [
+      {
+        "source": "/.well-known/assetlinks.json",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      }
+    ]
+  }
+}
