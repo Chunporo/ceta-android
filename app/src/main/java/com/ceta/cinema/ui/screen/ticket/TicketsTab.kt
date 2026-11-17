@@ -6,7 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.QrCode2
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,14 +38,14 @@ fun TicketsTab(onTicket: (Long) -> Unit, onBook: () -> Unit, onSignIn: () -> Uni
     val c = Ceta.colors
     var segment by rememberSaveable { mutableIntStateOf(0) }
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding()) {
-        Text(stringResource(R.string.ds_tickets_title), style = MaterialTheme.typography.titleLarge, color = c.tx, modifier = Modifier.padding(20.dp))
+        Text(stringResource(R.string.ds_tickets_title), color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 14.dp))
         if (signedIn != true) {
             EmptyState(stringResource(R.string.login_needed), cta = stringResource(R.string.ds_login), onCta = onSignIn)
             return
         }
         if (offline) OfflineBanner()
-        SegmentedTabs(listOf(stringResource(R.string.ds_upcoming), stringResource(R.string.ds_watched)), segment, { segment = it }, Modifier.padding(horizontal = 20.dp))
-        Spacer(Modifier.height(12.dp))
+        SegmentedTabs(listOf(stringResource(R.string.ds_upcoming), stringResource(R.string.ds_watched)), segment, { segment = it }, Modifier.padding(horizontal = 16.dp))
+        Spacer(Modifier.height(16.dp))
         when (val s = state) {
             UiState.Loading -> LoadingBox()
             is UiState.Error -> ErrorBox(s.error, onRetry = { vm.load(forceRefresh = true) })
@@ -48,7 +53,7 @@ fun TicketsTab(onTicket: (Long) -> Unit, onBook: () -> Unit, onSignIn: () -> Uni
             is UiState.Content -> {
                 val list = if (segment == 0) s.data.upcoming else s.data.watched
                 if (list.isEmpty()) EmptyState(stringResource(R.string.ds_empty_tickets), cta = if (segment == 0) stringResource(R.string.ds_empty_cta) else null, onCta = onBook)
-                else LazyColumn(contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                else LazyColumn(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(list, key = { it.bookingId }) { TicketCard(it, past = segment == 1) { onTicket(it.bookingId) } }
                 }
             }
@@ -61,16 +66,25 @@ private fun TicketCard(group: TicketGroup, past: Boolean, onClick: () -> Unit) {
     val c = Ceta.colors
     val t = group.lead
     Row(
-        Modifier.fillMaxWidth().alpha(if (past) 0.7f else 1f).clip(RoundedCornerShape(20.dp)).background(c.sf).clickable(onClick = onClick).padding(12.dp),
+        Modifier.fillMaxWidth().alpha(if (past) 0.7f else 1f).clip(RoundedCornerShape(22.dp)).background(c.sf).clickable(onClick = onClick).padding(12.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically,
     ) {
-        Poster(t.posterUrl, t.movieTitle, Modifier.width(72.dp).aspectRatio(2f / 3f))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(t.movieTitle, color = c.tx, style = MaterialTheme.typography.titleSmall, maxLines = 2)
-            Text(t.cinemaName.orEmpty(), color = c.mu, style = MaterialTheme.typography.bodySmall)
-            Text(Formatters.date(Formatters.localDate(t.start)) + " · " + Formatters.time(t.start), color = c.tx, style = MaterialTheme.typography.bodyMedium)
-            Text(group.seats.joinToString(", ") + " · " + t.format.label, color = c.mu, style = MaterialTheme.typography.bodySmall)
-            if (group.allUsed) Text(stringResource(R.string.ds_used), color = c.ac, style = MaterialTheme.typography.labelSmall)
+        Poster(t.posterUrl, t.movieTitle, Modifier.size(width = 64.dp, height = 92.dp).clip(RoundedCornerShape(14.dp)))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(t.movieTitle, color = c.tx, fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 2)
+            Text(t.cinemaName.orEmpty(), color = c.mu, fontSize = 13.sp)
+            Text(Formatters.date(Formatters.localDate(t.start)) + " · " + Formatters.time(t.start), color = c.tx, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Row(Modifier.padding(top = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    group.seats.joinToString(", "), color = c.ac, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(c.acs).padding(horizontal = 8.dp, vertical = 3.dp),
+                )
+                Text(
+                    if (group.allUsed) stringResource(R.string.ds_used) else t.format.label, color = c.tx, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(c.sf2).padding(horizontal = 8.dp, vertical = 3.dp),
+                )
+            }
         }
+        Icon(Icons.Rounded.QrCode2, null, tint = c.mu, modifier = Modifier.size(26.dp))
     }
 }

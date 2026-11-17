@@ -20,6 +20,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.border
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ceta.cinema.R
@@ -51,6 +54,7 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
     val snackbar = remember { SnackbarHostState() }
     var showReview by rememberSaveable { mutableStateOf(false) }
     val uri = LocalUriHandler.current
+    val context = androidx.compose.ui.platform.LocalContext.current
     val problem = ui.problem?.let { stringResource(ErrorMapper.messageFor(it)) }
     val loginNeeded = stringResource(R.string.login_needed)
     LaunchedEffect(ui.problem, ui.needsLogin) {
@@ -62,9 +66,9 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
     Box(Modifier.fillMaxSize().background(c.bg)) {
         Column(Modifier.fillMaxSize()) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                Header(movie, onBack, onTrailer = { movie.trailerUrl?.let(uri::openUri) })
-                Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                    Text(movie.title, style = MaterialTheme.typography.headlineMedium, color = c.tx)
+                Header(movie, onBack, onTrailer = { movie.trailerUrl?.let(uri::openUri) }, onShare = { shareMovie(context, movie) })
+                Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                    Text(movie.title, color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 32.sp, modifier = Modifier.padding(top = 14.dp))
                     StatsRow(movie)
                     Synopsis(movie.description)
                     People(movie)
@@ -84,50 +88,66 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
     )
 }
 
+private fun shareMovie(context: android.content.Context, movie: Movie) {
+    val text = movie.title + (movie.trailerUrl?.let { "\n$it" } ?: "")
+    context.startActivity(android.content.Intent.createChooser(android.content.Intent(android.content.Intent.ACTION_SEND).setType("text/plain").putExtra(android.content.Intent.EXTRA_TEXT, text), null))
+}
+
+/** A backdrop with a centred trailer button, then the poster card overlapping it next to the age badge, length and genres. */
 @Composable
-private fun Header(movie: Movie, onBack: () -> Unit, onTrailer: () -> Unit) {
-    Box(Modifier.fillMaxWidth().aspectRatio(16f / 11f)) {
+private fun Header(movie: Movie, onBack: () -> Unit, onTrailer: () -> Unit, onShare: () -> Unit) {
+    val c = Ceta.colors
+    Box(Modifier.fillMaxWidth()) {
+    Box(Modifier.fillMaxWidth().height(250.dp)) {
         Poster(movie.posterUrl, movie.id, Modifier.fillMaxSize())
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.5f to Color.Transparent, 1f to Ceta.colors.bg)))
-        Row(Modifier.fillMaxWidth().statusBarsPadding().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(40.dp).clip(CircleShape).background(Color(0x66000000)).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
-                Icon(Icons.Rounded.ArrowBack, stringResource(R.string.back), tint = Color.White)
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.55f to Color.Transparent, 1f to c.bg.copy(alpha = 0.55f))))
+        Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(44.dp).clip(CircleShape).background(Color(0x73000000)).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
+                Icon(Icons.Rounded.ArrowBack, stringResource(R.string.back), tint = Color.White, modifier = Modifier.size(22.dp))
             }
             Spacer(Modifier.weight(1f))
-            if (!movie.trailerUrl.isNullOrBlank()) Row(
-                Modifier.clip(RoundedCornerShape(20.dp)).background(Color(0x66000000)).clickable(onClick = onTrailer).padding(horizontal = 14.dp, vertical = 9.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(Icons.Rounded.PlayArrow, null, tint = Color.White, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(4.dp))
-                Text(stringResource(R.string.ds_trailer), color = Color.White, style = MaterialTheme.typography.labelMedium)
+            Box(Modifier.size(44.dp).clip(CircleShape).background(Color(0x73000000)).clickable(onClick = onShare), contentAlignment = Alignment.Center) {
+                Icon(Icons.Rounded.Share, null, tint = Color.White, modifier = Modifier.size(21.dp))
             }
         }
-        Row(Modifier.align(Alignment.BottomStart).padding(horizontal = 20.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            AgeBadge(movie.ageRating)
-            movie.durationMin?.let { Text(stringResource(R.string.duration_min, it), color = Ceta.colors.tx, style = MaterialTheme.typography.labelMedium) }
-            Text(movie.genres.joinToString(" · "), color = Ceta.colors.mu, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        if (!movie.trailerUrl.isNullOrBlank()) Row(
+            Modifier.align(Alignment.Center).height(52.dp).clip(RoundedCornerShape(26.dp)).background(Color.White.copy(alpha = 0.92f)).clickable(onClick = onTrailer).padding(start = 14.dp, end = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Rounded.PlayArrow, null, tint = Color(0xFF111111), modifier = Modifier.size(28.dp))
+            Spacer(Modifier.width(6.dp))
+            Text(stringResource(R.string.ds_trailer), color = Color(0xFF111111), fontSize = 14.sp, fontWeight = FontWeight.Bold)
         }
+    }
+    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 194.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+        Poster(movie.posterUrl, movie.id, Modifier.size(width = 104.dp, height = 156.dp).clip(RoundedCornerShape(18.dp)).border(3.dp, c.bg, RoundedCornerShape(18.dp)))
+        Column(Modifier.padding(top = 64.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                AgeBadge(movie.ageRating)
+                movie.durationMin?.let { Text(stringResource(R.string.duration_min, it), color = c.tx, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) }
+            }
+            Text(movie.genres.joinToString(" · "), color = c.mu, fontSize = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
+    }
     }
 }
 
 @Composable
 private fun StatsRow(movie: Movie) {
-    val c = Ceta.colors
-    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.sf).padding(vertical = 14.dp)) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         Stat(Modifier.weight(1f), if (movie.ratingAverage != null) "★ ${Formatters.score(movie.ratingAverage)}" else "—",
-            if (movie.ratingCount > 0) "${Formatters.votes(movie.ratingCount)} ${stringResource(R.string.ds_votes)}" else stringResource(R.string.movie_not_rated))
+            if (movie.ratingCount > 0) "${Formatters.votes(movie.ratingCount)} ${stringResource(R.string.ds_votes)}" else stringResource(R.string.movie_not_rated), big = true)
         Stat(Modifier.weight(1f), movie.releaseDate?.let(Formatters::date) ?: "—", stringResource(R.string.ds_release))
         Stat(Modifier.weight(1f), movie.language ?: "—", stringResource(R.string.ds_language))
     }
 }
 
 @Composable
-private fun Stat(modifier: Modifier, value: String, label: String) {
+private fun Stat(modifier: Modifier, value: String, label: String, big: Boolean = false) {
     val c = Ceta.colors
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, color = c.tx, style = MaterialTheme.typography.titleSmall)
-        Text(label, color = c.mu, style = MaterialTheme.typography.bodySmall)
+    Column(modifier.clip(RoundedCornerShape(18.dp)).background(c.sf).padding(horizontal = 14.dp, vertical = 12.dp)) {
+        Text(value, color = c.tx, fontSize = if (big) 20.sp else 16.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+        Text(label, color = c.mu, fontSize = 12.sp, maxLines = 1)
     }
 }
 
