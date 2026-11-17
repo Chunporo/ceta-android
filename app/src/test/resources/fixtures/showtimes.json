@@ -1,0 +1,4 @@
+[
+  {"id":501,"movie":{"id":"11111111-1111-1111-1111-111111111111","title":"Mùa Hè Rực Lửa","posterUrl":"https://img.invalid/1.jpg"},"room":{"id":9,"code":"R1","name":"Phòng 1 (IMAX)"},"cinema":{"id":3,"name":"CETA Landmark","city":"HCM","address":"208 Nguyễn Hữu Cảnh"},"startTime":"2026-11-18T12:30:00Z","endTime":"2026-11-18T14:38:00Z","basePrice":85000,"format":"IMAX","languageMode":"DUB","status":"SCHEDULED"},
+  {"id":502,"movie":{"id":"11111111-1111-1111-1111-111111111111","title":"Mùa Hè Rực Lửa"},"startTime":"2026-11-18T15:00:00Z","basePrice":85000,"status":"CANCELLED"}
+]

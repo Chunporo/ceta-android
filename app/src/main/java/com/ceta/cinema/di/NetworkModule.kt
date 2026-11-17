@@ -7,7 +7,6 @@ import com.ceta.cinema.data.local.secure.TokenStore
 import com.ceta.cinema.data.remote.NetworkFactory
 import com.ceta.cinema.data.remote.api.CetaApi
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -24,7 +23,7 @@ abstract class TokenModule {
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    @Provides @Singleton fun gson(): Gson = GsonBuilder().create()
+    @Provides @Singleton fun gson(): Gson = com.ceta.cinema.data.remote.ApiGson.create()
 
     @Provides @Singleton
     fun api(tokens: TokenStore, events: SessionEvents, gson: Gson): CetaApi =

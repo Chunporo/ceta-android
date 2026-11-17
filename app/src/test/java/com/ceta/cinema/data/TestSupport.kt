@@ -23,4 +23,4 @@ fun fixture(name: String): String =
 fun json(body: String, code: Int = 200) = MockResponse().setResponseCode(code).setHeader("Content-Type", "application/json").setBody(body)
 
 fun apiFor(server: MockWebServer, tokens: TokenStore, events: SessionEvents = SessionEvents()): CetaApi =
-    NetworkFactory.create(server.url("/api/v1/").toString(), tokens, events, Gson(), debug = false)
+    NetworkFactory.create(server.url("/api/v1/").toString(), tokens, events, com.ceta.cinema.data.remote.ApiGson.create(), debug = false)
