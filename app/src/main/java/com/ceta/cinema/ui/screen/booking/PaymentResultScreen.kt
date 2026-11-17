@@ -3,6 +3,10 @@ package com.ceta.cinema.ui.screen.booking
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ErrorOutline
@@ -45,10 +49,25 @@ fun PaymentResultScreen(
                 Message(R.string.result_pending_title, R.string.result_pending_body)
             }
             PaymentOutcome.PAID -> {
-                Badge(Icons.Rounded.Check, Color(0xFF3FA66B))
-                Message(R.string.ds_success, R.string.ds_success_sub)
-                orderId?.let { Text(stringResource(R.string.result_order, it), color = c.mu, style = MaterialTheme.typography.labelMedium) }
-                Spacer(Modifier.height(24.dp))
+                // The design's success: a soft ring around a solid accent disc with a white tick.
+                Box(Modifier.size(112.dp).clip(CircleShape).background(c.acs), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(80.dp).clip(CircleShape).background(c.ac), contentAlignment = Alignment.Center) {
+                        Icon(Icons.Rounded.Check, null, tint = Color.White, modifier = Modifier.size(48.dp))
+                    }
+                }
+                Spacer(Modifier.height(18.dp))
+                Text(stringResource(R.string.ds_success), color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.Center)
+                Spacer(Modifier.height(10.dp))
+                Text(stringResource(R.string.ds_success_sub), color = c.mu, fontSize = 15.sp, lineHeight = 22.sp, textAlign = TextAlign.Center, modifier = Modifier.widthIn(max = 300.dp))
+                val code = ui.booking?.tickets?.firstOrNull()?.code
+                if (code != null) {
+                    Spacer(Modifier.height(18.dp))
+                    Column(Modifier.clip(RoundedCornerShape(18.dp)).background(c.sf).padding(horizontal = 20.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(stringResource(R.string.ds_booking_code), color = c.mu, fontSize = 12.sp)
+                        Text(code, color = c.tx, fontSize = 20.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.6.sp, fontFamily = FontFamily.Monospace)
+                    }
+                } else orderId?.let { Spacer(Modifier.height(12.dp)); Text(stringResource(R.string.result_order, it), color = c.mu, style = MaterialTheme.typography.labelMedium) }
+                Spacer(Modifier.height(32.dp))
                 PrimaryButton(stringResource(R.string.ds_view_ticket), onViewTickets)
                 Spacer(Modifier.height(10.dp))
                 OutlineButton(stringResource(R.string.ds_back_home), onHome)

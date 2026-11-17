@@ -4,7 +4,15 @@ import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Stars
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -61,22 +69,29 @@ private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, o
     val c = Ceta.colors
     val b = ui.booking
     Column(Modifier.fillMaxSize()) {
-        CetaTopBar(stringResource(R.string.ds_payment), onBack) { HoldChip(ui.secondsLeft, ui.warning, Modifier.padding(end = 12.dp)) }
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Box(Modifier.size(44.dp).clip(CircleShape).background(c.sf).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
+                Icon(Icons.Rounded.ArrowBack, stringResource(R.string.back), tint = c.tx, modifier = Modifier.size(22.dp))
+            }
+            Text(stringResource(R.string.ds_payment), color = c.tx, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp, modifier = Modifier.weight(1f))
+            HoldChip(ui.secondsLeft, ui.warning)
+        }
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Summary(ui)
             if (ui.expired) {
                 Text(stringResource(R.string.ds_hold_expired), color = c.ac, style = MaterialTheme.typography.bodyMedium)
                 PrimaryButton(stringResource(R.string.choose_seats_again), onChooseSeats)
             } else {
-                VoucherBox(ui, vm)
-                PointsRow(ui, vm)
+                Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    VoucherBox(ui, vm)
+                    if (ui.loyalty != null) { HorizontalDivider(color = c.ln); PointsRow(ui, vm) }
+                }
             }
             MethodRow()
             Lines(ui)
             ui.error?.let { Text(stringResource(ErrorMapper.messageFor(it)), color = c.ac, style = MaterialTheme.typography.bodySmall) }
-            Spacer(Modifier.height(8.dp))
         }
-        Column(Modifier.fillMaxWidth().background(c.sf).navigationBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp)) {
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)).background(c.sf).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 14.dp)) {
             if (ui.warning && !ui.expired) Text(stringResource(R.string.hold_pay_now), color = c.mu, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(bottom = 6.dp))
             PrimaryButton(stringResource(R.string.pay_with_vnpay, MoneyFormatter.format(b.totalAmount)), vm::pay, enabled = ui.canPay, loading = ui.working)
         }
@@ -87,11 +102,16 @@ private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, o
 private fun Summary(ui: CheckoutUi) {
     val c = Ceta.colors
     val b = ui.booking
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.sf).padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(b.movieTitle.orEmpty(), color = c.tx, style = MaterialTheme.typography.titleMedium)
-        Text(listOfNotNull(b.roomName, b.startTime?.let { Formatters.time(it) + " · " + Formatters.date(Formatters.localDate(it)) }).joinToString(" · "), color = c.mu, style = MaterialTheme.typography.bodySmall)
-        Text(b.seats.joinToString(", ") { it.label }, color = c.tx, style = MaterialTheme.typography.bodyMedium)
-        Text(stringResource(R.string.checkout_order, b.id), color = c.mu, style = MaterialTheme.typography.labelSmall)
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Text(b.movieTitle.orEmpty(), color = c.tx, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+        b.roomName?.let { Text(it, color = c.mu, fontSize = 13.sp) }
+        b.startTime?.let { Text(Formatters.date(Formatters.localDate(it)) + " · " + Formatters.time(it), color = c.tx, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) }
+        @OptIn(ExperimentalLayoutApi::class)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(b.seats.joinToString(", ") { it.label }, color = c.ac, fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(c.acs).padding(horizontal = 8.dp, vertical = 3.dp))
+        }
+        Text(stringResource(R.string.checkout_order, b.id), color = c.mu, fontSize = 11.sp)
     }
 }
 
@@ -99,20 +119,26 @@ private fun Summary(ui: CheckoutUi) {
 private fun VoucherBox(ui: CheckoutUi, vm: CheckoutViewModel) {
     val c = Ceta.colors
     val b = ui.booking
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(stringResource(R.string.ds_voucher), color = c.mu, style = MaterialTheme.typography.labelMedium)
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(stringResource(R.string.ds_voucher), color = c.tx, fontSize = 13.sp, fontWeight = FontWeight.Bold)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
-                value = ui.voucherInput, onValueChange = vm::onVoucher, singleLine = true, modifier = Modifier.weight(1f),
+                value = ui.voucherInput, onValueChange = vm::onVoucher, singleLine = true, modifier = Modifier.weight(1f).height(52.dp),
                 placeholder = { Text(stringResource(R.string.ds_voucher_ph)) }, isError = ui.voucherError != null,
+                textStyle = androidx.compose.ui.text.TextStyle(fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace, fontSize = 15.sp, color = c.tx),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
                 shape = RoundedCornerShape(14.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = c.bg, unfocusedContainerColor = c.bg, focusedBorderColor = c.ac, unfocusedBorderColor = c.ln2),
             )
-            Box(Modifier.width(110.dp)) { PrimaryButton(stringResource(R.string.ds_apply), vm::applyVoucher, enabled = ui.voucherInput.isNotBlank() && ui.voucherInput != b.voucherCode && !ui.working) }
+            val enabled = ui.voucherInput.isNotBlank() && ui.voucherInput != b.voucherCode && !ui.working
+            Box(
+                Modifier.height(46.dp).alpha(if (enabled) 1f else 0.4f).clip(RoundedCornerShape(14.dp)).background(c.tx).clickable(enabled = enabled, onClick = vm::applyVoucher).padding(horizontal = 18.dp),
+                contentAlignment = Alignment.Center,
+            ) { Text(stringResource(R.string.ds_apply), color = c.bg, fontSize = 14.sp, fontWeight = FontWeight.Bold) }
         }
-        ui.voucherError?.let { Text(stringResource(ErrorMapper.messageFor(it)), color = c.ac, style = MaterialTheme.typography.bodySmall) }
+        ui.voucherError?.let { Text(stringResource(ErrorMapper.messageFor(it)), color = c.ac, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) }
         if (b.voucherCode != null) Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.voucher_applied, b.voucherCode, MoneyFormatter.format(b.discountAmount)), color = Color(0xFF3FA66B), style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.voucher_applied, b.voucherCode, MoneyFormatter.format(b.discountAmount)), color = Color(0xFF3FA66B), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
             TextButton(vm::removeVoucher, enabled = !ui.working) { Text(stringResource(R.string.voucher_remove), color = c.mu) }
         }
     }
@@ -123,50 +149,62 @@ private fun PointsRow(ui: CheckoutUi, vm: CheckoutViewModel) {
     val l = ui.loyalty ?: return
     val c = Ceta.colors
     val enabled = (ui.canUsePoints || ui.usingPoints) && !ui.working
-    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.sf).padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Icon(Icons.Rounded.Stars, null, tint = c.ac2, modifier = Modifier.size(22.dp))
         Column(Modifier.weight(1f)) {
-            Text(stringResource(R.string.points_use, "%,d".format(l.redeemBlockPoints).replace(',', '.')), color = c.tx, style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.points_use, "%,d".format(l.redeemBlockPoints).replace(',', '.')), color = c.tx, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
             Text(
                 if (ui.canUsePoints || ui.usingPoints) stringResource(R.string.points_sub, MoneyFormatter.format(l.redeemBlockVnd), "%,d".format(l.balance).replace(',', '.'))
                 else stringResource(R.string.points_need, "%,d".format(l.redeemBlockPoints).replace(',', '.'), "%,d".format(l.balance).replace(',', '.')),
-                color = c.mu, style = MaterialTheme.typography.bodySmall,
+                color = c.mu, fontSize = 12.sp,
             )
         }
         Switch(checked = ui.usingPoints, onCheckedChange = { vm.togglePoints() }, enabled = enabled,
-            colors = SwitchDefaults.colors(checkedTrackColor = c.ac, checkedThumbColor = Color.White))
+            colors = SwitchDefaults.colors(checkedTrackColor = c.ac, checkedThumbColor = Color.White, uncheckedTrackColor = c.ln2, uncheckedThumbColor = Color.White, uncheckedBorderColor = Color.Transparent))
     }
 }
 
+/** VNPay is the only method (decision), drawn as the design's selected method row. */
 @Composable
 private fun MethodRow() {
     val c = Ceta.colors
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(stringResource(R.string.ds_method), color = c.mu, style = MaterialTheme.typography.labelMedium)
-        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).border(1.5.dp, c.ac, RoundedCornerShape(16.dp)).background(c.acs).padding(14.dp)) {
-            Text(stringResource(R.string.vnpay_name), color = c.tx, style = MaterialTheme.typography.titleSmall)
+        Text(stringResource(R.string.ds_method), color = c.tx, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp))
+        Row(
+            Modifier.fillMaxWidth().height(60.dp).clip(RoundedCornerShape(18.dp)).background(c.sf).border(1.5.dp, c.ac, RoundedCornerShape(18.dp)).padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Box(Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFFD64B3A)), contentAlignment = Alignment.Center) {
+                Text("VN", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold)
+            }
+            Text(stringResource(R.string.vnpay_name), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Box(Modifier.size(22.dp).border(2.dp, c.ac, CircleShape), contentAlignment = Alignment.Center) { Box(Modifier.size(10.dp).clip(CircleShape).background(c.ac)) }
         }
-        Text(stringResource(R.string.other_methods_soon), color = c.mu, style = MaterialTheme.typography.bodySmall)
     }
 }
 
 @Composable
 private fun Lines(ui: CheckoutUi) {
     val b = ui.booking
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Line(stringResource(R.string.ds_tickets), MoneyFormatter.format(b.seatsAmount))
+    val c = Ceta.colors
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Line(stringResource(R.string.ds_tickets) + " × " + b.seats.size, MoneyFormatter.format(b.seatsAmount))
         if (b.comboAmount > 0) Line(stringResource(R.string.ds_combo_line), MoneyFormatter.format(b.comboAmount))
         if (b.discountAmount > 0) Line(stringResource(R.string.ds_discount), MoneyFormatter.format(-b.discountAmount), accent = true)
         if (b.pointsAmount > 0) Line(stringResource(R.string.ds_points_line), MoneyFormatter.format(-b.pointsAmount), accent = true)
-        HorizontalDivider(color = Ceta.colors.ln2)
-        Line(stringResource(R.string.ds_total), MoneyFormatter.format(b.totalAmount), bold = true)
+        HorizontalDivider(color = c.ln, modifier = Modifier.padding(vertical = 4.dp))
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+            Text(stringResource(R.string.ds_total), color = c.tx, fontWeight = FontWeight.Bold, fontSize = 14.sp, modifier = Modifier.weight(1f))
+            Text(MoneyFormatter.format(b.totalAmount), color = c.tx, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+        }
     }
 }
 
 @Composable
-private fun Line(label: String, value: String, bold: Boolean = false, accent: Boolean = false) {
+private fun Line(label: String, value: String, accent: Boolean = false) {
     val c = Ceta.colors
     Row(Modifier.fillMaxWidth()) {
-        Text(label, color = if (bold) c.tx else c.mu, style = if (bold) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-        Text(value, color = if (accent) Color(0xFF3FA66B) else c.tx, style = if (bold) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium)
+        Text(label, color = c.mu, fontSize = 14.sp, modifier = Modifier.weight(1f))
+        Text(value, color = if (accent) c.ac else c.tx, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
     }
 }

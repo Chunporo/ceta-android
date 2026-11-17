@@ -9,6 +9,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,9 +60,14 @@ private fun Content(ui: ComboUi, vm: ComboViewModel, onBack: () -> Unit, onChoos
     val c = Ceta.colors
     val english = LocalConfiguration.current.locales[0].language == "en"
     Column(Modifier.fillMaxSize()) {
-        CetaTopBar(stringResource(R.string.ds_combo), onBack)
-        Row(Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.ds_combo_sub), color = c.mu, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+        Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Box(Modifier.size(44.dp).clip(CircleShape).background(c.sf).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
+                Icon(Icons.Rounded.ArrowBack, stringResource(R.string.back), tint = c.tx, modifier = Modifier.size(22.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.ds_combo), color = c.tx, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
+                Text(stringResource(R.string.ds_combo_sub), color = c.mu, fontSize = 12.sp, maxLines = 1)
+            }
             HoldChip(ui.secondsLeft, ui.warning)
         }
         if (ui.expired) {
@@ -66,19 +78,22 @@ private fun Content(ui: ComboUi, vm: ComboViewModel, onBack: () -> Unit, onChoos
             }
             return
         }
-        LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             if (ui.combos.isEmpty()) item { Text(stringResource(R.string.combo_none_available), color = c.mu, style = MaterialTheme.typography.bodyMedium) }
             items(ui.combos, key = { it.id }) { combo -> ComboRow(combo, english, ui.quantities[combo.id] ?: 0) { vm.change(combo.id, it) } }
             ui.error?.let { item { Text(stringResource(ErrorMapper.messageFor(it)), color = c.ac, style = MaterialTheme.typography.bodySmall) } }
         }
-        Column(Modifier.fillMaxWidth().background(c.sf).navigationBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.combo_total_label), color = c.mu, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                Text(MoneyFormatter.format(ui.total), color = c.tx, style = MaterialTheme.typography.titleMedium)
+        val any = ui.quantities.values.any { it > 0 }
+        Row(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)).background(c.sf).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.ds_total), color = c.mu, fontSize = 12.sp)
+                Text(MoneyFormatter.format(ui.total), color = c.tx, fontSize = 19.sp, fontWeight = FontWeight.ExtraBold)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlineButton(stringResource(R.string.ds_skip_combo), { vm.proceed(skip = true) }, Modifier.weight(1f), enabled = !ui.saving)
-                Box(Modifier.weight(1f)) { PrimaryButton(stringResource(R.string.ds_cont), { vm.proceed(skip = false) }, loading = ui.saving) }
+            Box(Modifier.width(180.dp)) {
+                PrimaryButton(stringResource(if (any) R.string.ds_cont else R.string.ds_skip_combo), { vm.proceed(skip = !any) }, loading = ui.saving)
             }
         }
     }
@@ -87,31 +102,40 @@ private fun Content(ui: ComboUi, vm: ComboViewModel, onBack: () -> Unit, onChoos
 @Composable
 private fun ComboRow(combo: Combo, english: Boolean, quantity: Int, onChange: (Int) -> Unit) {
     val c = Ceta.colors
-    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.sf).padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Poster(combo.imageUrl, "combo${combo.id}", Modifier.size(72.dp))
-        Column(Modifier.weight(1f)) {
-            Text(combo.title(english), color = c.tx, style = MaterialTheme.typography.titleSmall)
-            combo.detail(english)?.let { Text(it, color = c.mu, style = MaterialTheme.typography.bodySmall, maxLines = 2) }
-            Text(MoneyFormatter.format(combo.price), color = c.ac, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 4.dp))
+    val shape = RoundedCornerShape(22.dp)
+    Row(
+        Modifier.fillMaxWidth().clip(shape).background(c.sf).border(1.5.dp, if (quantity > 0) c.ac else Color.Transparent, shape).padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Poster(combo.imageUrl, "combo${combo.id}", Modifier.size(84.dp).clip(RoundedCornerShape(16.dp)))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(combo.title(english), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            combo.detail(english)?.let { Text(it, color = c.mu, fontSize = 12.5.sp, lineHeight = 17.sp, maxLines = 3) }
+            Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(MoneyFormatter.format(combo.price), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
+                Stepper(quantity, onChange)
+            }
         }
-        Stepper(quantity, onChange)
     }
 }
 
 @Composable
 private fun Stepper(quantity: Int, onChange: (Int) -> Unit) {
     val c = Ceta.colors
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        StepButton(Icons.Rounded.Remove, enabled = quantity > 0) { onChange(-1) }
-        Text(quantity.toString(), color = c.tx, style = MaterialTheme.typography.titleSmall, modifier = Modifier.widthIn(min = 28.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-        StepButton(Icons.Rounded.Add, enabled = quantity < ComboViewModel.MAX_PER_COMBO) { onChange(+1) }
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        StepButton(Icons.Rounded.Remove, filled = false, enabled = quantity > 0) { onChange(-1) }
+        Text(quantity.toString(), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.width(26.dp), textAlign = TextAlign.Center)
+        StepButton(Icons.Rounded.Add, filled = true, enabled = quantity < ComboViewModel.MAX_PER_COMBO) { onChange(+1) }
     }
 }
 
+/** Minus is an outlined circle, plus a solid accent one, as in the design. */
 @Composable
-private fun StepButton(icon: androidx.compose.ui.graphics.vector.ImageVector, enabled: Boolean, onClick: () -> Unit) {
+private fun StepButton(icon: androidx.compose.ui.graphics.vector.ImageVector, filled: Boolean, enabled: Boolean, onClick: () -> Unit) {
     val c = Ceta.colors
-    Box(Modifier.size(32.dp).clip(CircleShape).background(if (enabled) c.acs else c.sf2).clickable(enabled = enabled, onClick = onClick), contentAlignment = Alignment.Center) {
-        Icon(icon, null, tint = if (enabled) c.ac else c.mu, modifier = Modifier.size(18.dp))
-    }
+    Box(
+        Modifier.size(34.dp).alpha(if (enabled) 1f else 0.35f).clip(CircleShape).background(if (filled) c.ac else Color.Transparent)
+            .then(if (filled) Modifier else Modifier.border(1.5.dp, c.ln2, CircleShape)).clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) { Icon(icon, null, tint = if (filled) Color.White else c.tx, modifier = Modifier.size(18.dp)) }
 }
