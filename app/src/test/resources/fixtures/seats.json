@@ -1,0 +1,7 @@
+[
+  {"seatId": 7, "label": "F7", "rowNumber": 6, "columnNumber": 7, "type": "VIP", "active": true, "status": "AVAILABLE", "price": 90000.00, "holdExpiresAt": null},
+  {"seatId": 8, "label": "F8", "rowNumber": 6, "columnNumber": 8, "type": "VIP", "active": true, "status": "HELD", "price": 90000.00, "holdExpiresAt": null},
+  {"seatId": 9, "label": "F9", "rowNumber": 6, "columnNumber": 9, "type": "STANDARD", "active": true, "status": "SOLD", "price": 70000.00, "holdExpiresAt": null},
+  {"seatId": 10, "label": "F10", "rowNumber": 6, "columnNumber": 10, "type": "STANDARD", "active": false, "status": "AVAILABLE", "price": 70000.00, "holdExpiresAt": null},
+  {"seatId": 11, "label": "F11", "rowNumber": 6, "columnNumber": 11, "type": "STANDARD", "active": true, "status": "SOMETHING_NEW", "price": 70000.00, "holdExpiresAt": null}
+]

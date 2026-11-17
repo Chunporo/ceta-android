@@ -1,0 +1,6 @@
+{
+  "id": 42, "status": "PENDING", "holdExpiresAt": "2026-11-17T08:10:00Z", "secondsRemaining": 540,
+  "totalAmount": 180000,
+  "seats": [{"seatId": 7, "label": "F7", "price": 90000}, {"seatId": 8, "label": "F8", "price": 90000}],
+  "tickets": [], "movieTitle": "Dune", "roomName": "Room 1", "startTime": "2026-11-18T13:00:00Z", "refundRequired": false
+}

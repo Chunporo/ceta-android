@@ -1,0 +1,1 @@
+{"code": "SEAT_CONFLICT", "message": "Some seats are no longer available", "details": [{"seatId": 7}, {"seatId": 9}]}

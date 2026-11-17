@@ -4,4 +4,20 @@
     <string name="login_action">Vào ứng dụng</string>
     <string name="home_title">Trang chủ</string>
     <string name="home_sign_out">Đăng xuất</string>
+    <string name="error_session_expired">Phiên đăng nhập đã hết hạn.</string>
+    <string name="error_seat_conflict">Có ghế vừa được người khác chọn. Bạn chọn lại giúp mình nhé.</string>
+    <string name="error_booking_already_pending">Bạn đang có 1 đơn chờ thanh toán cho suất này.</string>
+    <string name="error_hold_expired">Đã hết thời gian giữ ghế.</string>
+    <string name="error_max_seats">Bạn đã chọn quá số ghế tối đa cho mỗi đơn.</string>
+    <string name="error_showtime_closed">Suất này chưa hoặc không còn mở bán.</string>
+    <string name="error_showtime_cancelled">Suất chiếu này đã bị huỷ.</string>
+    <string name="error_invalid_couple_seat">Ghế đôi phải chọn đủ cặp.</string>
+    <string name="error_booking_not_cancellable">Đơn này không thể huỷ ở trạng thái hiện tại.</string>
+    <string name="error_too_many_attempts">Bạn đặt quá nhiều lần cho suất này. Vui lòng thử lại sau.</string>
+    <string name="error_ticket_used">Vé này đã được sử dụng.</string>
+    <string name="error_has_active_tickets">Bạn còn vé chưa sử dụng nên chưa thể thực hiện thao tác này.</string>
+    <string name="error_account_locked">Tài khoản tạm khoá do nhập sai nhiều lần. Vui lòng thử lại sau.</string>
+    <string name="error_email_not_verified">Vui lòng xác minh email trước khi đăng nhập.</string>
+    <string name="error_network">Không kết nối được. Kiểm tra mạng và thử lại.</string>
+    <string name="error_generic">Có lỗi xảy ra. Vui lòng thử lại.</string>
 </resources>
