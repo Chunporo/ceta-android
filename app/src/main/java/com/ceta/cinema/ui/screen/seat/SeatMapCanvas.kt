@@ -7,136 +7,203 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ceta.cinema.domain.model.Seat
 import com.ceta.cinema.domain.model.SeatKind
 import com.ceta.cinema.domain.model.SeatStatus
 import com.ceta.cinema.ui.theme.Ceta
-import kotlin.math.floor
+import com.ceta.cinema.ui.theme.CetaPalette
 import kotlin.math.max
 import kotlin.math.min
 
 /**
- * The seat map: pinch to zoom, drag to pan, tap a seat. Drawn on a Canvas rather than a grid because it must zoom and
- * because rooms are not rectangles of identical cells. The chosen seats live in the ViewModel, so zooming never loses them.
- * Colour is never the only signal: selected seats carry a tick, held ones a slash, sold ones a cross.
+ * The seat map as in the design: rows curve gently towards the screen, aisles split the room, a couple seat is one wide
+ * seat, the row letter sits on both sides. Pinch to zoom, drag to pan, tap a seat; the chosen seats live in the
+ * ViewModel so zooming never loses them. Colour is not the only signal: selected seats show their number on the accent
+ * fill, held ones a slash, sold ones a cross, and VIP / couple seats are outlined as well as tinted.
  */
+const val MAX_ZOOM = 3f
+const val BUTTON_ZOOM = 1.6f
+
+/** One drawn seat: where it sits in map units (before fit/zoom), and which server seat(s) it stands for. */
+private class SeatBox(val seat: Seat, val partner: Seat?, val rect: Rect, val curveDrop: Float)
+
+private class MapLayout(val boxes: List<SeatBox>, val rows: List<Pair<Int, Float>>, val width: Float, val height: Float, val label: Float, val seatSide: Float)
+
+private fun layout(seats: List<Seat>, density: Density): MapLayout = with(density) {
+    val seatW = 24.dp.toPx(); val gap = 4.dp.toPx(); val aisle = 10.dp.toPx(); val label = 22.dp.toPx()
+    val rowGap = 6.dp.toPx(); val sectionGap = 8.dp.toPx()
+    val maxRow = seats.maxOfOrNull { it.row } ?: 1
+    val maxCol = seats.maxOfOrNull { it.column } ?: 1
+    val firstAisle = 3
+    val lastAisle = if ((maxCol - 1) % 2 == 1) maxCol - 1 else maxCol - 2
+    fun aislesBefore(col: Int) = if (maxCol < 8) 0 else (if (col >= firstAisle) 1 else 0) + (if (col >= lastAisle && lastAisle > firstAisle) 1 else 0)
+    fun x(col: Int) = label + (col - 1) * (seatW + gap) + aislesBefore(col) * aisle
+    val byRow = seats.groupBy { it.row }
+    val centre = (maxCol + 1) / 2f
+    val curveK = 0.4f * seatW / 21.dp.toPx() // the design drops a seat 0.4px per squared seat distance for a 21px seat
+    var y = 0f
+    var previousKind: SeatKind? = null
+    val rows = ArrayList<Pair<Int, Float>>()
+    val boxes = ArrayList<SeatBox>()
+    var maxDrop = 0f
+    for (row in 1..maxRow) {
+        val inRow = byRow[row].orEmpty().sortedBy { it.column }
+        if (inRow.isEmpty()) continue
+        val kind = inRow.first().kind
+        if (previousKind != null && kind != previousKind) y += sectionGap
+        previousKind = kind
+        rows += row to y
+        for (seat in inRow) {
+            if (seat.status == SeatStatus.INACTIVE) continue
+            val isCouple = seat.kind == SeatKind.COUPLE
+            val partner = if (isCouple && seat.column % 2 == 1) inRow.firstOrNull { it.kind == SeatKind.COUPLE && it.column == seat.column + 1 } else null
+            // The even half of a couple seat is drawn by its odd half.
+            if (isCouple && seat.column % 2 == 0 && inRow.any { it.kind == SeatKind.COUPLE && it.column == seat.column - 1 }) continue
+            val w = if (partner != null) 2 * seatW + gap else seatW
+            val centreCol = if (partner != null) seat.column + 0.5f else seat.column.toFloat()
+            val drop = (centreCol - centre) * (centreCol - centre) * curveK
+            maxDrop = max(maxDrop, drop)
+            boxes += SeatBox(seat, partner, Rect(x(seat.column), y, x(seat.column) + w, y + seatW), drop)
+        }
+        y += seatW + rowGap
+    }
+    MapLayout(boxes, rows, x(maxCol) + seatW + label, y + maxDrop, label, seatW)
+}
+
 @Composable
-fun SeatMapCanvas(seats: List<Seat>, selected: Set<Long>, conflicts: Set<Long>, onTap: (Long) -> Unit, modifier: Modifier = Modifier) {
+fun SeatMapCanvas(
+    seats: List<Seat>, selected: Set<Long>, conflicts: Set<Long>, onTap: (Long) -> Unit,
+    zoom: Float, onZoomChange: (Float) -> Unit, modifier: Modifier = Modifier,
+) {
     val c = Ceta.colors
     val density = LocalDensity.current
     val measurer = rememberTextMeasurer()
-    val maxRow = seats.maxOfOrNull { it.row } ?: 1
-    val maxCol = seats.maxOfOrNull { it.column } ?: 1
-    val cell = with(density) { 36.dp.toPx() }
-    val gap = with(density) { 4.dp.toPx() }
-    val label = with(density) { 22.dp.toPx() }
-    val contentW = label + maxCol * cell
-    val contentH = maxRow * cell
-    var zoom by rememberSaveable { mutableFloatStateOf(1f) }
+    val map = remember(seats, density) { layout(seats, density) }
     var panX by rememberSaveable { mutableFloatStateOf(0f) }
     var panY by rememberSaveable { mutableFloatStateOf(0f) }
-    val byCell = remember(seats) { seats.associateBy { it.row to it.column } }
-    val colors = SeatColors(c.ln2, c.sf2, c.ac, c.ac2, c.ac3, c.mu, c.tx)
 
     BoxWithConstraints(modifier.fillMaxWidth()) {
         val widthPx = with(density) { maxWidth.toPx() }
-        val fit = min(1f, widthPx / contentW)
+        val fit = min(1f, widthPx / map.width)
         val scale = fit * zoom
-        // Content smaller than the view is centred; a zoomed-in map can be dragged within its own bounds.
-        val baseX = max(0f, (widthPx - contentW * scale) / 2f)
-        val heightPx = contentH * fit + with(density) { 8.dp.toPx() }
+        val heightPx = map.height * fit * min(zoom, BUTTON_ZOOM) + with(density) { 8.dp.toPx() }
+        // Content narrower than the view is centred; a zoomed-in map is dragged within its own bounds.
+        val baseX = max(0f, (widthPx - map.width * scale) / 2f)
+        LaunchedEffect(zoom) {
+            if (zoom <= 1f) { panX = 0f; panY = 0f }
+            else {
+                panX = clampX(panX, map.width * scale, widthPx)
+                panY = clampY(panY, map.height * scale, heightPx)
+            }
+        }
 
         Canvas(
             Modifier.fillMaxWidth().height(with(density) { heightPx.toDp() })
-                .pointerInput(widthPx, fit) {
+                .pointerInput(widthPx, fit, zoom) {
                     detectTransformGestures { centroid, pan, gestureZoom, _ ->
-                        val newZoom = (zoom * gestureZoom).coerceIn(1f, 3f)
+                        val newZoom = (zoom * gestureZoom).coerceIn(1f, MAX_ZOOM)
                         val ratio = newZoom / zoom
-                        // keep the point under the fingers where it is while zooming
-                        panX = clampXFor(panX * ratio + (1 - ratio) * (centroid.x - baseX) + pan.x, contentW * fit * newZoom, widthPx, baseXFor(widthPx, contentW * fit * newZoom))
-                        panY = clampYFor(panY * ratio + (1 - ratio) * centroid.y + pan.y, contentH * fit * newZoom, heightPx)
-                        zoom = newZoom
+                        panX = clampX(panX * ratio + (1 - ratio) * (centroid.x - baseX) + pan.x, map.width * fit * newZoom, widthPx)
+                        panY = clampY(panY * ratio + (1 - ratio) * centroid.y + pan.y, map.height * fit * newZoom, heightPx)
+                        if (newZoom != zoom) onZoomChange(newZoom)
                     }
                 }
-                .pointerInput(seats, zoom, panX, panY) {
+                .pointerInput(map, zoom, panX, panY, baseX) {
                     detectTapGestures { p ->
-                        val x = (p.x - baseX - panX) / scale - label
+                        val x = (p.x - baseX - panX) / scale
                         val y = (p.y - panY) / scale
-                        if (x >= 0 && y >= 0) {
-                            byCell[(floor(y / cell).toInt() + 1) to (floor(x / cell).toInt() + 1)]?.let { onTap(it.id) }
-                        }
+                        map.boxes.firstOrNull { x in it.rect.left..it.rect.right && y in (it.rect.top + it.curveDrop)..(it.rect.bottom + it.curveDrop) }
+                            ?.let { onTap(it.seat.id) }
                     }
                 },
         ) {
+            val showNumbers = zoom > 1.2f
             withTransform({
                 translate(left = baseX + panX, top = panY)
                 scale(scale, scale, pivot = Offset.Zero)
             }) {
-                for (row in 1..maxRow) {
-                    drawText(measurer, ('A' + row - 1).toString(), Offset(2f, (row - 1) * cell + cell / 2 - 9f), style = TextStyle(color = colors.muted, fontSize = 11.sp))
+                val labelStyle = TextStyle(color = c.mu, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                map.rows.forEach { (row, y) ->
+                    val laid = measurer.measure(('A' + row - 1).toString(), labelStyle)
+                    val cy = y + map.seatSide / 2f - laid.size.height / 2f
+                    drawText(laid, topLeft = Offset((map.label - laid.size.width) / 2f, cy))
+                    drawText(laid, topLeft = Offset(map.width - map.label + (map.label - laid.size.width) / 2f, cy))
                 }
-                seats.forEach { seat ->
-                    val topLeft = Offset(label + (seat.column - 1) * cell + gap / 2, (seat.row - 1) * cell + gap / 2)
-                    drawSeat(seat, topLeft, cell - gap, seat.id in selected, seat.id in conflicts, colors, measurer)
+                map.boxes.forEach { box ->
+                    val isSelected = box.seat.id in selected || (box.partner != null && box.partner.id in selected)
+                    val isConflict = box.seat.id in conflicts || (box.partner != null && box.partner.id in conflicts)
+                    drawSeat(box, isSelected, isConflict, showNumbers, c, measurer)
                 }
             }
         }
     }
 }
 
-private fun baseXFor(width: Float, contentWidth: Float) = max(0f, (width - contentWidth) / 2f)
-private fun clampXFor(x: Float, contentWidth: Float, width: Float, base: Float) =
-    if (contentWidth <= width) 0f else x.coerceIn(width - contentWidth - base, 0f - base)
-private fun clampYFor(y: Float, contentHeight: Float, height: Float) = if (contentHeight <= height) 0f else y.coerceIn(height - contentHeight, 0f)
+private fun clampX(x: Float, contentWidth: Float, width: Float) =
+    if (contentWidth <= width) 0f else x.coerceIn(width - contentWidth, 0f)
 
-private class SeatColors(val line: Color, val free: Color, val accent: Color, val vip: Color, val couple: Color, val muted: Color, val text: Color)
+private fun clampY(y: Float, contentHeight: Float, height: Float) =
+    if (contentHeight <= height) 0f else y.coerceIn(height - contentHeight, 0f)
 
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawSeat(
-    seat: Seat, topLeft: Offset, side: Float, selected: Boolean, conflict: Boolean, colors: SeatColors, measurer: androidx.compose.ui.text.TextMeasurer,
-) {
-    if (seat.status == SeatStatus.INACTIVE) return
-    val size = Size(side, side)
-    val radius = CornerRadius(side * 0.28f)
-    val tint = when (seat.kind) { SeatKind.VIP -> colors.vip; SeatKind.COUPLE -> colors.couple; SeatKind.STANDARD -> colors.line }
+private fun DrawScope.drawSeat(box: SeatBox, selected: Boolean, conflict: Boolean, showNumber: Boolean, c: CetaPalette, measurer: TextMeasurer) {
+    val seat = box.seat
+    val topLeft = Offset(box.rect.left, box.rect.top + box.curveDrop)
+    val size = Size(box.rect.width, box.rect.height)
+    val top = CornerRadius(8.dp.toPx()); val bottom = CornerRadius(5.dp.toPx())
+    val shape = Path().apply { addRoundRect(RoundRect(Rect(topLeft, size), top, top, bottom, bottom)) }
+    val stroke = 1.5.dp.toPx()
+    val dashed = Stroke(stroke, pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 3.dp.toPx())))
+    val tint = when (seat.kind) { SeatKind.VIP -> c.ac2; SeatKind.COUPLE -> c.ac3; SeatKind.STANDARD -> c.ln2 }
+    val gone = seat.status == SeatStatus.SOLD || seat.status == SeatStatus.HELD
+    val number = if (box.partner != null) seat.label + "·" + box.partner.label.dropWhile { !it.isDigit() } else seat.label.dropWhile { !it.isDigit() }
+    val (text, textColor) = when {
+        selected -> number to Color.White
+        seat.status == SeatStatus.SOLD -> "×" to c.mu
+        showNumber && !gone -> number to c.mu
+        else -> "" to c.mu
+    }
     when {
-        selected -> {
-            drawRoundRect(colors.accent, topLeft, size, radius)
-            drawText(measurer, "✓", topLeft + Offset(side * 0.26f, side * 0.12f), style = TextStyle(color = Color.White, fontSize = 15.sp))
-        }
-        seat.status == SeatStatus.SOLD -> {
-            drawRoundRect(colors.muted.copy(alpha = 0.55f), topLeft, size, radius)
-            val inset = side * 0.3f
-            drawLine(colors.text.copy(alpha = 0.7f), topLeft + Offset(inset, inset), topLeft + Offset(side - inset, side - inset), 2f)
-            drawLine(colors.text.copy(alpha = 0.7f), topLeft + Offset(side - inset, inset), topLeft + Offset(inset, side - inset), 2f)
-        }
-        seat.status == SeatStatus.HELD || seat.status == SeatStatus.HELD_BY_ME -> {
-            drawRoundRect(colors.muted.copy(alpha = 0.35f), topLeft, size, radius)
-            drawLine(colors.text.copy(alpha = 0.6f), topLeft + Offset(side * 0.2f, side * 0.8f), topLeft + Offset(side * 0.8f, side * 0.2f), 1.5f)
-        }
+        selected -> { drawPath(shape, c.ac); drawPath(shape, c.ac, style = Stroke(stroke)) }
+        gone -> drawPath(shape, c.ln2, style = dashed)
         else -> {
-            drawRoundRect(if (seat.kind == SeatKind.STANDARD) colors.free else tint.copy(alpha = 0.22f), topLeft, size, radius)
-            drawRoundRect(tint, topLeft, size, radius, style = Stroke(1.5f))
+            drawPath(shape, if (seat.kind == SeatKind.STANDARD) c.sf2 else tint.copy(alpha = 0.22f))
+            drawPath(shape, tint, style = Stroke(stroke))
         }
     }
-    if (conflict) drawRoundRect(Color(0xFFE5484D), topLeft, size, radius, style = Stroke(3f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 6f))))
+    if (seat.status == SeatStatus.HELD && !selected) {
+        drawLine(c.mu, topLeft + Offset(size.width * 0.2f, size.height * 0.8f), topLeft + Offset(size.width * 0.8f, size.height * 0.2f), stroke)
+    }
+    if (text.isNotEmpty()) {
+        val laid = measurer.measure(text, TextStyle(color = textColor, fontSize = if (text == "×") 12.sp else 9.sp, fontWeight = FontWeight.Bold))
+        drawText(laid, topLeft = topLeft + Offset((size.width - laid.size.width) / 2f, (size.height - laid.size.height) / 2f))
+    }
+    if (conflict) drawPath(shape, Color(0xFFE5484D), style = Stroke(3f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 6f))))
 }

@@ -139,4 +139,5 @@
     <string name="status_refunded">Đã hoàn tiền</string>
     <string name="account_hello">Xin chào, %1$s</string>
     <string name="error_phone_unavailable">Đăng nhập bằng số điện thoại chưa khả dụng. Vui lòng dùng email hoặc Google.</string>
+    <string name="share">Chia sẻ</string>
 </resources>
