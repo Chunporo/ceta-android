@@ -5,15 +5,18 @@ import android.content.Context
 import com.ceta.cinema.core.ApiError
 import com.ceta.cinema.core.AuthCodes
 import com.ceta.cinema.core.ApiResult
+import com.ceta.cinema.core.safeApiCall
 import com.ceta.cinema.core.toAuthError
 import com.ceta.cinema.data.local.prefs.SettingsStore
 import com.ceta.cinema.data.local.secure.TokenStore
 import com.ceta.cinema.data.remote.api.CetaApi
+import com.ceta.cinema.data.remote.dto.DeleteAccountRequest
 import com.ceta.cinema.data.remote.dto.FirebaseLoginRequest
 import com.ceta.cinema.data.remote.dto.RefreshRequest
 import com.ceta.cinema.data.remote.firebase.FirebaseAuthSource
 import com.ceta.cinema.data.remote.firebase.PhoneCodeResult
 import com.ceta.cinema.data.remote.firebase.PendingEmailStore
+import com.ceta.cinema.data.remote.firebase.SignInMethod
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -93,6 +96,48 @@ class SessionRepository @Inject constructor(
         val result = attempt { firebase.sendPasswordReset(email.trim()) }
         return if (result is ApiResult.Err && result.error.code == AuthCodes.INVALID_CREDENTIALS) ApiResult.Ok(Unit) else result
     }
+
+    // ---- Deleting the account: sign in once more, then hand the backend that sign-in's ID token ----------------------
+
+    fun signInMethod(): SignInMethod? = firebase.signInMethod()
+    fun phoneNumber(): String? = firebase.phoneNumber()
+
+    suspend fun idTokenByPassword(email: String, password: String): ApiResult<String> = fresh { firebase.signInWithEmail(email.trim(), password) }
+    suspend fun idTokenByGoogle(context: Context, webClientId: String): ApiResult<String> = fresh { firebase.signInWithGoogle(context, webClientId) }
+    suspend fun idTokenByPhoneCode(verificationId: String, code: String): ApiResult<String> = fresh { firebase.signInWithPhoneCode(verificationId, code.trim()) }
+
+    /** Either a code was sent (type it next) or the phone verified itself and the proof is already here. */
+    sealed interface PhoneProof {
+        data class CodeSent(val verificationId: String) : PhoneProof
+        data class Verified(val idToken: String) : PhoneProof
+    }
+
+    suspend fun startPhoneProof(activity: Activity, phoneE164: String): ApiResult<PhoneProof> = try {
+        ApiResult.Ok(when (val r = firebase.sendPhoneCode(activity, phoneE164)) {
+            is PhoneCodeResult.CodeSent -> PhoneProof.CodeSent(r.verificationId)
+            is PhoneCodeResult.AutoVerified -> PhoneProof.Verified(r.idToken)
+        })
+    } catch (e: CancellationException) { throw e } catch (e: Throwable) { ApiResult.Err(e.toAuthError()) }
+
+    /**
+     * Deletes the account on the server and, once that worked, the Firebase account and everything stored here.
+     * The server refuses while there are upcoming tickets; then nothing changes.
+     */
+    suspend fun deleteAccount(freshIdToken: String): ApiResult<Unit> {
+        val result = safeApiCall { api.deleteAccount(DeleteAccountRequest(freshIdToken)) }
+        if (result is ApiResult.Ok) {
+            runCatching { firebase.deleteCurrentUser() } // the server already freed the link; failing here only leaves an unused Firebase login
+            tokens.clear()
+            settings.setDisplayName(null)
+            firebase.signOut()
+            _signedIn.value = false
+        }
+        return result
+    }
+
+    private suspend fun fresh(block: suspend () -> String): ApiResult<String> = try {
+        ApiResult.Ok(block())
+    } catch (e: CancellationException) { throw e } catch (e: Throwable) { ApiResult.Err(e.toAuthError()) }
 
     /** Local sign-out always completes, even offline: the server-side revoke is best effort. */
     suspend fun signOut() {

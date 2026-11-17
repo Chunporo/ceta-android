@@ -38,6 +38,7 @@ import com.ceta.cinema.core.UiState
 import com.ceta.cinema.domain.model.Promotion
 import com.ceta.cinema.domain.model.ReminderMovie
 import com.ceta.cinema.ui.component.*
+import com.ceta.cinema.ui.findActivity
 import com.ceta.cinema.ui.theme.Ceta
 
 /** "Huynh Quco Trung" -> "HT": first letter of the first and last word. */
@@ -49,7 +50,7 @@ fun initialsOf(name: String?): String {
 // ---- Personal info -------------------------------------------------------------------------------------------
 
 @Composable
-fun ProfileScreen(onBack: () -> Unit, vm: ProfileViewModel = hiltViewModel()) {
+fun ProfileScreen(onBack: () -> Unit, onDeleted: () -> Unit, vm: ProfileViewModel = hiltViewModel(), deleteVm: DeleteAccountViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
     val c = Ceta.colors
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding()) {
@@ -58,13 +59,13 @@ fun ProfileScreen(onBack: () -> Unit, vm: ProfileViewModel = hiltViewModel()) {
             UiState.Loading -> LoadingBox()
             is UiState.Error -> ErrorBox(s.error, vm::load)
             is UiState.Empty -> Unit
-            is UiState.Content -> ProfileContent(s.data, vm)
+            is UiState.Content -> ProfileContent(s.data, vm, deleteVm, onDeleted)
         }
     }
 }
 
 @Composable
-private fun ProfileContent(ui: ProfileUi, vm: ProfileViewModel) {
+private fun ProfileContent(ui: ProfileUi, vm: ProfileViewModel, deleteVm: DeleteAccountViewModel, onDeleted: () -> Unit) {
     val c = Ceta.colors
     var name by rememberSaveable(ui.profile.username) { mutableStateOf(ui.profile.username) }
     val snackbar = remember { SnackbarHostState() }
@@ -99,7 +100,11 @@ private fun ProfileContent(ui: ProfileUi, vm: ProfileViewModel) {
                     OutlineButton(stringResource(R.string.profile_reset_password), vm::sendPasswordReset, enabled = !ui.saving)
                 } else Text(stringResource(R.string.profile_signed_with_phone), color = c.mu, fontSize = 13.sp)
             }
+            TextButton({ deleteVm.start() }, Modifier.align(Alignment.CenterHorizontally)) {
+                Text(stringResource(R.string.delete_account), color = c.ac, fontWeight = FontWeight.SemiBold)
+            }
         }
+        DeleteAccountDialogs(ui.profile, deleteVm, onDeleted)
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp))
     }
 }
@@ -248,5 +253,78 @@ fun HelpScreen(onBack: () -> Unit) {
                 Text(stringResource(R.string.help_version, BuildConfig.VERSION_NAME), color = c.mu, fontSize = 13.sp)
             }
         }
+    }
+}
+
+// ---- Delete account -------------------------------------------------------------------------------------------------
+
+@Composable
+private fun DeleteAccountDialogs(profile: com.ceta.cinema.domain.model.Profile, vm: DeleteAccountViewModel, onDeleted: () -> Unit) {
+    val ui by vm.state.collectAsState()
+    val c = Ceta.colors
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val webClientId = stringResource(R.string.default_web_client_id)
+    // A dialog is its own window: resolve the words here, in the app's chosen language, and hand it plain text.
+    val title = stringResource(R.string.delete_title)
+    val warning = stringResource(R.string.delete_warning)
+    val cont = stringResource(R.string.delete_continue)
+    val cancel = stringResource(R.string.cancel)
+    val intro = stringResource(R.string.delete_confirm_intro)
+    val passwordLabel = stringResource(R.string.delete_password_label)
+    val google = stringResource(R.string.delete_with_google)
+    val sendCode = stringResource(R.string.delete_send_code)
+    val codeLabel = stringResource(R.string.delete_code_label)
+    val confirmButton = stringResource(R.string.delete_confirm_button)
+    val unknown = stringResource(R.string.delete_unknown_method)
+    val error = ui.error?.let { stringResource(ErrorMapper.messageFor(it)) }
+    LaunchedEffect(ui.deleted) { if (ui.deleted) onDeleted() }
+    var secret by rememberSaveable { mutableStateOf("") }
+    LaunchedEffect(ui.step) { if (ui.step != DeleteStep.CONFIRM) secret = "" }
+
+    when (ui.step) {
+        DeleteStep.IDLE -> Unit
+        DeleteStep.WARN -> AlertDialog(
+            onDismissRequest = vm::cancel, containerColor = c.sf,
+            title = { Text(title, color = c.tx) },
+            text = { Text(warning, color = c.mu, fontSize = 14.sp) },
+            confirmButton = { TextButton(vm::proceed) { Text(cont, color = c.ac, fontWeight = FontWeight.Bold) } },
+            dismissButton = { TextButton(vm::cancel) { Text(cancel, color = c.mu) } },
+        )
+        DeleteStep.CONFIRM -> AlertDialog(
+            onDismissRequest = { if (!ui.working) vm.cancel() }, containerColor = c.sf,
+            title = { Text(title, color = c.tx) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(if (ui.method == null) unknown else intro, color = c.mu, fontSize = 14.sp)
+                    when (ui.method) {
+                        com.ceta.cinema.data.remote.firebase.SignInMethod.PASSWORD -> OutlinedTextField(
+                            value = secret, onValueChange = { secret = it.take(100) }, singleLine = true, label = { Text(passwordLabel) },
+                            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth(), enabled = !ui.working,
+                        )
+                        com.ceta.cinema.data.remote.firebase.SignInMethod.GOOGLE -> Unit
+                        com.ceta.cinema.data.remote.firebase.SignInMethod.PHONE -> if (ui.codeSentFor != null) OutlinedTextField(
+                            value = secret, onValueChange = { secret = it.filter(Char::isDigit).take(6) }, singleLine = true, label = { Text(codeLabel) },
+                            modifier = Modifier.fillMaxWidth(), enabled = !ui.working,
+                        )
+                        null -> Unit
+                    }
+                    if (ui.working) LinearProgressIndicator(Modifier.fillMaxWidth(), color = c.ac)
+                    error?.let { Text(it, color = c.ac, fontSize = 13.sp) }
+                }
+            },
+            confirmButton = {
+                when (ui.method) {
+                    com.ceta.cinema.data.remote.firebase.SignInMethod.PASSWORD ->
+                        TextButton({ vm.confirmWithPassword(profile.email.orEmpty(), secret) }, enabled = secret.isNotEmpty() && !ui.working) { Text(confirmButton, color = c.ac, fontWeight = FontWeight.Bold) }
+                    com.ceta.cinema.data.remote.firebase.SignInMethod.GOOGLE ->
+                        TextButton({ vm.confirmWithGoogle(context, webClientId) }, enabled = !ui.working) { Text(google, color = c.ac, fontWeight = FontWeight.Bold) }
+                    com.ceta.cinema.data.remote.firebase.SignInMethod.PHONE ->
+                        if (ui.codeSentFor == null) TextButton({ context.findActivity()?.let(vm::sendCode) }, enabled = !ui.working) { Text(sendCode, color = c.ac, fontWeight = FontWeight.Bold) }
+                        else TextButton({ vm.confirmWithCode(secret) }, enabled = secret.length >= 6 && !ui.working) { Text(confirmButton, color = c.ac, fontWeight = FontWeight.Bold) }
+                    null -> Unit
+                }
+            },
+            dismissButton = { TextButton(vm::cancel, enabled = !ui.working) { Text(cancel, color = c.mu) } },
+        )
     }
 }

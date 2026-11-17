@@ -19,7 +19,16 @@ interface FirebaseAuthSource {
 
     suspend fun signInWithPhoneCode(verificationId: String, code: String): String
     fun signOut()
+
+    /** How the signed-in customer signs in, to know which way to ask them to sign in once more. */
+    fun signInMethod(): SignInMethod?
+    fun phoneNumber(): String?
+
+    /** Removes the Firebase account itself. Needs a sign-in made moments ago. */
+    suspend fun deleteCurrentUser()
 }
+
+enum class SignInMethod { PASSWORD, GOOGLE, PHONE }
 
 sealed interface PhoneCodeResult {
     data class CodeSent(val verificationId: String) : PhoneCodeResult

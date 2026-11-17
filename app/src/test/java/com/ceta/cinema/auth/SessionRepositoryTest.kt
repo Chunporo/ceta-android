@@ -171,4 +171,72 @@ class SessionRepositoryTest {
         assertEquals(false, repo.signedIn.value)
         assertEquals(1, firebase.signedOut)
     }
+
+    // ---- deleting the account ------------------------------------------------------------------------------------
+
+    @Test fun a_fresh_password_sign_in_gives_the_proof_without_touching_the_backend() = runTest {
+        val result = repo.idTokenByPassword(" a@b.vn ", "secret123")
+
+        assertEquals("firebase-id-token", (result as ApiResult.Ok).data)
+        assertEquals(listOf("email:a@b.vn"), firebase.calls)
+        assertEquals(0, server.requestCount)
+    }
+
+    @Test fun a_wrong_password_while_confirming_is_an_error_and_deletes_nothing() = runTest {
+        firebase.failWith = FirebaseAuthInvalidCredentialsException("ERROR_WRONG_PASSWORD", "bad")
+        val error = (repo.idTokenByPassword("a@b.vn", "wrong") as ApiResult.Err).error
+        assertEquals("AUTH_INVALID_CREDENTIALS", error.code)
+        assertEquals(0, server.requestCount)
+    }
+
+    @Test fun deleting_sends_the_proof_then_removes_the_firebase_account_and_every_local_trace() = runTest {
+        tokens.saveTokens("acc", "ref")
+        repo.restore()
+        server.enqueue(MockResponse().setResponseCode(204))
+
+        val result = repo.deleteAccount("proof-token")
+
+        assertTrue(result is ApiResult.Ok)
+        val request = server.takeRequest()
+        assertEquals("DELETE", request.method)
+        assertEquals("/api/v1/auth/me", request.path)
+        assertEquals("""{"idToken":"proof-token"}""", request.body.readUtf8())
+        assertEquals("Bearer acc", request.getHeader("Authorization"))
+        assertEquals(1, firebase.deletedUser)
+        assertEquals(1, firebase.signedOut)
+        assertNull(tokens.accessToken)
+        assertNull(tokens.refreshToken)
+        assertEquals(false, repo.signedIn.value)
+    }
+
+    @Test fun when_the_server_refuses_because_of_upcoming_tickets_nothing_is_signed_out() = runTest {
+        tokens.saveTokens("acc", "ref")
+        repo.restore()
+        server.enqueue(json("""{"code":"HAS_ACTIVE_TICKETS","message":"Cancel your upcoming tickets","details":[]}""", 409))
+
+        val error = (repo.deleteAccount("proof-token") as ApiResult.Err).error
+
+        assertEquals("HAS_ACTIVE_TICKETS", error.code)
+        assertEquals(0, firebase.deletedUser)
+        assertEquals("acc", tokens.accessToken)
+        assertEquals(true, repo.signedIn.value)
+    }
+
+    @Test fun a_failing_firebase_delete_does_not_undo_a_deletion_the_server_already_did() = runTest {
+        tokens.saveTokens("acc", "ref")
+        repo.restore()
+        server.enqueue(MockResponse().setResponseCode(204))
+        firebase.failWith = IllegalStateException("recent login required")
+
+        assertTrue(repo.deleteAccount("proof-token") is ApiResult.Ok)
+        assertNull(tokens.accessToken)
+        assertEquals(false, repo.signedIn.value)
+    }
+
+    @Test fun the_sign_in_method_and_phone_come_from_firebase() {
+        firebase.method = com.ceta.cinema.data.remote.firebase.SignInMethod.PHONE
+        firebase.phone = "+84912345678"
+        assertEquals(com.ceta.cinema.data.remote.firebase.SignInMethod.PHONE, repo.signInMethod())
+        assertEquals("+84912345678", repo.phoneNumber())
+    }
 }

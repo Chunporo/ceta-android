@@ -5,6 +5,9 @@ data class RefreshRequest(val refreshToken: String)
 
 data class UpdateProfileRequest(val username: String)
 
+/** The ID token of a Firebase sign-in made moments ago: the backend's proof that the owner means it. */
+data class DeleteAccountRequest(val idToken: String)
+
 data class UserDto(val id: Long?, val username: String?, val email: String?, val roles: List<String> = emptyList())
 
 data class TokenResponse(

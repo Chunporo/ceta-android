@@ -129,7 +129,9 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                 }
             })
         }
-        composable(Routes.PROFILE) { ProfileScreen(onBack = { nav.popBackStack() }) }
+        composable(Routes.PROFILE) {
+            ProfileScreen(onBack = { nav.popBackStack() }, onDeleted = { main.setGuest(true); nav.popBackStack(Routes.MAIN, inclusive = false) })
+        }
         composable(Routes.VOUCHERS) { VouchersScreen(onBack = { nav.popBackStack() }, onFind = { nav.popBackStack(); main.openTab(Tab.PROMOS) }) }
         composable(Routes.REMINDERS) { RemindersScreen(onBack = { nav.popBackStack() }, onMovie = { nav.navigate(Routes.movieDetail(it)) }) }
         composable(Routes.PAYMENT_METHODS) { PaymentMethodsScreen(onBack = { nav.popBackStack() }) }

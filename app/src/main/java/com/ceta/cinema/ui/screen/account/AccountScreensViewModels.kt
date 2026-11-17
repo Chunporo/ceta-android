@@ -137,3 +137,62 @@ class RemindersViewModel @Inject constructor(private val account: AccountReposit
         viewModelScope.launch { if (account.removeReminder(movieId) is ApiResult.Err) load() }
     }
 }
+
+enum class DeleteStep { IDLE, WARN, CONFIRM }
+
+/**
+ * Deleting the account: a warning, then the customer signs in once more (the way they normally do), and that fresh
+ * sign-in is what the server accepts as proof. When it worked the session is gone; [deleted] tells the screen to leave.
+ */
+data class DeleteUi(
+    val step: DeleteStep = DeleteStep.IDLE,
+    val method: com.ceta.cinema.data.remote.firebase.SignInMethod? = null,
+    val working: Boolean = false,
+    val codeSentFor: String? = null,       // the verification id once an SMS code is on its way
+    val error: ApiError? = null,
+    val deleted: Boolean = false,
+)
+
+@HiltViewModel
+class DeleteAccountViewModel @Inject constructor(private val session: SessionRepository) : ViewModel() {
+    private val _state = MutableStateFlow(DeleteUi())
+    val state: StateFlow<DeleteUi> = _state
+
+    fun start() { _state.value = DeleteUi(step = DeleteStep.WARN, method = session.signInMethod()) }
+    fun cancel() { _state.value = DeleteUi() }
+    fun proceed() { _state.update { it.copy(step = DeleteStep.CONFIRM, error = null) } }
+
+    fun confirmWithPassword(email: String, password: String) = prove { session.idTokenByPassword(email, password) }
+    fun confirmWithGoogle(context: android.content.Context, webClientId: String) = prove { session.idTokenByGoogle(context, webClientId) }
+    fun confirmWithCode(code: String) {
+        val id = _state.value.codeSentFor ?: return
+        prove { session.idTokenByPhoneCode(id, code) }
+    }
+
+    fun sendCode(activity: android.app.Activity) {
+        val phone = session.phoneNumber() ?: return
+        _state.update { it.copy(working = true, error = null) }
+        viewModelScope.launch {
+            when (val r = session.startPhoneProof(activity, phone)) {
+                is ApiResult.Err -> _state.update { it.copy(working = false, error = r.error) }
+                is ApiResult.Ok -> when (val proof = r.data) {
+                    is SessionRepository.PhoneProof.CodeSent -> _state.update { it.copy(working = false, codeSentFor = proof.verificationId) }
+                    is SessionRepository.PhoneProof.Verified -> prove { ApiResult.Ok(proof.idToken) }
+                }
+            }
+        }
+    }
+
+    private fun prove(getToken: suspend () -> ApiResult<String>) {
+        _state.update { it.copy(working = true, error = null) }
+        viewModelScope.launch {
+            when (val token = getToken()) {
+                is ApiResult.Err -> _state.update { it.copy(working = false, error = token.error) }
+                is ApiResult.Ok -> when (val r = session.deleteAccount(token.data)) {
+                    is ApiResult.Ok -> _state.update { it.copy(working = false, deleted = true) }
+                    is ApiResult.Err -> _state.update { it.copy(working = false, error = r.error) }
+                }
+            }
+        }
+    }
+}

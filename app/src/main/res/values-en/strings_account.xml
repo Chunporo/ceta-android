@@ -40,4 +40,16 @@
     <string name="faq_a5">Save the code in Offers or type it at checkout. One voucher per order, taken off the ticket price.</string>
     <string name="faq_q6">How do I get into the cinema?</string>
     <string name="faq_a6">Show the QR code in My tickets to the staff at the door. Turn the screen brightness up so it scans faster.</string>
+    <string name="error_reauth_required">Sign in again to confirm, then try deleting your account once more.</string>
+    <string name="delete_account">Delete account</string>
+    <string name="delete_title">Delete your account?</string>
+    <string name="delete_warning">Your account, CETA points, saved vouchers and reminders will be deleted for good and cannot be restored. Your booking history is kept for the records but is no longer linked to you.\n\nIf you still have unused tickets, watch the movie or cancel them first.</string>
+    <string name="delete_continue">Continue</string>
+    <string name="delete_confirm_intro">To confirm it is you, sign in once more.</string>
+    <string name="delete_password_label">Password</string>
+    <string name="delete_with_google">Confirm with Google</string>
+    <string name="delete_send_code">Send SMS code</string>
+    <string name="delete_code_label">Verification code</string>
+    <string name="delete_confirm_button">Delete account permanently</string>
+    <string name="delete_unknown_method">Sign out, sign in again, then try deleting your account.</string>
 </resources>

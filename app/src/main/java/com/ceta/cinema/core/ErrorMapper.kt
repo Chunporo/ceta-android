@@ -20,6 +20,7 @@ object ErrorMapper {
             "TOO_MANY_ATTEMPTS" -> R.string.error_too_many_attempts
             "TICKET_ALREADY_USED" -> R.string.error_ticket_used
             "HAS_ACTIVE_TICKETS" -> R.string.error_has_active_tickets
+            "REAUTH_REQUIRED" -> R.string.error_reauth_required
             "ACCOUNT_LOCKED" -> R.string.error_account_locked
             "EMAIL_NOT_VERIFIED" -> R.string.error_email_not_verified
             "VOUCHER_INVALID" -> R.string.ds_voucher_bad

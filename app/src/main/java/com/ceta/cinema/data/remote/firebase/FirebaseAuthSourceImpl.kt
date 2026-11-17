@@ -108,6 +108,14 @@ class FirebaseAuthSourceImpl @Inject constructor() : FirebaseAuthSource {
 
     override fun signOut() = auth.signOut()
 
+    override fun signInMethod(): SignInMethod? = auth.currentUser?.providerData?.map { it.providerId }?.firstNotNullOfOrNull {
+        when (it) { "password" -> SignInMethod.PASSWORD; "google.com" -> SignInMethod.GOOGLE; "phone" -> SignInMethod.PHONE; else -> null }
+    }
+
+    override fun phoneNumber(): String? = auth.currentUser?.phoneNumber
+
+    override suspend fun deleteCurrentUser() { auth.currentUser?.delete()?.await() }
+
     /** A forced refresh, so a freshly verified email shows up as email_verified in the token. */
     private suspend fun finish(user: FirebaseUser): String {
         // Profiles live in the backend; a Firestore write here would wait forever while that API is off.

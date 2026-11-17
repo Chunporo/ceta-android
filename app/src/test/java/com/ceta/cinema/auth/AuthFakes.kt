@@ -25,6 +25,12 @@ class FakeFirebaseAuth(var idToken: String = "firebase-id-token") : FirebaseAuth
     override suspend fun sendPhoneCode(activity: Activity, phoneE164: String): PhoneCodeResult { hit("phone:$phoneE164"); return phoneResult }
     override suspend fun signInWithPhoneCode(verificationId: String, code: String) = hit("code:$verificationId:$code")
     override fun signOut() { signedOut++ }
+    var method: com.ceta.cinema.data.remote.firebase.SignInMethod? = com.ceta.cinema.data.remote.firebase.SignInMethod.PASSWORD
+    var phone: String? = null
+    var deletedUser = 0
+    override fun signInMethod() = method
+    override fun phoneNumber() = phone
+    override suspend fun deleteCurrentUser() { hit("deleteUser"); deletedUser++ }
 }
 
 class FakePendingEmail(var value: String? = null) : PendingEmailStore {

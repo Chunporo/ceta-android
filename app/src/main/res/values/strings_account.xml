@@ -40,4 +40,16 @@
     <string name="faq_a5">Lưu mã trong mục Ưu đãi hoặc nhập mã ở bước thanh toán. Mỗi đơn dùng một voucher và giảm trên tiền vé.</string>
     <string name="faq_q6">Vào rạp bằng cách nào?</string>
     <string name="faq_a6">Đưa mã QR trong Vé của tôi cho nhân viên soát vé. Hãy tăng độ sáng màn hình để quét nhanh hơn.</string>
+    <string name="error_reauth_required">Hãy đăng nhập lại để xác nhận, rồi thử xóa tài khoản lần nữa.</string>
+    <string name="delete_account">Xóa tài khoản</string>
+    <string name="delete_title">Xóa tài khoản?</string>
+    <string name="delete_warning">Tài khoản, điểm CETA, voucher đã lưu và lời nhắc phim sẽ bị xóa vĩnh viễn và không thể khôi phục. Lịch sử đặt vé được giữ lại để đối soát nhưng không còn gắn với bạn.\n\nNếu còn vé chưa sử dụng, bạn cần xem phim trước hoặc hủy vé rồi mới xóa được.</string>
+    <string name="delete_continue">Tiếp tục</string>
+    <string name="delete_confirm_intro">Để xác nhận đó là bạn, hãy đăng nhập lại.</string>
+    <string name="delete_password_label">Mật khẩu</string>
+    <string name="delete_with_google">Xác nhận bằng Google</string>
+    <string name="delete_send_code">Gửi mã SMS</string>
+    <string name="delete_code_label">Mã xác minh</string>
+    <string name="delete_confirm_button">Xóa tài khoản vĩnh viễn</string>
+    <string name="delete_unknown_method">Hãy đăng xuất, đăng nhập lại rồi thử xóa tài khoản.</string>
 </resources>
