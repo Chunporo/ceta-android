@@ -10,6 +10,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.Theaters
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +48,7 @@ fun CinemasTab(onMovie: (String) -> Unit, onShow: (Long) -> Unit, vm: CinemasVie
     val offline by vm.offline.collectAsState()
     val c = Ceta.colors
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding()) {
-        Text(stringResource(R.string.ds_cinemas_title), style = MaterialTheme.typography.titleLarge, color = c.tx, modifier = Modifier.padding(20.dp))
+        Text(stringResource(R.string.ds_cinemas_title), color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 14.dp))
         if (offline) OfflineBanner()
         when (val s = state) {
             UiState.Loading -> LoadingBox()
@@ -51,11 +56,16 @@ fun CinemasTab(onMovie: (String) -> Unit, onShow: (Long) -> Unit, vm: CinemasVie
             is UiState.Empty -> EmptyState(stringResource(R.string.ds_no_results))
             is UiState.Content -> {
                 val ui = s.data
-                LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(ui.cities) { city -> FilterChip(cityLabel(city), ui.city == city, { vm.selectCity(city) }) }
+                LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(ui.cities) { city ->
+                        val on = ui.city == city
+                        Box(Modifier.height(40.dp).clip(RoundedCornerShape(20.dp)).background(if (on) c.ac else c.sf).clickable { vm.selectCity(city) }.padding(horizontal = 18.dp), contentAlignment = Alignment.Center) {
+                            Text(cityLabel(city), color = if (on) Color.White else c.tx, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
                 }
-                Spacer(Modifier.height(12.dp))
-                LazyColumn(contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Spacer(Modifier.height(16.dp))
+                LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(ui.visible, key = { it.id }) { cinema ->
                         CinemaCard(cinema, open = ui.open == cinema.id, shows = ui.shows[cinema.id], onToggle = { vm.toggle(cinema.id) }, onMovie = onMovie, onShow = onShow)
                     }
@@ -76,18 +86,23 @@ private fun cityLabel(code: String) = when (code) {
 private fun CinemaCard(cinema: Cinema, open: Boolean, shows: UiState<List<Showtime>>?, onToggle: () -> Unit, onMovie: (String) -> Unit, onShow: (Long) -> Unit) {
     val c = Ceta.colors
     val uri = LocalUriHandler.current
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(c.sf)) {
-        Row(Modifier.fillMaxWidth().clickable(onClick = onToggle).padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf)) {
+        Row(Modifier.fillMaxWidth().clickable(onClick = onToggle).padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(Modifier.size(48.dp).clip(RoundedCornerShape(16.dp)).background(c.acs), contentAlignment = Alignment.Center) {
+                Icon(Icons.Rounded.Theaters, null, tint = c.ac, modifier = Modifier.size(24.dp))
+            }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(cinema.name, color = c.tx, style = MaterialTheme.typography.titleSmall)
+                    Text(cinema.name, color = c.tx, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     if (cinema.imax) Text("IMAX", color = c.ac, style = MaterialTheme.typography.labelSmall, modifier = Modifier.clip(RoundedCornerShape(4.dp)).background(c.acs).padding(horizontal = 6.dp, vertical = 1.dp))
                 }
-                Text(cinema.address, color = c.mu, style = MaterialTheme.typography.bodySmall)
+                Text(cinema.address, color = c.mu, fontSize = 13.sp)
             }
             Icon(if (open) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore, null, tint = c.mu)
         }
-        if (open) Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        if (open) Column(Modifier.fillMaxWidth().border(0.dp, Color.Transparent).padding(start = 16.dp, end = 16.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            HorizontalDivider(color = c.ln)
+            Text(stringResource(R.string.ds_today_shows).uppercase(), color = c.mu, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.7.sp)
             if (cinema.latitude != null && cinema.longitude != null) {
                 Text(stringResource(R.string.ds_directions), color = c.ac, style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.clickable { runCatching { uri.openUri("geo:${cinema.latitude},${cinema.longitude}?q=${cinema.latitude},${cinema.longitude}(${cinema.name})") } })

@@ -17,7 +17,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ceta.cinema.R
 import com.ceta.cinema.core.ErrorMapper
@@ -47,14 +51,14 @@ fun OffersTab(onLogin: () -> Unit, vm: OffersViewModel = hiltViewModel()) {
     }
     Box(Modifier.fillMaxSize().background(c.bg)) {
         Column(Modifier.fillMaxSize().systemBarsPadding()) {
-            Text(stringResource(R.string.ds_promos_title), style = MaterialTheme.typography.titleLarge, color = c.tx, modifier = Modifier.padding(20.dp))
+            Text(stringResource(R.string.ds_promos_title), color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 14.dp))
             if (offline) OfflineBanner()
             when (val s = state) {
                 UiState.Loading -> LoadingBox()
                 is UiState.Error -> ErrorBox(s.error, vm::load)
                 is UiState.Empty -> Unit
                 is UiState.Content -> if (s.data.offers.isEmpty()) EmptyState(stringResource(R.string.ds_no_results))
-                else LazyColumn(contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                else LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     items(s.data.offers, key = { it.id }) { OfferCard(it, it.id in s.data.saved, it.id in s.data.busy) { vm.toggleSave(it) } }
                 }
             }
@@ -63,25 +67,33 @@ fun OffersTab(onLogin: () -> Unit, vm: OffersViewModel = hiltViewModel()) {
     }
 }
 
+/** A banner in a colour taken from the offer's code, then its text, code and the save button, as in the design. */
 @Composable
 private fun OfferCard(promo: Promotion, saved: Boolean, busy: Boolean, onToggle: () -> Unit) {
     val c = Ceta.colors
     val english = LocalConfiguration.current.locales[0].language == "en"
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(c.sf).padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(promo.title(english), color = c.tx, style = MaterialTheme.typography.titleMedium)
-        promo.detail(english)?.let { Text(it, color = c.mu, style = MaterialTheme.typography.bodyMedium) }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(promo.code, color = c.ac, style = MaterialTheme.typography.labelLarge, modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(c.acs).padding(horizontal = 10.dp, vertical = 4.dp))
-            promo.validUntil?.let { Text(stringResource(R.string.ds_until) + Formatters.date(Formatters.localDate(it)), color = c.mu, style = MaterialTheme.typography.bodySmall) }
-            Spacer(Modifier.weight(1f))
-            val fg = if (saved) c.tx else Color.White
-            Row(
-                Modifier.clip(RoundedCornerShape(20.dp)).background(if (saved) c.sf2 else c.ac).clickable(enabled = !busy, onClick = onToggle).padding(horizontal = 14.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                androidx.compose.material3.Icon(if (saved) Icons.Rounded.Check else Icons.Rounded.Add, null, tint = fg, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(4.dp))
-                Text(stringResource(if (saved) R.string.ds_saved else R.string.ds_save_code), color = fg, style = MaterialTheme.typography.labelMedium)
+    val hue = (promo.code.hashCode().toUInt().toLong() % 360).toFloat()
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(c.sf)) {
+        Box(
+            Modifier.fillMaxWidth().height(120.dp).background(Brush.linearGradient(listOf(Color.hsv(hue, 0.6f, 0.62f), Color.hsv((hue + 40) % 360, 0.65f, 0.45f)))).padding(16.dp),
+            contentAlignment = Alignment.BottomStart,
+        ) { Text(promo.title(english), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, maxLines = 2) }
+        Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            promo.detail(english)?.let { Text(it, color = c.tx, fontSize = 14.sp, lineHeight = 21.sp) }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(promo.code, color = c.tx, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    promo.validUntil?.let { Text(stringResource(R.string.ds_until) + " " + Formatters.date(Formatters.localDate(it)), color = c.mu, fontSize = 12.sp) }
+                }
+                val fg = if (saved) c.tx else Color.White
+                Row(
+                    Modifier.height(40.dp).clip(RoundedCornerShape(20.dp)).background(if (saved) c.sf2 else c.ac).clickable(enabled = !busy, onClick = onToggle).padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    androidx.compose.material3.Icon(if (saved) Icons.Rounded.Check else Icons.Rounded.Add, null, tint = fg, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(if (saved) R.string.ds_saved else R.string.ds_save_code), color = fg, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
