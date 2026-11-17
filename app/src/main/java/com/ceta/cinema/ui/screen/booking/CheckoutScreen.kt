@@ -36,6 +36,7 @@ import com.ceta.cinema.core.ErrorMapper
 import com.ceta.cinema.core.Formatters
 import com.ceta.cinema.core.MoneyFormatter
 import com.ceta.cinema.core.UiState
+import com.ceta.cinema.domain.model.PaymentProvider
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.theme.Ceta
 
@@ -87,13 +88,13 @@ private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, o
                     if (ui.loyalty != null) { HorizontalDivider(color = c.ln); PointsRow(ui, vm) }
                 }
             }
-            MethodRow()
+            MethodRow(ui, vm::selectMethod)
             Lines(ui)
             ui.error?.let { Text(stringResource(ErrorMapper.messageFor(it)), color = c.ac, style = MaterialTheme.typography.bodySmall) }
         }
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)).background(c.sf).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 14.dp)) {
             if (ui.warning && !ui.expired) Text(stringResource(R.string.hold_pay_now), color = c.mu, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(bottom = 6.dp))
-            PrimaryButton(stringResource(R.string.pay_with_vnpay, MoneyFormatter.format(b.totalAmount)), vm::pay, enabled = ui.canPay, loading = ui.working)
+            PrimaryButton(stringResource(if (ui.method == PaymentProvider.MOMO) R.string.pay_with_momo else R.string.pay_with_vnpay, MoneyFormatter.format(b.totalAmount)), vm::pay, enabled = ui.canPay, loading = ui.working)
         }
     }
 }
@@ -164,21 +165,31 @@ private fun PointsRow(ui: CheckoutUi, vm: CheckoutViewModel) {
     }
 }
 
-/** VNPay is the only method (decision), drawn as the design's selected method row. */
+/** Every method the server offers, as the design's selectable rows; the chosen one has the accent border and a filled radio. */
 @Composable
-private fun MethodRow() {
+private fun MethodRow(ui: CheckoutUi, onSelect: (PaymentProvider) -> Unit) {
     val c = Ceta.colors
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(stringResource(R.string.ds_method), color = c.tx, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp))
-        Row(
-            Modifier.fillMaxWidth().height(60.dp).clip(RoundedCornerShape(18.dp)).background(c.sf).border(1.5.dp, c.ac, RoundedCornerShape(18.dp)).padding(horizontal = 14.dp),
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Box(Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFFD64B3A)), contentAlignment = Alignment.Center) {
-                Text("VN", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold)
+        ui.methods.forEach { method ->
+            val on = method == ui.method
+            val (badge, color, label) = when (method) {
+                PaymentProvider.VNPAY -> Triple("VN", Color(0xFFD64B3A), R.string.vnpay_name)
+                PaymentProvider.MOMO -> Triple("Mo", Color(0xFFA50064), R.string.momo_name)
             }
-            Text(stringResource(R.string.vnpay_name), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-            Box(Modifier.size(22.dp).border(2.dp, c.ac, CircleShape), contentAlignment = Alignment.Center) { Box(Modifier.size(10.dp).clip(CircleShape).background(c.ac)) }
+            Row(
+                Modifier.fillMaxWidth().height(60.dp).clip(RoundedCornerShape(18.dp)).background(c.sf)
+                    .border(1.5.dp, if (on) c.ac else Color.Transparent, RoundedCornerShape(18.dp)).clickable { onSelect(method) }.padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Box(Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(color), contentAlignment = Alignment.Center) {
+                    Text(badge, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold)
+                }
+                Text(stringResource(label), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                Box(Modifier.size(22.dp).border(2.dp, if (on) c.ac else c.ln2, CircleShape), contentAlignment = Alignment.Center) {
+                    if (on) Box(Modifier.size(10.dp).clip(CircleShape).background(c.ac))
+                }
+            }
         }
     }
 }

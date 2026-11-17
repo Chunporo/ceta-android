@@ -10,6 +10,7 @@ import com.ceta.cinema.data.repository.AccountRepository
 import com.ceta.cinema.data.repository.BookingRepository
 import com.ceta.cinema.domain.model.Booking
 import com.ceta.cinema.domain.model.Loyalty
+import com.ceta.cinema.domain.model.PaymentProvider
 import com.ceta.cinema.domain.usecase.HoldClock
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -34,6 +35,9 @@ data class CheckoutUi(
     /** True while a voucher/points change or the payment link is being fetched: buttons are off so nothing is sent twice. */
     val working: Boolean = false,
     val error: ApiError? = null,
+    /** What the server offers (VNPay when it cannot be asked) and the one chosen. */
+    val methods: List<PaymentProvider> = listOf(PaymentProvider.VNPAY),
+    val method: PaymentProvider = PaymentProvider.VNPAY,
 ) {
     val usingPoints: Boolean get() = booking.pointsUsed > 0
     val canUsePoints: Boolean get() = loyalty?.canRedeem == true
@@ -41,7 +45,7 @@ data class CheckoutUi(
 }
 
 sealed interface CheckoutEvent {
-    /** Open the VNPay page in a Custom Tab, then wait for the result on the next screen. */
+    /** Open the payment page (VNPay or MoMo) in a Custom Tab, then wait for the result on the next screen. */
     data class OpenPayment(val url: String, val bookingId: Long) : CheckoutEvent
 }
 
@@ -74,12 +78,15 @@ class CheckoutViewModel @Inject constructor(
                     hold.sync(b.secondsRemaining)
                     // Points need an account and a network; without them the page still works, just without that option.
                     val loyalty = (account.loyalty() as? ApiResult.Ok)?.data
-                    _state.value = UiState.Content(CheckoutUi(b, loyalty, voucherInput = b.voucherCode.orEmpty(),
+                    val methods = (bookings.paymentMethods() as? ApiResult.Ok)?.data?.takeIf { PaymentProvider.VNPAY in it } ?: listOf(PaymentProvider.VNPAY)
+                    _state.value = UiState.Content(CheckoutUi(b, loyalty, voucherInput = b.voucherCode.orEmpty(), methods = methods,
                         secondsLeft = hold.remainingSeconds(), warning = hold.isWarning(), expired = hold.isExpired()))
                 }
             }
         }
     }
+
+    fun selectMethod(method: PaymentProvider) = update { if (method in it.methods && !it.working) it.copy(method = method) else it }
 
     fun onVoucher(text: String) = update { it.copy(voucherInput = text.uppercase().take(30), voucherError = null) }
 
@@ -122,7 +129,7 @@ class CheckoutViewModel @Inject constructor(
         if (!ui.canPay) return // a double tap opens one payment page, not two
         update { it.copy(working = true, error = null) }
         viewModelScope.launch {
-            when (val result = bookings.paymentUrl(bookingId)) {
+            when (val result = bookings.paymentUrl(bookingId, ui.method)) {
                 is ApiResult.Ok -> {
                     update { it.copy(working = false) }
                     _events.send(CheckoutEvent.OpenPayment(result.data, bookingId))

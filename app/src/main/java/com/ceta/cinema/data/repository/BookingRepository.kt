@@ -8,6 +8,7 @@ import com.ceta.cinema.data.remote.dto.BookingExtrasRequest
 import com.ceta.cinema.data.remote.dto.ComboLineRequest
 import com.ceta.cinema.data.remote.dto.CreateBookingRequest
 import com.ceta.cinema.data.remote.dto.PaymentUrlRequest
+import com.ceta.cinema.domain.model.PaymentProvider
 import com.ceta.cinema.data.remote.mapper.toDomain
 import com.ceta.cinema.domain.model.Booking
 import com.ceta.cinema.domain.model.BookingSummary
@@ -46,5 +47,10 @@ class BookingRepository @Inject constructor(private val api: CetaApi, private va
     suspend fun history(page: Int = 0): ApiResult<List<BookingSummary>> = safeApiCall { api.bookings(page).items.map { it.toDomain() } }
 
     /** The VNPay URL to open in a Custom Tab. Never decide a payment from what happens in the tab: ask [get]. */
-    suspend fun paymentUrl(bookingId: Long): ApiResult<String> = safeApiCall { api.createPaymentUrl(PaymentUrlRequest(bookingId)).payUrl }
+    suspend fun paymentUrl(bookingId: Long, provider: PaymentProvider = PaymentProvider.VNPAY): ApiResult<String> =
+        safeApiCall { api.createPaymentUrl(PaymentUrlRequest(bookingId, provider.code.takeIf { provider != PaymentProvider.VNPAY })).payUrl }
+
+    /** The methods the server has switched on; an unknown code is ignored so an older app survives a newer server. */
+    suspend fun paymentMethods(): ApiResult<List<PaymentProvider>> =
+        safeApiCall { api.paymentMethods().filter { it.enabled }.mapNotNull { PaymentProvider.parse(it.code) } }
 }

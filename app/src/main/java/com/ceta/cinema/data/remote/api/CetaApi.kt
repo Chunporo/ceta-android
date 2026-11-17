@@ -73,6 +73,7 @@ interface CetaApi {
     @PUT("bookings/{id}/extras") suspend fun updateExtras(@Path("id") id: Long, @Body body: BookingExtrasRequest): BookingExtrasDto
     @GET("bookings") suspend fun bookings(@Query("page") page: Int = 0, @Query("size") size: Int = 20): PageDto<BookingHistoryDto>
 
+    @GET("payments/methods") suspend fun paymentMethods(): List<PaymentMethodDto>
     @POST("payments/vnpay/create-url") suspend fun createPaymentUrl(@Body body: PaymentUrlRequest): PaymentUrlDto
 
     @GET("tickets/my") suspend fun myTickets(@Query("page") page: Int = 0, @Query("size") size: Int = 20): PageDto<TicketDto>

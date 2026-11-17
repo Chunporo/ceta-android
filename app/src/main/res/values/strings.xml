@@ -110,6 +110,8 @@
     <string name="pay_with_vnpay">Thanh toán %1$s bằng VNPay</string>
     <string name="vnpay_name">VNPay (QR, thẻ ATM, Visa)</string>
     <string name="other_methods_soon">MoMo, ZaloPay: sắp có</string>
+    <string name="momo_name">Ví MoMo</string>
+    <string name="pay_with_momo">Thanh toán %1$s bằng MoMo</string>
     <string name="result_pending_title">Đang xác nhận thanh toán</string>
     <string name="result_pending_body">Việc này có thể mất vài giây. Vui lòng không đóng ứng dụng.</string>
     <string name="result_still_title">Chưa nhận được xác nhận</string>

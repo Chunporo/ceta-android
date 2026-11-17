@@ -157,3 +157,12 @@ data class Profile(val username: String, val email: String?, val phone: String?)
 
 /** A coming-soon movie the customer asked to be told about. */
 data class ReminderMovie(val id: String, val title: String, val posterUrl: String?)
+
+/** The ways to pay. The server says which are switched on; VNPay is always there. */
+enum class PaymentProvider(val code: String) {
+    VNPAY("VNPAY"), MOMO("MOMO");
+
+    companion object {
+        fun parse(code: String): PaymentProvider? = entries.firstOrNull { it.code.equals(code, ignoreCase = true) }
+    }
+}

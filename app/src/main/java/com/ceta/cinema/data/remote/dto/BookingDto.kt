@@ -60,7 +60,8 @@ data class BookingHistoryDto(
     val roomName: String? = null, val seatNames: List<String> = emptyList(),
 )
 
-data class PaymentUrlRequest(val bookingId: Long)
+data class PaymentUrlRequest(val bookingId: Long, val provider: String? = null)
+data class PaymentMethodDto(val code: String, val enabled: Boolean = false)
 data class PaymentUrlDto(val payUrl: String, val txnRef: String)
 
 data class TicketShowtimeDto(

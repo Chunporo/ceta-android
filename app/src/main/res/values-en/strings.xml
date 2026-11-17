@@ -110,6 +110,8 @@
     <string name="pay_with_vnpay">Pay %1$s with VNPay</string>
     <string name="vnpay_name">VNPay (QR, ATM card, Visa)</string>
     <string name="other_methods_soon">MoMo, ZaloPay: coming soon</string>
+    <string name="momo_name">MoMo wallet</string>
+    <string name="pay_with_momo">Pay %1$s with MoMo</string>
     <string name="result_pending_title">Confirming your payment</string>
     <string name="result_pending_body">This can take a few seconds. Please keep the app open.</string>
     <string name="result_still_title">No confirmation yet</string>

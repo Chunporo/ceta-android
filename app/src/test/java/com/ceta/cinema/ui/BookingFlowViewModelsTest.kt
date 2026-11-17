@@ -295,6 +295,60 @@ class BookingFlowViewModelsTest {
         assertEquals(1, requests.count { it.contains("create-url") })
     }
 
+    @Test fun checkoutOffersOnlyVnpayWhenTheServerCannotBeAskedOrMomoIsOff() = runTest {
+        setup()
+        checkoutApis()
+        val vm = checkout()
+        eventually { vm.state.value is UiState.Content }
+        assertEquals(listOf(com.ceta.cinema.domain.model.PaymentProvider.VNPAY), co(vm).methods)
+
+        answers["GET /api/v1/payments/methods"] = ok("""[{"code":"VNPAY","enabled":true},{"code":"MOMO","enabled":false}]""")
+        val off = checkout()
+        eventually { off.state.value is UiState.Content }
+        assertEquals(listOf(com.ceta.cinema.domain.model.PaymentProvider.VNPAY), co(off).methods)
+    }
+
+    @Test fun momoAppearsWhenOnAndPayingWithItAsksTheServerForAMomoPayment() = runTest {
+        setup()
+        checkoutApis()
+        answers["GET /api/v1/payments/methods"] = ok("""[{"code":"VNPAY","enabled":true},{"code":"MOMO","enabled":true},{"code":"ZALOPAY","enabled":true}]""")
+        answers["POST /api/v1/payments/vnpay/create-url"] = ok("""{"payUrl":"http://momo.test/pay?orderId=42_1","txnRef":"42_1"}""")
+        val vm = checkout()
+        eventually { vm.state.value is UiState.Content }
+        assertEquals(listOf(com.ceta.cinema.domain.model.PaymentProvider.VNPAY, com.ceta.cinema.domain.model.PaymentProvider.MOMO), co(vm).methods)
+        assertEquals(com.ceta.cinema.domain.model.PaymentProvider.VNPAY, co(vm).method)
+
+        vm.selectMethod(com.ceta.cinema.domain.model.PaymentProvider.MOMO)
+        assertEquals(com.ceta.cinema.domain.model.PaymentProvider.MOMO, co(vm).method)
+        vm.pay()
+
+        val event = vm.events.first() as CheckoutEvent.OpenPayment
+        assertEquals("http://momo.test/pay?orderId=42_1", event.url)
+        assertTrue("the request names MoMo", bodies.any { it.contains("\"bookingId\":42") && it.contains("\"provider\":\"MOMO\"") })
+    }
+
+    @Test fun vnpayStaysTheDefaultAndSendsNoProvider() = runTest {
+        setup()
+        checkoutApis()
+        answers["POST /api/v1/payments/vnpay/create-url"] = ok("""{"payUrl":"https://sandbox.vnpayment.vn/pay","txnRef":"42_1"}""")
+        val vm = checkout()
+        eventually { vm.state.value is UiState.Content }
+        vm.pay()
+        vm.events.first()
+        val sent = bodies.firstOrNull { it.contains("bookingId") }
+        assertNotNull(sent)
+        assertFalse("the default needs no provider field: $sent", sent!!.contains("provider"))
+    }
+
+    @Test fun aMethodThatIsNotOfferedCannotBeSelected() = runTest {
+        setup()
+        checkoutApis()
+        val vm = checkout()
+        eventually { vm.state.value is UiState.Content }
+        vm.selectMethod(com.ceta.cinema.domain.model.PaymentProvider.MOMO)
+        assertEquals(com.ceta.cinema.domain.model.PaymentProvider.VNPAY, co(vm).method)
+    }
+
     @Test fun anExpiredHoldCannotBePaid() = runTest {
         setup()
         checkoutApis(booking(secs = 30))
