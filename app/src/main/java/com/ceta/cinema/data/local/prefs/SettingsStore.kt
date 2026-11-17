@@ -13,6 +13,8 @@ data class AppSettings(
     /** A booking created but not yet paid, so a killed app can offer to continue (rule 9). */
     val pendingBookingId: Long? = null,
     val pendingHoldUntilMillis: Long = 0,
+    /** The customer chose to browse without an account; remembered so a restart does not ask again. */
+    val guestMode: Boolean = false,
 )
 
 interface SettingsStore {
@@ -20,6 +22,7 @@ interface SettingsStore {
     suspend fun setDark(dark: Boolean)
     suspend fun setLanguage(language: String)
     suspend fun setOnboardingSeen()
+    suspend fun setGuestMode(guest: Boolean)
     suspend fun setDisplayName(name: String?)
     suspend fun setPendingBooking(bookingId: Long, holdUntilMillis: Long)
     suspend fun clearPendingBooking()

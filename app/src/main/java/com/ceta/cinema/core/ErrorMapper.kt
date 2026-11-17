@@ -38,6 +38,7 @@ object ErrorMapper {
             AuthCodes.INVALID_CODE -> R.string.error_invalid_code
             AuthCodes.CODE_EXPIRED -> R.string.error_code_expired
             AuthCodes.INVALID_PHONE -> R.string.ds_phone_err
+            AuthCodes.PHONE_UNAVAILABLE -> R.string.error_phone_unavailable
             AuthCodes.LINK_INVALID -> R.string.error_link_invalid
             ApiError.NETWORK -> R.string.error_network
             else -> R.string.error_generic

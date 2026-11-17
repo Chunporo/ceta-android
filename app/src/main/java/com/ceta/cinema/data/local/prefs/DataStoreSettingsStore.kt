@@ -22,6 +22,7 @@ class DataStoreSettingsStore @Inject constructor(@ApplicationContext private val
     private val onboarding = booleanPreferencesKey("onboarding_seen")
     private val recent = stringPreferencesKey("recent_searches")
     private val name = stringPreferencesKey("display_name")
+    private val guest = booleanPreferencesKey("guest_mode")
     private val pendingId = longPreferencesKey("pending_booking_id")
     private val pendingUntil = longPreferencesKey("pending_hold_until")
 
@@ -34,11 +35,13 @@ class DataStoreSettingsStore @Inject constructor(@ApplicationContext private val
             displayName = it[name],
             pendingBookingId = it[pendingId],
             pendingHoldUntilMillis = it[pendingUntil] ?: 0,
+            guestMode = it[guest] ?: false,
         )
     }
 
     override suspend fun setDark(dark: Boolean) { context.settingsDataStore.edit { it[this.dark] = dark } }
     override suspend fun setLanguage(language: String) { context.settingsDataStore.edit { it[this.language] = language } }
+    override suspend fun setGuestMode(guest: Boolean) { context.settingsDataStore.edit { it[this.guest] = guest } }
     override suspend fun setOnboardingSeen() { context.settingsDataStore.edit { it[onboarding] = true } }
 
     override suspend fun setDisplayName(name: String?) {

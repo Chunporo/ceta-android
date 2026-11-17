@@ -5,6 +5,7 @@ import androidx.credentials.exceptions.NoCredentialException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthActionCodeException
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -21,6 +22,7 @@ object AuthCodes {
     const val INVALID_CODE = "AUTH_INVALID_CODE"
     const val CODE_EXPIRED = "AUTH_CODE_EXPIRED"
     const val INVALID_PHONE = "AUTH_INVALID_PHONE"
+    const val PHONE_UNAVAILABLE = "AUTH_PHONE_UNAVAILABLE"
 }
 
 /** One mapping for everything a sign-in can throw, so screens only ever deal with [ApiError]. */
@@ -36,6 +38,7 @@ fun Throwable.toAuthError(): ApiError = when (this) {
     is FirebaseAuthInvalidUserException -> ApiError(AuthCodes.INVALID_CREDENTIALS, 0)  // never reveal which part was wrong
     is FirebaseAuthUserCollisionException -> ApiError(AuthCodes.EMAIL_IN_USE, 0)
     is FirebaseAuthActionCodeException -> ApiError(AuthCodes.LINK_INVALID, 0)
+    is FirebaseAuthException -> if (errorCode == "ERROR_OPERATION_NOT_ALLOWED" || errorCode == "ERROR_BILLING_NOT_ENABLED") ApiError(AuthCodes.PHONE_UNAVAILABLE, 0) else ApiError(ApiError.UNKNOWN, 0, message = errorCode)
     is FirebaseTooManyRequestsException -> ApiError("TOO_MANY_ATTEMPTS", 429)
     is FirebaseNetworkException -> ApiError(ApiError.NETWORK, 0)
     is GetCredentialCancellationException, is NoCredentialException -> ApiError(AuthCodes.CANCELLED, 0)

@@ -55,7 +55,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
     val start = rememberSaveable {
         when {
             !settings.onboardingSeen -> Routes.ONBOARD
-            known -> Routes.MAIN
+            known || settings.guestMode -> Routes.MAIN
             else -> Routes.LOGIN
         }
     }
@@ -64,6 +64,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
     // Signing in leaves the auth screens; losing the session (sign-out or an expired refresh token) returns to Login.
     val previous = remember { mutableStateOf(known) }
     LaunchedEffect(known) {
+        if (known) main.setGuest(false)
         val current = nav.currentDestination?.route ?: return@LaunchedEffect
         if (known && current in setOf(Routes.LOGIN, Routes.EMAIL_LOGIN, Routes.REGISTER, Routes.FORGOT_PASSWORD)) {
             nav.navigate(Routes.MAIN) { popUpTo(0) }
@@ -86,7 +87,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
         composable(Routes.LOGIN) {
             LoginScreen(
                 linkError = main.linkError.collectAsState().value,
-                onGuest = { nav.navigate(Routes.MAIN) { popUpTo(Routes.LOGIN) { inclusive = true } } },
+                onGuest = { main.setGuest(true); nav.navigate(Routes.MAIN) { popUpTo(Routes.LOGIN) { inclusive = true } } },
                 onUseEmail = { nav.navigate(Routes.EMAIL_LOGIN) },
             )
         }

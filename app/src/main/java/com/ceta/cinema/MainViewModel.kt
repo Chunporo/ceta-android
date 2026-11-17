@@ -67,5 +67,6 @@ class MainViewModel @Inject constructor(
 
     fun setDark(dark: Boolean) { viewModelScope.launch { settingsStore.setDark(dark) } }
     fun setLanguage(language: String) { viewModelScope.launch { settingsStore.setLanguage(language) } }
+    fun setGuest(guest: Boolean) { viewModelScope.launch { settingsStore.setGuestMode(guest) } }
     fun finishOnboarding() { viewModelScope.launch { settingsStore.setOnboardingSeen() } }
 }

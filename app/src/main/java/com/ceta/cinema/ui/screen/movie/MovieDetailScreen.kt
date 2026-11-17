@@ -218,21 +218,28 @@ private fun ReviewDialog(existing: Review?, busy: Boolean, onSubmit: (Int, Strin
     val c = Ceta.colors
     var rating by rememberSaveable { mutableIntStateOf(existing?.rating ?: 8) }
     var comment by rememberSaveable { mutableStateOf(existing?.comment.orEmpty()) }
+    // The dialog is its own window; resolve the words here, in the app's chosen language, and hand it plain text.
+    val title = stringResource(if (existing != null) R.string.review_edit else R.string.review_write)
+    val yourRating = stringResource(R.string.review_your_rating)
+    val hint = stringResource(R.string.review_comment_hint)
+    val submit = stringResource(R.string.review_submit)
+    val delete = stringResource(R.string.review_delete)
+    val cancel = stringResource(R.string.cancel)
     AlertDialog(
         onDismissRequest = onDismiss, containerColor = c.sf,
-        title = { Text(stringResource(if (existing != null) R.string.review_edit else R.string.review_write), color = c.tx) },
+        title = { Text(title, color = c.tx) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(stringResource(R.string.review_your_rating), color = c.mu, style = MaterialTheme.typography.labelMedium)
+                Text(yourRating, color = c.mu, style = MaterialTheme.typography.labelMedium)
                 StarRating(rating, onChange = { rating = it })
-                OutlinedTextField(comment, { comment = it.take(1000) }, placeholder = { Text(stringResource(R.string.review_comment_hint)) }, modifier = Modifier.fillMaxWidth(), minLines = 3)
+                OutlinedTextField(comment, { comment = it.take(1000) }, placeholder = { Text(hint) }, modifier = Modifier.fillMaxWidth(), minLines = 3)
             }
         },
-        confirmButton = { TextButton({ onSubmit(rating, comment) }, enabled = !busy) { Text(stringResource(R.string.review_submit), color = c.ac) } },
+        confirmButton = { TextButton({ onSubmit(rating, comment) }, enabled = !busy) { Text(submit, color = c.ac) } },
         dismissButton = {
             Row {
-                if (existing != null) TextButton(onDelete, enabled = !busy) { Text(stringResource(R.string.review_delete), color = c.mu) }
-                TextButton(onDismiss) { Text(stringResource(R.string.cancel), color = c.mu) }
+                if (existing != null) TextButton(onDelete, enabled = !busy) { Text(delete, color = c.mu) }
+                TextButton(onDismiss) { Text(cancel, color = c.mu) }
             }
         },
     )
