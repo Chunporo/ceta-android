@@ -31,6 +31,10 @@ object Formatters {
         else "${viWeekday(date)}, ${date.format(DateTimeFormatter.ofPattern("dd/MM"))}"
     }
 
+    /** The short weekday on a date tile: T2..CN in Vietnamese, Mon..Sun in English. */
+    fun weekdayShort(date: LocalDate, english: Boolean): String =
+        if (english) date.format(DateTimeFormatter.ofPattern("EEE", Locale.ENGLISH)) else viWeekday(date)
+
     private fun viWeekday(date: LocalDate) = when (date.dayOfWeek.value) {
         1 -> "T2"; 2 -> "T3"; 3 -> "T4"; 4 -> "T5"; 5 -> "T6"; 6 -> "T7"; else -> "CN"
     }
