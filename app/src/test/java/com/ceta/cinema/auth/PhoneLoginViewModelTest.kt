@@ -30,7 +30,7 @@ class PhoneLoginViewModelTest {
 
     @Before fun start() {
         server = MockWebServer().also { it.start() }
-        session = SessionRepository(apiFor(server, tokens, SessionEvents()), tokens, firebase, FakePendingEmail())
+        session = SessionRepository(apiFor(server, tokens, SessionEvents()), tokens, firebase, FakePendingEmail(), com.ceta.cinema.data.FakeSettingsStore())
     }
     @After fun stop() { server.shutdown(); Dispatchers.resetMain() }
 

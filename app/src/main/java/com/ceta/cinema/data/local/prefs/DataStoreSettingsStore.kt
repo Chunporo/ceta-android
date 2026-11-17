@@ -20,6 +20,7 @@ class DataStoreSettingsStore @Inject constructor(@ApplicationContext private val
     private val language = stringPreferencesKey("language")
     private val onboarding = booleanPreferencesKey("onboarding_seen")
     private val recent = stringPreferencesKey("recent_searches")
+    private val name = stringPreferencesKey("display_name")
 
     override val settings: Flow<AppSettings> = context.settingsDataStore.data.map {
         AppSettings(
@@ -27,12 +28,17 @@ class DataStoreSettingsStore @Inject constructor(@ApplicationContext private val
             language = it[language] ?: "vi",
             onboardingSeen = it[onboarding] ?: false,
             recentSearches = (it[recent] ?: "").split('\n').filter { s -> s.isNotBlank() },
+            displayName = it[name],
         )
     }
 
     override suspend fun setDark(dark: Boolean) { context.settingsDataStore.edit { it[this.dark] = dark } }
     override suspend fun setLanguage(language: String) { context.settingsDataStore.edit { it[this.language] = language } }
     override suspend fun setOnboardingSeen() { context.settingsDataStore.edit { it[onboarding] = true } }
+
+    override suspend fun setDisplayName(name: String?) {
+        context.settingsDataStore.edit { if (name.isNullOrBlank()) it.remove(this.name) else it[this.name] = name }
+    }
 
     override suspend fun addRecentSearch(query: String) {
         val current = settings.first().recentSearches

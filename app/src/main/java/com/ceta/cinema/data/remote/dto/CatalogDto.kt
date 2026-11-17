@@ -19,6 +19,7 @@ data class MovieDto(
     val ratingScore: Double? = null,
     val ratingAverage: Double? = null,       // 0..10 from customer reviews, null when nobody reviewed
     val ratingCount: Long = 0,
+    val fromPrice: Long? = null,
     val cast: List<String> = emptyList(),
     val formats: List<String> = emptyList(),
     val genres: List<GenreDto> = emptyList(),

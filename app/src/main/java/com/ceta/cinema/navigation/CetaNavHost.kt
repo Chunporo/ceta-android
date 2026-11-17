@@ -22,10 +22,15 @@ import com.ceta.cinema.ui.screen.auth.EmailLoginScreen
 import com.ceta.cinema.ui.screen.auth.ForgotPasswordScreen
 import com.ceta.cinema.ui.screen.auth.LoginScreen
 import com.ceta.cinema.ui.screen.auth.RegisterScreen
+import com.ceta.cinema.ui.screen.home.HomeTab
 import com.ceta.cinema.ui.screen.main.AccountTab
 import com.ceta.cinema.ui.screen.main.MainShell
 import com.ceta.cinema.ui.screen.main.Tab
+import com.ceta.cinema.ui.screen.movie.MovieDetailScreen
 import com.ceta.cinema.ui.screen.onboarding.OnboardingScreen
+import com.ceta.cinema.ui.screen.search.SearchScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.ceta.cinema.ui.theme.Ceta
 
 @Composable
@@ -80,9 +85,17 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
         }
         composable(Routes.REGISTER) { RegisterScreen(onBackToLogin = { nav.popBackStack() }) }
         composable(Routes.FORGOT_PASSWORD) { ForgotPasswordScreen(onBack = { nav.popBackStack() }) }
+        composable(Routes.SEARCH) { SearchScreen(onBack = { nav.popBackStack() }, onMovie = { nav.navigate(Routes.movieDetail(it)) }) }
+        composable(Routes.MOVIE_DETAIL, arguments = listOf(navArgument("movieId") { type = NavType.StringType })) {
+            MovieDetailScreen(onBack = { nav.popBackStack() }, onBook = { /* showtimes arrive in the next slice */ }, onLogin = { nav.navigate(Routes.LOGIN) })
+        }
         composable(Routes.MAIN) {
             MainShell { tab ->
                 when (tab) {
+                    Tab.HOME -> HomeTab(
+                        onMovie = { nav.navigate(Routes.movieDetail(it)) }, onBook = { nav.navigate(Routes.movieDetail(it)) },
+                        onSearch = { nav.navigate(Routes.SEARCH) }, onNotifications = {}, onOffers = {}, onCinemas = {},
+                    )
                     Tab.ACCOUNT -> AccountTab(settings, known, main::setDark, main::setLanguage,
                         onSignIn = { nav.navigate(Routes.LOGIN) }, onSignOut = main::signOut)
                     else -> Box(Modifier.fillMaxSize().systemBarsPadding(), contentAlignment = Alignment.Center) {

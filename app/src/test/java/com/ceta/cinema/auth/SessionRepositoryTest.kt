@@ -28,7 +28,7 @@ class SessionRepositoryTest {
 
     @Before fun start() {
         server = MockWebServer().also { it.start() }
-        repo = SessionRepository(apiFor(server, tokens, SessionEvents()), tokens, firebase, pending)
+        repo = SessionRepository(apiFor(server, tokens, SessionEvents()), tokens, firebase, pending, com.ceta.cinema.data.FakeSettingsStore())
     }
     @After fun stop() { server.shutdown() }
 

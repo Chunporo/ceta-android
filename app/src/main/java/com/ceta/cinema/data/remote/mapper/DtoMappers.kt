@@ -14,7 +14,7 @@ fun GenreDto.toDomain() = Genre(id ?: 0, name.orEmpty(), slug.orEmpty())
 fun MovieDto.toDomain() = Movie(
     id = id, title = title, posterUrl = posterUrl, ageRating = ageRating, status = MovieStatus.parse(status),
     durationMin = duration, releaseDate = releaseDate.toLocalDateOrNull(), trailerUrl = trailerUrl, director = director,
-    language = language, description = description, ratingAverage = ratingAverage, ratingCount = ratingCount,
+    language = language, description = description, ratingAverage = ratingAverage, ratingCount = ratingCount, fromPrice = fromPrice,
     cast = cast, genres = genres.mapNotNull { it.name }, formats = formats.map { ShowFormat.parse(it) }.toSet(),
 )
 

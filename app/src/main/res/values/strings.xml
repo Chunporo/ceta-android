@@ -66,4 +66,22 @@
     <string name="otp_resend">Gửi lại mã</string>
     <string name="otp_sent_to">Mã 6 số đã được gửi tới %1$s</string>
     <string name="login_email_title">Đăng nhập bằng email</string>
+    <string name="home_hello">Xin chào, %1$s</string>
+    <string name="home_hello_guest">Xin chào</string>
+    <string name="duration_min">%1$d phút</string>
+    <string name="offline_banner">Đang xem dữ liệu đã lưu</string>
+    <string name="reviews_title">Đánh giá</string>
+    <string name="reviews_empty">Chưa có đánh giá nào.</string>
+    <string name="review_write">Viết đánh giá</string>
+    <string name="review_edit">Sửa đánh giá</string>
+    <string name="review_your_rating">Điểm của bạn</string>
+    <string name="review_comment_hint">Cảm nhận của bạn (tuỳ chọn)</string>
+    <string name="review_submit">Gửi đánh giá</string>
+    <string name="review_delete">Xoá đánh giá</string>
+    <string name="review_mine">Đánh giá của bạn</string>
+    <string name="login_needed">Đăng nhập để tiếp tục</string>
+    <string name="clear_all">Xoá</string>
+    <string name="cancel">Huỷ</string>
+    <string name="notifications">Thông báo</string>
+    <string name="movie_not_rated">Chưa có đánh giá</string>
 </resources>

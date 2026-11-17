@@ -57,7 +57,7 @@ data class Genre(val id: Long, val name: String, val slug: String)
 data class Movie(
     val id: String, val title: String, val posterUrl: String?, val ageRating: String?, val status: MovieStatus,
     val durationMin: Int?, val releaseDate: LocalDate?, val trailerUrl: String?, val director: String?, val language: String?,
-    val description: String?, val ratingAverage: Double?, val ratingCount: Long,
+    val description: String?, val ratingAverage: Double?, val ratingCount: Long, val fromPrice: Long?,
     val cast: List<String>, val genres: List<String>, val formats: Set<ShowFormat>,
 ) {
     val isNowShowing: Boolean get() = status == MovieStatus.NOW_SHOWING || status == MovieStatus.EARLY_ACCESS

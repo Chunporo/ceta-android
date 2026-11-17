@@ -6,6 +6,7 @@ import com.ceta.cinema.core.ApiError
 import com.ceta.cinema.core.AuthCodes
 import com.ceta.cinema.core.ApiResult
 import com.ceta.cinema.core.toAuthError
+import com.ceta.cinema.data.local.prefs.SettingsStore
 import com.ceta.cinema.data.local.secure.TokenStore
 import com.ceta.cinema.data.remote.api.CetaApi
 import com.ceta.cinema.data.remote.dto.FirebaseLoginRequest
@@ -29,6 +30,7 @@ class SessionRepository @Inject constructor(
     private val tokens: TokenStore,
     private val firebase: FirebaseAuthSource,
     private val pendingEmail: PendingEmailStore,
+    private val settings: SettingsStore,
 ) {
     private val _signedIn = MutableStateFlow<Boolean?>(null)
     val signedIn: StateFlow<Boolean?> = _signedIn
@@ -96,6 +98,7 @@ class SessionRepository @Inject constructor(
     suspend fun signOut() {
         val refresh = tokens.refresh()
         tokens.clear()
+        settings.setDisplayName(null)
         firebase.signOut()
         _signedIn.value = false
         if (refresh != null) runCatching { api.logout(RefreshRequest(refresh)) }
@@ -110,6 +113,7 @@ class SessionRepository @Inject constructor(
     private suspend fun exchange(idToken: suspend () -> String): ApiResult<Unit> = attempt {
         val response = api.loginWithFirebase(FirebaseLoginRequest(idToken()))
         tokens.saveTokens(response.accessToken, response.refreshToken)
+        settings.setDisplayName(response.user?.username)
         _signedIn.value = true
     }.also { if (it is ApiResult.Err) firebase.signOut() } // no half signed-in state if the backend said no
 

@@ -66,4 +66,22 @@
     <string name="otp_resend">Resend code</string>
     <string name="otp_sent_to">We sent a 6-digit code to %1$s</string>
     <string name="login_email_title">Sign in with email</string>
+    <string name="home_hello">Hi, %1$s</string>
+    <string name="home_hello_guest">Hello</string>
+    <string name="duration_min">%1$d min</string>
+    <string name="offline_banner">Showing saved data</string>
+    <string name="reviews_title">Reviews</string>
+    <string name="reviews_empty">No reviews yet.</string>
+    <string name="review_write">Write a review</string>
+    <string name="review_edit">Edit your review</string>
+    <string name="review_your_rating">Your rating</string>
+    <string name="review_comment_hint">Your thoughts (optional)</string>
+    <string name="review_submit">Submit review</string>
+    <string name="review_delete">Delete review</string>
+    <string name="review_mine">Your review</string>
+    <string name="login_needed">Sign in to continue</string>
+    <string name="clear_all">Clear</string>
+    <string name="cancel">Cancel</string>
+    <string name="notifications">Notifications</string>
+    <string name="movie_not_rated">Not rated yet</string>
 </resources>
