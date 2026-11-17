@@ -93,7 +93,8 @@ private fun DateTile(day: java.time.LocalDate, selected: Boolean, today: Boolean
         Modifier.width(58.dp).height(72.dp).clip(RoundedCornerShape(20.dp)).background(if (selected) c.ac else c.sf).clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
     ) {
-        Text(if (today) stringResource(R.string.ds_today) else Formatters.weekdayShort(day, english), color = fg.copy(alpha = 0.85f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+        Text(if (today) stringResource(R.string.ds_today) else Formatters.weekdayShort(day, english), color = fg.copy(alpha = 0.85f),
+            fontSize = if (today) 10.5.sp else 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false)
         Text("%02d".format(day.dayOfMonth), color = fg, fontSize = 21.sp, fontWeight = FontWeight.ExtraBold)
     }
 }
