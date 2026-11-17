@@ -18,7 +18,6 @@ import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.actionCodeSettings
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.userProfileChangeRequest
-import com.google.firebase.firestore.firestore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
@@ -111,10 +110,7 @@ class FirebaseAuthSourceImpl @Inject constructor() : FirebaseAuthSource {
 
     /** A forced refresh, so a freshly verified email shows up as email_verified in the token. */
     private suspend fun finish(user: FirebaseUser): String {
-        runCatching {
-            Firebase.firestore.collection("users").document(user.uid)
-                .set(mapOf("email" to user.email, "displayName" to user.displayName)).await()
-        }
+        // Profiles live in the backend; a Firestore write here would wait forever while that API is off.
         return user.getIdToken(true).await().token!!
     }
 
