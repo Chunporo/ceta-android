@@ -104,4 +104,5 @@ data class NotificationDto(
     val createdAt: String? = null, val read: Boolean = false, val movieId: String? = null,
 )
 
-data class UnreadCountDto(val count: Long = 0)
+/** The backend answers {"unread": n}; "count" is accepted too. */
+data class UnreadCountDto(@com.google.gson.annotations.SerializedName("unread", alternate = ["count"]) val count: Long = 0)

@@ -137,7 +137,7 @@ class ScreenViewModelsTest {
         answers["GET /api/v1/movies?status=NOW_SHOWING"] = ok("[]")
         answers["GET /api/v1/movies?status=COMING_SOON"] = ok("[]")
         answers["GET /api/v1/promotions"] = ok("[]")
-        answers["GET /api/v1/notifications/unread-count"] = ok("""{"count":3}""")
+        answers["GET /api/v1/notifications/unread-count"] = ok("""{"unread":3}""")
         val s = session(true); s.restore()
         val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), s, settings, offline)
         eventually { vm.unread.value == 3L }

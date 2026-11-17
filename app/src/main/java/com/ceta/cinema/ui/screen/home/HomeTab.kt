@@ -28,6 +28,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.graphics.Brush
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ceta.cinema.R
 import com.ceta.cinema.core.Formatters
@@ -146,7 +150,7 @@ private fun HomeContent(
         if (data.offers.isNotEmpty()) {
             item { SectionHeader(stringResource(R.string.ds_promos), action = stringResource(R.string.ds_view_all), onAction = onOffers) }
             item {
-                LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(data.offers, key = { it.id }) { OfferChip(it, onOffers) }
                 }
             }
@@ -162,16 +166,22 @@ private fun PosterRow(row: List<Movie>, onMovie: (String) -> Unit) {
     }
 }
 
+/** A gradient promo tile as in the design: title on top, expiry and the code chip at the bottom. */
 @Composable
 private fun OfferChip(promo: Promotion, onClick: () -> Unit) {
-    val c = Ceta.colors
     val english = LocalConfiguration.current.locales[0].language == "en"
-    Column(Modifier.width(240.dp).clip(RoundedCornerShape(18.dp)).background(c.sf).clickable(onClick = onClick).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(promo.title(english), color = c.tx, style = MaterialTheme.typography.titleSmall, maxLines = 2)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            promo.validUntil?.let { Text(stringResource(R.string.ds_until) + Formatters.date(Formatters.localDate(it)), color = c.mu, style = MaterialTheme.typography.bodySmall) }
-            Text(promo.code, color = c.ac, style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(c.acs).padding(horizontal = 8.dp, vertical = 2.dp))
+    val hue = (promo.code.hashCode().toUInt().toLong() % 360).toFloat()
+    Column(
+        Modifier.size(width = 250.dp, height = 120.dp).clip(RoundedCornerShape(22.dp))
+            .background(Brush.linearGradient(listOf(Color.hsv(hue, 0.6f, 0.62f), Color.hsv((hue + 40) % 360, 0.65f, 0.45f))))
+            .clickable(onClick = onClick).padding(16.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(promo.title(english), color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 20.sp, maxLines = 2)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(promo.validUntil?.let { stringResource(R.string.ds_until) + " " + Formatters.date(Formatters.localDate(it)) }.orEmpty(), color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp, modifier = Modifier.weight(1f))
+            Text(promo.code, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.Monospace,
+                modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Color.White.copy(alpha = 0.22f)).padding(horizontal = 9.dp, vertical = 4.dp))
         }
     }
 }
