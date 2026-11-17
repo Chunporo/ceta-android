@@ -250,6 +250,31 @@ class ScreenViewModelsTest {
         assertFalse(content(vm).needsLogin)
     }
 
+    @Test fun aGuestAsksForTheReviewFormAndIsSentToLoginInstead() = runTest {
+        setup()
+        answers["GET /api/v1/movies/$movieId/reviews"] = ok("""{"items":[],"page":0,"size":20,"totalItems":0,"totalPages":0}""")
+        answers["GET /api/v1/movies/$movieId"] = ok(movieBody())
+        val vm = detail(signedIn = false)
+        eventually { vm.state.value is UiState.Content }
+        assertFalse(content(vm).signedIn)
+
+        assertFalse("no form for a guest", vm.requestReview())
+        assertTrue(content(vm).needsLogin)
+    }
+
+    @Test fun aSignedInCustomerGetsTheReviewForm() = runTest {
+        setup()
+        answers["GET /api/v1/movies/$movieId/reviews"] = ok("""{"items":[],"page":0,"size":20,"totalItems":0,"totalPages":0}""")
+        answers["GET /api/v1/movies/$movieId/review"] = { MockResponse().setResponseCode(404).setBody("""{"code":"REVIEW_NOT_FOUND"}""") }
+        answers["GET /api/v1/reminders"] = ok("[]")
+        answers["GET /api/v1/movies/$movieId"] = ok(movieBody())
+        val vm = detail(signedIn = true)
+        eventually { vm.state.value is UiState.Content }
+        assertTrue(content(vm).signedIn)
+        assertTrue(vm.requestReview())
+        assertFalse(content(vm).needsLogin)
+    }
+
     @Test fun remindMeTogglesAndAnAlreadyOnSaleMovieExplainsWhy() = runTest {
         setup()
         answers["GET /api/v1/movies/$movieId/reviews"] = ok("""{"items":[],"page":0,"size":20,"totalItems":0,"totalPages":0}""")

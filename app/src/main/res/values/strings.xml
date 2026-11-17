@@ -84,4 +84,15 @@
     <string name="cancel">Huỷ</string>
     <string name="notifications">Thông báo</string>
     <string name="movie_not_rated">Chưa có đánh giá</string>
+    <string name="seat_taken">Ghế %1$s vừa có người chọn</string>
+    <string name="seats_count">%1$d ghế</string>
+    <string name="view_by_cinema">Theo rạp</string>
+    <string name="view_by_time">Theo giờ</string>
+    <string name="dub_tag">Lồng tiếng</string>
+    <string name="sub_tag">Phụ đề</string>
+    <string name="seatmap_hint">Chụm hai ngón để phóng to, kéo để di chuyển</string>
+    <string name="continue_booking">Tiếp tục</string>
+    <string name="held_by_you">Bạn đang giữ</string>
+    <string name="checkout_title">Thanh toán</string>
+    <string name="booking_placeholder">Đơn #%1$d đã được tạo và đang giữ ghế cho bạn.</string>
 </resources>

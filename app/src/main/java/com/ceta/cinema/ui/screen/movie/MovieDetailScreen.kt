@@ -68,7 +68,7 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
                     StatsRow(movie)
                     Synopsis(movie.description)
                     People(movie)
-                    Reviews(ui, onWrite = { showReview = true })
+                    Reviews(ui, onWrite = { if (vm.requestReview()) showReview = true })
                     Spacer(Modifier.height(8.dp))
                 }
             }

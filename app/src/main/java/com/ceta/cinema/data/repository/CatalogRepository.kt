@@ -44,6 +44,8 @@ class CatalogRepository @Inject constructor(private val api: CetaApi, private va
     suspend fun showtimesAtCinema(cinemaId: Long, date: LocalDate): ApiResult<List<Showtime>> =
         cachedCall(showtimeLists, "c:$cinemaId:$date", offline) { api.showtimes(cinemaId = cinemaId, date = date.toString()).map { it.toDomain() } }
 
+    suspend fun showtime(id: Long): ApiResult<Showtime> = safeApiCall { api.showtime(id).toDomain() }
+
     suspend fun combos(): ApiResult<List<Combo>> = cachedCall(comboList, Unit, offline) { api.combos().map { it.toDomain() } }
 
     suspend fun offers(): ApiResult<List<Promotion>> = cachedCall(promoList, Unit, offline) { api.promotions().map { it.toDomain() } }

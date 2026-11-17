@@ -11,4 +11,10 @@ object Routes {
     const val SEARCH = "search"
     const val MOVIE_DETAIL = "movie/{movieId}"
     fun movieDetail(id: String) = "movie/$id"
+    const val SHOWTIMES = "showtimes/{movieId}"
+    fun showtimes(movieId: String) = "showtimes/$movieId"
+    const val SEAT_MAP = "seats/{showtimeId}"
+    fun seatMap(showtimeId: Long) = "seats/$showtimeId"
+    const val CHECKOUT = "checkout/{bookingId}"
+    fun checkout(bookingId: Long) = "checkout/$bookingId"
 }

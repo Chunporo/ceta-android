@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Android 17 (API 37) blocks private addresses such as the emulator's 10.0.2.2 unless this is granted.
+         Only the dev flavor talks to a local backend; staging and prod use public HTTPS. -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <application android:networkSecurityConfig="@xml/network_security_config" />
 </manifest>

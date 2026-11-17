@@ -136,6 +136,14 @@ class CatalogRepositoryTest {
         assertEquals(0L, booking.pointsAmount)
     }
 
+    @Test fun aReplyOfTheWrongShapeIsAnErrorNotACrash() = runTest {
+        server.enqueue(json("{\"unexpected\":\"an object where a list was expected\"}"))
+        server.enqueue(json("[1,2,3]"))
+        val repo = catalog()
+        assertEquals("UNKNOWN", (repo.movies(q = "a") as ApiResult.Err).error.code)
+        assertEquals("UNKNOWN", (repo.cinemas() as ApiResult.Err).error.code)
+    }
+
     @Test fun loyaltyMapsPointsTierAndCounters() = runTest {
         server.enqueue(json(fixture("loyalty.json")))
         val l = (account().loyalty() as ApiResult.Ok).data

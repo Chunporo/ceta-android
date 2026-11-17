@@ -84,4 +84,15 @@
     <string name="cancel">Cancel</string>
     <string name="notifications">Notifications</string>
     <string name="movie_not_rated">Not rated yet</string>
+    <string name="seat_taken">Seat %1$s was just taken</string>
+    <string name="seats_count">%1$d seats</string>
+    <string name="view_by_cinema">By cinema</string>
+    <string name="view_by_time">By time</string>
+    <string name="dub_tag">Dubbed</string>
+    <string name="sub_tag">Subtitled</string>
+    <string name="seatmap_hint">Pinch to zoom, drag to move</string>
+    <string name="continue_booking">Continue</string>
+    <string name="held_by_you">Held by you</string>
+    <string name="checkout_title">Checkout</string>
+    <string name="booking_placeholder">Order #%1$d is created and your seats are on hold.</string>
 </resources>

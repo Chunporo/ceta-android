@@ -30,6 +30,8 @@ data class MovieDetailUi(
     val problem: ApiError? = null,
     /** True when the action needs an account and the customer is a guest. */
     val needsLogin: Boolean = false,
+    /** False for a guest: writing a review or a reminder needs an account. */
+    val signedIn: Boolean = false,
 )
 
 @HiltViewModel
@@ -63,10 +65,18 @@ class MovieDetailViewModel @Inject constructor(
                         reviews = (reviews.await() as? ApiResult.Ok)?.data.orEmpty(),
                         myReview = (mine.await() as? ApiResult.Ok)?.data,
                         reminderOn = ((reminders.await() as? ApiResult.Ok)?.data ?: emptySet()).contains(movieId),
+                        signedIn = signedIn(),
                     ))
                 }
             }
         }
+    }
+
+    /** The review form is only for signed-in customers; a guest is asked to sign in instead. */
+    fun requestReview(): Boolean {
+        if (signedIn()) return true
+        update { it.copy(needsLogin = true) }
+        return false
     }
 
     fun consumeProblem() = update { it.copy(problem = null, needsLogin = false) }

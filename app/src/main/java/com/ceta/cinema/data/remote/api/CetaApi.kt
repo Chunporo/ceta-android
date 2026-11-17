@@ -45,6 +45,8 @@ interface CetaApi {
         @Query("format") format: String? = null,
     ): List<ShowtimeDto>
 
+    @GET("showtimes/{id}") suspend fun showtime(@Path("id") id: Long): ShowtimeDto
+
     @GET("combos") suspend fun combos(): List<ComboDto>
     @GET("promotions") suspend fun promotions(): List<PromotionDto>
     @GET("vouchers") suspend fun vouchers(): List<VoucherDto>
