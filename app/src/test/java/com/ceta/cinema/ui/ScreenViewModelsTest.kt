@@ -116,6 +116,22 @@ class ScreenViewModelsTest {
         assertEquals(0L, vm.unread.value)
     }
 
+    @Test fun anUnpaidOrderWithSeatsStillHeldIsOfferedOnHomeAndAnOldOneIsNot() = runTest {
+        setup()
+        answers["GET /api/v1/movies?status=NOW_SHOWING"] = ok("[]")
+        answers["GET /api/v1/movies?status=COMING_SOON"] = ok("[]")
+        answers["GET /api/v1/promotions"] = ok("[]")
+        settings.setPendingBooking(42, System.currentTimeMillis() + 300_000)
+        val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), session(false), settings, offline)
+        eventually { vm.pendingOrder.value == 42L }
+
+        settings.setPendingBooking(43, System.currentTimeMillis() - 1_000)
+        eventually { vm.pendingOrder.value == null }
+        settings.setPendingBooking(44, System.currentTimeMillis() + 300_000)
+        settings.clearPendingBooking()
+        eventually { vm.pendingOrder.value == null }
+    }
+
     @Test fun aSignedInCustomerSeesTheUnreadBadge() = runTest {
         setup()
         answers["GET /api/v1/movies?status=NOW_SHOWING"] = ok("[]")

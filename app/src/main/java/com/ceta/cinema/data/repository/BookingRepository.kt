@@ -2,6 +2,7 @@ package com.ceta.cinema.data.repository
 
 import com.ceta.cinema.core.ApiResult
 import com.ceta.cinema.core.safeApiCall
+import com.ceta.cinema.data.local.prefs.SettingsStore
 import com.ceta.cinema.data.remote.api.CetaApi
 import com.ceta.cinema.data.remote.dto.BookingExtrasRequest
 import com.ceta.cinema.data.remote.dto.ComboLineRequest
@@ -16,13 +17,21 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class BookingRepository @Inject constructor(private val api: CetaApi) {
+class BookingRepository @Inject constructor(private val api: CetaApi, private val settings: SettingsStore) {
     suspend fun create(showtimeId: Long, seatIds: List<Long>): ApiResult<CreatedBooking> =
-        safeApiCall { api.createBooking(CreateBookingRequest(showtimeId, seatIds)).toDomain() }
+        safeApiCall { api.createBooking(CreateBookingRequest(showtimeId, seatIds)).toDomain() }.also {
+            // Remember it at once: if the app is killed during payment the customer can pick the order up again.
+            if (it is ApiResult.Ok) settings.setPendingBooking(it.data.bookingId, it.data.holdExpiresAt?.toEpochMilli() ?: 0)
+        }
 
     suspend fun get(id: Long): ApiResult<Booking> = safeApiCall { api.booking(id).toDomain() }
 
-    suspend fun cancel(id: Long): ApiResult<Unit> = safeApiCall { api.cancelBooking(id) }
+    suspend fun cancel(id: Long): ApiResult<Unit> = safeApiCall { api.cancelBooking(id) }.also {
+        if (it is ApiResult.Ok) settings.clearPendingBooking()
+    }
+
+    /** Called once an order has reached an end state (paid, expired, cancelled, refunded). */
+    suspend fun forgetPending() = settings.clearPendingBooking()
 
     /** Replaces the snacks, the voucher and the use of points on a pending booking (the whole desired state). */
     suspend fun updateExtras(id: Long, combos: Map<Long, Int>, voucherCode: String?, usePoints: Boolean): ApiResult<Extras> =

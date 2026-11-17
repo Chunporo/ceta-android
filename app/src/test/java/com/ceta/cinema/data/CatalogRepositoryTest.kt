@@ -130,7 +130,7 @@ class CatalogRepositoryTest {
     @Test fun aListTheServerLeavesOutBecomesEmptyNotNull() = runTest {
         // no seats, tickets, combos at all: Gson alone would leave them null and the mapper would crash
         server.enqueue(json("""{"id":42,"status":"PENDING","holdExpiresAt":null,"secondsRemaining":0,"totalAmount":1000}"""))
-        val booking = (BookingRepository(api()).get(42) as ApiResult.Ok).data
+        val booking = (BookingRepository(api(), FakeSettingsStore()).get(42) as ApiResult.Ok).data
         assertTrue(booking.seats.isEmpty() && booking.tickets.isEmpty() && booking.combos.isEmpty())
         assertEquals(0L, booking.comboAmount)
         assertEquals(0L, booking.pointsAmount)
@@ -179,7 +179,7 @@ class CatalogRepositoryTest {
     @Test fun extrasSendTheWholeDesiredStateAndMapTheNewTotal() = runTest {
         server.enqueue(json(fixture("extras.json")))
 
-        val extras = (BookingRepository(api()).updateExtras(42, mapOf(2L to 1, 3L to 0), " CETA20 ", usePoints = true) as ApiResult.Ok).data
+        val extras = (BookingRepository(api(), FakeSettingsStore()).updateExtras(42, mapOf(2L to 1, 3L to 0), " CETA20 ", usePoints = true) as ApiResult.Ok).data
 
         val request = server.takeRequest()
         assertEquals("PUT", request.method)
@@ -197,7 +197,7 @@ class CatalogRepositoryTest {
 
     @Test fun aBlankVoucherIsSentAsNone() = runTest {
         server.enqueue(json(fixture("extras.json")))
-        BookingRepository(api()).updateExtras(42, emptyMap(), "   ", usePoints = false)
+        BookingRepository(api(), FakeSettingsStore()).updateExtras(42, emptyMap(), "   ", usePoints = false)
         assertTrue(server.takeRequest().body.readUtf8().contains("\"usePoints\":false"))
     }
 
@@ -205,7 +205,7 @@ class CatalogRepositoryTest {
         server.enqueue(json("""{"code":"VOUCHER_INVALID","message":"x","details":[]}""", 400))
         server.enqueue(json("""{"code":"INSUFFICIENT_POINTS","message":"x","details":[]}""", 409))
         server.enqueue(json("""{"code":"PAYMENT_ALREADY_STARTED","message":"x","details":[]}""", 409))
-        val repo = BookingRepository(api())
+        val repo = BookingRepository(api(), FakeSettingsStore())
         assertEquals("VOUCHER_INVALID", (repo.updateExtras(1, emptyMap(), "NOPE", false) as ApiResult.Err).error.code)
         assertEquals("INSUFFICIENT_POINTS", (repo.updateExtras(1, emptyMap(), null, true) as ApiResult.Err).error.code)
         assertEquals("PAYMENT_ALREADY_STARTED", (repo.updateExtras(1, emptyMap(), null, false) as ApiResult.Err).error.code)
@@ -231,7 +231,7 @@ class CatalogRepositoryTest {
 
     @Test fun paymentUrlIsJustTheLink() = runTest {
         server.enqueue(json("""{"payUrl":"https://sandbox.vnpayment.vn/pay?x=1","txnRef":"42_1"}"""))
-        assertEquals("https://sandbox.vnpayment.vn/pay?x=1", (BookingRepository(api()).paymentUrl(42) as ApiResult.Ok).data)
+        assertEquals("https://sandbox.vnpayment.vn/pay?x=1", (BookingRepository(api(), FakeSettingsStore()).paymentUrl(42) as ApiResult.Ok).data)
     }
 
     @Test fun notificationsMapMovieAndBookingLinks() = runTest {

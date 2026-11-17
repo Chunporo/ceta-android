@@ -8,6 +8,11 @@ import com.ceta.cinema.core.SessionEvents
 import com.ceta.cinema.data.local.prefs.AppSettings
 import com.ceta.cinema.data.local.prefs.SettingsStore
 import com.ceta.cinema.data.repository.SessionRepository
+import com.ceta.cinema.ui.screen.main.Tab
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -29,6 +34,21 @@ class MainViewModel @Inject constructor(
 
     private val _linkError = MutableStateFlow<ApiError?>(null)
     val linkError: StateFlow<ApiError?> = _linkError
+
+    private val _requestedTab = MutableStateFlow<Tab?>(null)
+    /** A screen can ask the shell to land on a tab (for example My tickets after a purchase). */
+    val requestedTab: StateFlow<Tab?> = _requestedTab
+    fun openTab(tab: Tab) { _requestedTab.value = tab }
+    fun tabShown() { _requestedTab.value = null }
+
+    private val _paymentReturn = Channel<Long>(Channel.BUFFERED)
+    /** The customer came back from the VNPay page: the order to ask the server about. */
+    val paymentReturn: Flow<Long> = _paymentReturn.receiveAsFlow()
+
+    /** The deep link only says "back from payment"; which order it was comes from what was saved when it was created. */
+    fun onPaymentReturn() {
+        viewModelScope.launch { settingsStore.settings.first().pendingBookingId?.let { _paymentReturn.send(it) } }
+    }
 
     init {
         viewModelScope.launch { session.restore() }

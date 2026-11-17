@@ -37,9 +37,10 @@ enum class Tab(val icon: ImageVector, val label: Int) {
 
 /** The five tabs of the design. Each tab's content is supplied by the caller so screens stay independent of the shell. */
 @Composable
-fun MainShell(content: @Composable (Tab) -> Unit) {
+fun MainShell(requested: Tab? = null, onTabShown: () -> Unit = {}, content: @Composable (Tab) -> Unit) {
     val c = Ceta.colors
     var selected by rememberSaveable { mutableIntStateOf(Tab.HOME.ordinal) }
+    androidx.compose.runtime.LaunchedEffect(requested) { requested?.let { selected = it.ordinal; onTabShown() } }
     Column(Modifier.fillMaxSize().background(c.bg)) {
         Box(Modifier.weight(1f).fillMaxWidth()) { content(Tab.entries[selected]) }
         Row(

@@ -20,6 +20,12 @@
                     android:host="ceta-dedff.firebaseapp.com"
                     android:pathPrefix="/finishSignIn" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="ceta" android:host="payment" android:pathPrefix="/result" />
+            </intent-filter>
         </activity>
     </application>
 </manifest>

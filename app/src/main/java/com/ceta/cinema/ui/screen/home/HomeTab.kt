@@ -41,17 +41,19 @@ import java.time.ZoneId
 @Composable
 fun HomeTab(
     onMovie: (String) -> Unit, onBook: (String) -> Unit, onSearch: () -> Unit,
-    onNotifications: () -> Unit, onOffers: () -> Unit, onCinemas: () -> Unit,
+    onNotifications: () -> Unit, onOffers: () -> Unit, onCinemas: () -> Unit, onResume: (Long) -> Unit = {},
     vm: HomeViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsState()
     val unread by vm.unread.collectAsState()
     val name by vm.displayName.collectAsState()
     val offline by vm.offline.collectAsState()
+    val pending by vm.pendingOrder.collectAsState()
     val c = Ceta.colors
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding()) {
         TopRow(unread, onNotifications, onCinemas)
         if (offline) OfflineBanner()
+        pending?.let { ResumeOrderCard(it, onResume) }
         when (val s = state) {
             UiState.Loading -> LoadingBox()
             is UiState.Error -> ErrorBox(s.error, vm::load)
@@ -81,6 +83,19 @@ private fun TopRow(unread: Long, onNotifications: () -> Unit, onCinemas: () -> U
             Icon(Icons.Rounded.Notifications, stringResource(R.string.notifications), tint = c.tx)
             if (unread > 0) Box(Modifier.align(Alignment.TopEnd).padding(8.dp).size(10.dp).clip(CircleShape).background(c.ac))
         }
+    }
+}
+
+@Composable
+private fun ResumeOrderCard(bookingId: Long, onResume: (Long) -> Unit) {
+    val c = Ceta.colors
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp).clip(RoundedCornerShape(16.dp)).background(c.acs)
+            .clickable { onResume(bookingId) }.padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(stringResource(R.string.pending_resume), color = c.tx, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+        Text(stringResource(R.string.pending_continue), color = c.ac, style = MaterialTheme.typography.labelLarge)
     }
 }
 

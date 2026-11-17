@@ -10,6 +10,9 @@ data class AppSettings(
     val recentSearches: List<String> = emptyList(),
     /** The signed-in customer's display name, for the greeting. Cleared on sign-out. */
     val displayName: String? = null,
+    /** A booking created but not yet paid, so a killed app can offer to continue (rule 9). */
+    val pendingBookingId: Long? = null,
+    val pendingHoldUntilMillis: Long = 0,
 )
 
 interface SettingsStore {
@@ -18,6 +21,8 @@ interface SettingsStore {
     suspend fun setLanguage(language: String)
     suspend fun setOnboardingSeen()
     suspend fun setDisplayName(name: String?)
+    suspend fun setPendingBooking(bookingId: Long, holdUntilMillis: Long)
+    suspend fun clearPendingBooking()
     /** Most recent first, no duplicates, at most [MAX_RECENT]. */
     suspend fun addRecentSearch(query: String)
     suspend fun clearRecentSearches()

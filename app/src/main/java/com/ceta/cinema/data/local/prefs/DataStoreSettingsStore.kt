@@ -3,6 +3,7 @@ package com.ceta.cinema.data.local.prefs
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -21,6 +22,8 @@ class DataStoreSettingsStore @Inject constructor(@ApplicationContext private val
     private val onboarding = booleanPreferencesKey("onboarding_seen")
     private val recent = stringPreferencesKey("recent_searches")
     private val name = stringPreferencesKey("display_name")
+    private val pendingId = longPreferencesKey("pending_booking_id")
+    private val pendingUntil = longPreferencesKey("pending_hold_until")
 
     override val settings: Flow<AppSettings> = context.settingsDataStore.data.map {
         AppSettings(
@@ -29,6 +32,8 @@ class DataStoreSettingsStore @Inject constructor(@ApplicationContext private val
             onboardingSeen = it[onboarding] ?: false,
             recentSearches = (it[recent] ?: "").split('\n').filter { s -> s.isNotBlank() },
             displayName = it[name],
+            pendingBookingId = it[pendingId],
+            pendingHoldUntilMillis = it[pendingUntil] ?: 0,
         )
     }
 
@@ -38,6 +43,14 @@ class DataStoreSettingsStore @Inject constructor(@ApplicationContext private val
 
     override suspend fun setDisplayName(name: String?) {
         context.settingsDataStore.edit { if (name.isNullOrBlank()) it.remove(this.name) else it[this.name] = name }
+    }
+
+    override suspend fun setPendingBooking(bookingId: Long, holdUntilMillis: Long) {
+        context.settingsDataStore.edit { it[pendingId] = bookingId; it[pendingUntil] = holdUntilMillis }
+    }
+
+    override suspend fun clearPendingBooking() {
+        context.settingsDataStore.edit { it.remove(pendingId); it.remove(pendingUntil) }
     }
 
     override suspend fun addRecentSearch(query: String) {

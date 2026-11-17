@@ -47,6 +47,11 @@ class HomeViewModel @Inject constructor(
     val displayName: StateFlow<String?> = settings.settings.map { it.displayName }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val offline: StateFlow<Boolean> = offlineFlag.offline
 
+    /** An order created but not paid whose seats are still held: offered on Home so a killed app can carry on. */
+    val pendingOrder: StateFlow<Long?> = settings.settings
+        .map { s -> s.pendingBookingId?.takeIf { s.pendingHoldUntilMillis > System.currentTimeMillis() } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
     init { load() }
 
     fun load() {

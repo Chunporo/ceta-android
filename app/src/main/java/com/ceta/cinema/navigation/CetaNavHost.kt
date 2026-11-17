@@ -32,6 +32,8 @@ import com.ceta.cinema.ui.screen.search.SearchScreen
 import com.ceta.cinema.ui.screen.seat.SeatMapScreen
 import com.ceta.cinema.ui.screen.showtime.ShowtimePickerScreen
 import com.ceta.cinema.ui.screen.booking.CheckoutScreen
+import com.ceta.cinema.ui.screen.booking.ComboScreen
+import com.ceta.cinema.ui.screen.booking.PaymentResultScreen
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.ceta.cinema.ui.theme.Ceta
@@ -63,6 +65,9 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
         }
         previous.value = known
     }
+
+    // Back from the VNPay page (deep link): ask the server about the saved order.
+    LaunchedEffect(Unit) { main.paymentReturn.collect { if (known) nav.navigate(Routes.paymentResult(it)) } }
 
     NavHost(navController = nav, startDestination = start) {
         composable(Routes.ONBOARD) {
@@ -99,17 +104,33 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
             })
         }
         composable(Routes.SEAT_MAP, arguments = listOf(navArgument("showtimeId") { type = NavType.LongType })) {
-            SeatMapScreen(onBack = { nav.popBackStack() }, onBooked = { nav.navigate(Routes.checkout(it)) })
+            SeatMapScreen(onBack = { nav.popBackStack() }, onBooked = { nav.navigate(Routes.combo(it)) })
         }
-        composable(Routes.CHECKOUT, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) { entry ->
-            CheckoutScreen(entry.arguments?.getLong("bookingId") ?: 0L, onBack = { nav.popBackStack() })
+        composable(Routes.COMBO, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) { entry ->
+            val id = entry.arguments?.getLong("bookingId") ?: 0L
+            ComboScreen(onBack = { nav.popBackStack() }, onNext = { nav.navigate(Routes.checkout(id)) }, onChooseSeats = { nav.popBackStack(Routes.SEAT_MAP, inclusive = false) })
+        }
+        composable(Routes.CHECKOUT, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) {
+            CheckoutScreen(
+                onBack = { nav.popBackStack() },
+                onPaying = { nav.navigate(Routes.paymentResult(it)) },
+                onChooseSeats = { nav.popBackStack(Routes.SEAT_MAP, inclusive = false) },
+            )
+        }
+        composable(Routes.PAYMENT_RESULT, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) {
+            PaymentResultScreen(
+                onViewTickets = { main.openTab(Tab.TICKETS); nav.navigate(Routes.MAIN) { popUpTo(0) } },
+                onHome = { main.openTab(Tab.HOME); nav.navigate(Routes.MAIN) { popUpTo(0) } },
+                onChooseSeats = { nav.popBackStack(Routes.SEAT_MAP, inclusive = false) },
+            )
         }
         composable(Routes.MAIN) {
-            MainShell { tab ->
+            MainShell(requested = main.requestedTab.collectAsState().value, onTabShown = main::tabShown) { tab ->
                 when (tab) {
                     Tab.HOME -> HomeTab(
                         onMovie = { nav.navigate(Routes.movieDetail(it)) }, onBook = { nav.navigate(Routes.showtimes(it)) },
                         onSearch = { nav.navigate(Routes.SEARCH) }, onNotifications = {}, onOffers = {}, onCinemas = {},
+                        onResume = { nav.navigate(Routes.checkout(it)) },
                     )
                     Tab.ACCOUNT -> AccountTab(settings, known, main::setDark, main::setLanguage,
                         onSignIn = { nav.navigate(Routes.LOGIN) }, onSignOut = main::signOut)

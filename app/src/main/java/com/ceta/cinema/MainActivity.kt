@@ -34,6 +34,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleLink(intent: Intent) {
-        intent.data?.toString()?.let(viewModel::onLink)
+        val data = intent.data ?: return
+        // The VNPay return arrives as ceta://payment/result; it is never trusted as a payment result, only as a nudge to ask the server.
+        if (data.scheme == "ceta" && data.host == "payment") viewModel.onPaymentReturn() else viewModel.onLink(data.toString())
     }
 }

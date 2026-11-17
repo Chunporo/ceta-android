@@ -125,7 +125,7 @@ class ShowtimeAndSeatViewModelsTest {
     private val showJson = """{"id":501,"movie":{"id":"m1","title":"Dune"},"cinema":{"id":1,"name":"CETA Landmark"},"startTime":"2026-11-18T12:30:00Z","basePrice":85000,"format":"IMAX","status":"SCHEDULED"}"""
 
     private fun seatMap(): SeatMapViewModel =
-        SeatMapViewModel(SavedStateHandle(mapOf("showtimeId" to 501L)), SeatRepository(api()), CatalogRepository(api(), offline), BookingRepository(api()))
+        SeatMapViewModel(SavedStateHandle(mapOf("showtimeId" to 501L)), SeatRepository(api()), CatalogRepository(api(), offline), BookingRepository(api(), FakeSettingsStore()))
 
     private fun ui(vm: SeatMapViewModel) = (vm.state.value as UiState.Content).data
 

@@ -37,7 +37,7 @@ class RepositoryTest {
 
     @Test fun createBooking_409_exposes_conflicting_seat_ids() = runTest {
         server.enqueue(json(fixture("conflict_409.json"), code = 409))
-        val result = BookingRepository(apiFor(server, tokens())).create(5, listOf(7, 8, 9))
+        val result = BookingRepository(apiFor(server, tokens()), com.ceta.cinema.data.FakeSettingsStore()).create(5, listOf(7, 8, 9))
 
         val error = (result as ApiResult.Err).error
         assertEquals("SEAT_CONFLICT", error.code)
@@ -47,7 +47,7 @@ class RepositoryTest {
 
     @Test fun booking_200_maps_hold_and_status() = runTest {
         server.enqueue(json(fixture("booking_pending.json")))
-        val booking = (BookingRepository(apiFor(server, tokens())).get(42) as ApiResult.Ok).data
+        val booking = (BookingRepository(apiFor(server, tokens()), com.ceta.cinema.data.FakeSettingsStore()).get(42) as ApiResult.Ok).data
 
         assertEquals(BookingStatus.PENDING, booking.status)
         assertEquals(Instant.parse("2026-11-17T08:10:00Z"), booking.holdExpiresAt)
@@ -58,7 +58,7 @@ class RepositoryTest {
 
     @Test fun cancel_204_is_ok() = runTest {
         server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(204))
-        assertTrue(BookingRepository(apiFor(server, tokens())).cancel(42) is ApiResult.Ok)
+        assertTrue(BookingRepository(apiFor(server, tokens()), com.ceta.cinema.data.FakeSettingsStore()).cancel(42) is ApiResult.Ok)
     }
 
     @Test fun unreachable_server_is_a_network_error() = runTest {
@@ -70,8 +70,38 @@ class RepositoryTest {
 
     @Test fun error_without_json_body_still_maps() = runTest {
         server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(502).setBody("<html>bad gateway</html>"))
-        val error = (BookingRepository(apiFor(server, tokens())).get(1) as ApiResult.Err).error
+        val error = (BookingRepository(apiFor(server, tokens()), com.ceta.cinema.data.FakeSettingsStore()).get(1) as ApiResult.Err).error
         assertEquals("UNKNOWN", error.code)
         assertEquals(502, error.httpStatus)
+    }
+}
+
+class PendingBookingTest {
+    private val server = MockWebServer()
+
+    @Test fun aCreatedBookingIsRememberedAndForgottenWhenCancelled() = runTest {
+        server.start()
+        val settings = FakeSettingsStore()
+        val repo = BookingRepository(apiFor(server, FakeTokenStore("a", "r")), settings)
+        server.enqueue(json("""{"bookingId":42,"holdExpiresAt":"2026-11-18T12:00:00Z","totalAmount":170000,"seats":[]}""", 201))
+
+        repo.create(5, listOf(1, 2))
+
+        assertEquals(42L, settings.current.pendingBookingId)
+        assertEquals(Instant.parse("2026-11-18T12:00:00Z").toEpochMilli(), settings.current.pendingHoldUntilMillis)
+
+        server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(204))
+        repo.cancel(42)
+        assertNull(settings.current.pendingBookingId)
+        server.shutdown()
+    }
+
+    @Test fun aRefusedBookingLeavesNothingPending() = runTest {
+        server.start()
+        val settings = FakeSettingsStore()
+        server.enqueue(json("""{"code":"SEAT_CONFLICT","message":"x","details":[{"seatId":1}]}""", 409))
+        BookingRepository(apiFor(server, FakeTokenStore("a", "r")), settings).create(5, listOf(1))
+        assertNull(settings.current.pendingBookingId)
+        server.shutdown()
     }
 }

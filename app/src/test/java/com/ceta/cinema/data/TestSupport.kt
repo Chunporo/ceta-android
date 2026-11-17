@@ -24,3 +24,11 @@ fun json(body: String, code: Int = 200) = MockResponse().setResponseCode(code).s
 
 fun apiFor(server: MockWebServer, tokens: TokenStore, events: SessionEvents = SessionEvents()): CetaApi =
     NetworkFactory.create(server.url("/api/v1/").toString(), tokens, events, com.ceta.cinema.data.remote.ApiGson.create(), debug = false)
+
+/** A clock the test moves by hand, for countdowns. */
+class TestClock(var now: java.time.Instant) : java.time.Clock() {
+    override fun getZone(): java.time.ZoneId = java.time.ZoneOffset.UTC
+    override fun withZone(zone: java.time.ZoneId?): java.time.Clock = this
+    override fun instant(): java.time.Instant = now
+    fun advance(seconds: Long) { now = now.plusSeconds(seconds) }
+}
