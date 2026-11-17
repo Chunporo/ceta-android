@@ -1,12 +1,15 @@
 package com.ceta.cinema.auth
 
+import android.app.Activity
 import android.content.Context
 import com.ceta.cinema.data.remote.firebase.FirebaseAuthSource
 import com.ceta.cinema.data.remote.firebase.PendingEmailStore
+import com.ceta.cinema.data.remote.firebase.PhoneCodeResult
 
 /** Firebase stand-in: set [failWith] to make the next call throw; calls are recorded in [calls]. */
 class FakeFirebaseAuth(var idToken: String = "firebase-id-token") : FirebaseAuthSource {
     var failWith: Throwable? = null
+    var phoneResult: PhoneCodeResult = PhoneCodeResult.CodeSent("verification-1")
     val calls = mutableListOf<String>()
     var signedOut = 0
 
@@ -19,6 +22,8 @@ class FakeFirebaseAuth(var idToken: String = "firebase-id-token") : FirebaseAuth
     override suspend fun signUp(email: String, password: String, displayName: String) { hit("signUp:$email:$displayName") }
     override suspend fun sendSignInLink(email: String) { hit("sendLink:$email") }
     override suspend fun sendPasswordReset(email: String) { hit("reset:$email") }
+    override suspend fun sendPhoneCode(activity: Activity, phoneE164: String): PhoneCodeResult { hit("phone:$phoneE164"); return phoneResult }
+    override suspend fun signInWithPhoneCode(verificationId: String, code: String) = hit("code:$verificationId:$code")
     override fun signOut() { signedOut++ }
 }
 

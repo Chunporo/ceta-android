@@ -18,13 +18,21 @@ object AuthCodes {
     const val WEAK_PASSWORD = "AUTH_WEAK_PASSWORD"
     const val CANCELLED = "AUTH_CANCELLED"
     const val LINK_INVALID = "AUTH_LINK_INVALID"
+    const val INVALID_CODE = "AUTH_INVALID_CODE"
+    const val CODE_EXPIRED = "AUTH_CODE_EXPIRED"
+    const val INVALID_PHONE = "AUTH_INVALID_PHONE"
 }
 
 /** One mapping for everything a sign-in can throw, so screens only ever deal with [ApiError]. */
 fun Throwable.toAuthError(): ApiError = when (this) {
     is ApiException -> error
     is FirebaseAuthWeakPasswordException -> ApiError(AuthCodes.WEAK_PASSWORD, 0)       // before its parent class
-    is FirebaseAuthInvalidCredentialsException -> ApiError(AuthCodes.INVALID_CREDENTIALS, 0)
+    is FirebaseAuthInvalidCredentialsException -> when (errorCode) {
+        "ERROR_INVALID_VERIFICATION_CODE" -> ApiError(AuthCodes.INVALID_CODE, 0)
+        "ERROR_SESSION_EXPIRED" -> ApiError(AuthCodes.CODE_EXPIRED, 0)
+        "ERROR_INVALID_PHONE_NUMBER" -> ApiError(AuthCodes.INVALID_PHONE, 0)
+        else -> ApiError(AuthCodes.INVALID_CREDENTIALS, 0)
+    }
     is FirebaseAuthInvalidUserException -> ApiError(AuthCodes.INVALID_CREDENTIALS, 0)  // never reveal which part was wrong
     is FirebaseAuthUserCollisionException -> ApiError(AuthCodes.EMAIL_IN_USE, 0)
     is FirebaseAuthActionCodeException -> ApiError(AuthCodes.LINK_INVALID, 0)

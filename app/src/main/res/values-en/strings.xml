@@ -59,4 +59,11 @@
     <string name="error_booking_not_editable">This order can no longer be edited.</string>
     <string name="error_review_not_allowed">You can review a movie once you have watched it.</string>
     <string name="error_already_on_sale">Tickets for this movie are already on sale.</string>
+    <string name="error_invalid_code">The verification code is wrong.</string>
+    <string name="error_code_expired">The code has expired. Please resend it.</string>
+    <string name="login_use_email">Use email instead</string>
+    <string name="otp_resend_in">Resend code in %1$s</string>
+    <string name="otp_resend">Resend code</string>
+    <string name="otp_sent_to">We sent a 6-digit code to %1$s</string>
+    <string name="login_email_title">Sign in with email</string>
 </resources>

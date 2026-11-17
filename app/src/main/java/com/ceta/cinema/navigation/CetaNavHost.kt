@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ceta.cinema.MainViewModel
 import com.ceta.cinema.data.local.prefs.AppSettings
+import com.ceta.cinema.ui.screen.auth.EmailLoginScreen
 import com.ceta.cinema.ui.screen.auth.ForgotPasswordScreen
 import com.ceta.cinema.ui.screen.auth.LoginScreen
 import com.ceta.cinema.ui.screen.auth.RegisterScreen
@@ -47,7 +48,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
     val previous = remember { mutableStateOf(known) }
     LaunchedEffect(known) {
         val current = nav.currentDestination?.route ?: return@LaunchedEffect
-        if (known && current in setOf(Routes.LOGIN, Routes.REGISTER, Routes.FORGOT_PASSWORD)) {
+        if (known && current in setOf(Routes.LOGIN, Routes.EMAIL_LOGIN, Routes.REGISTER, Routes.FORGOT_PASSWORD)) {
             nav.navigate(Routes.MAIN) { popUpTo(0) }
         } else if (!known && previous.value && current != Routes.LOGIN) {
             nav.navigate(Routes.LOGIN) { popUpTo(0) }
@@ -65,9 +66,16 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
         composable(Routes.LOGIN) {
             LoginScreen(
                 linkError = main.linkError.collectAsState().value,
+                onGuest = { nav.navigate(Routes.MAIN) { popUpTo(Routes.LOGIN) { inclusive = true } } },
+                onUseEmail = { nav.navigate(Routes.EMAIL_LOGIN) },
+            )
+        }
+        composable(Routes.EMAIL_LOGIN) {
+            EmailLoginScreen(
+                linkError = main.linkError.collectAsState().value,
                 onRegister = { nav.navigate(Routes.REGISTER) },
                 onForgotPassword = { nav.navigate(Routes.FORGOT_PASSWORD) },
-                onGuest = { nav.navigate(Routes.MAIN) { popUpTo(Routes.LOGIN) { inclusive = true } } },
+                onBack = { nav.popBackStack() },
             )
         }
         composable(Routes.REGISTER) { RegisterScreen(onBackToLogin = { nav.popBackStack() }) }

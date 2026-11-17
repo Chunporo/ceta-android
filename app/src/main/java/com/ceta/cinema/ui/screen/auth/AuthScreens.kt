@@ -69,28 +69,25 @@ private fun Busy(loading: Boolean, label: Int, onClick: () -> Unit, outlined: Bo
 }
 
 @Composable
-fun LoginScreen(
+fun EmailLoginScreen(
     linkError: ApiError?,
     onRegister: () -> Unit,
     onForgotPassword: () -> Unit,
-    onGuest: () -> Unit,
+    onBack: () -> Unit,
     vm: LoginViewModel = hiltViewModel(),
 ) {
     val s by vm.state.collectAsState()
-    val context = LocalContext.current
-    val webClientId = stringResource(R.string.default_web_client_id)
     AuthColumn {
-        Text(stringResource(R.string.login_title), style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.login_email_title), style = MaterialTheme.typography.titleLarge)
         Field(s.email, vm::onEmail, R.string.field_email, s.emailError, KeyboardType.Email)
         Field(s.password, vm::onPassword, R.string.field_password, s.passwordError, secret = true)
         ErrorText(s.error ?: linkError)
         s.linkSentTo?.let { Text(stringResource(R.string.login_link_sent, it)) }
         Busy(s.loading, R.string.login_action, vm::signIn)
-        Busy(s.loading, R.string.login_google, { vm.signInWithGoogle(context, webClientId) }, outlined = true)
         Busy(s.loading, R.string.login_email_link, vm::sendLink, outlined = true)
         TextButton(onForgotPassword) { Text(stringResource(R.string.login_forgot)) }
         TextButton(onRegister) { Text(stringResource(R.string.login_register)) }
-        TextButton(onGuest) { Text(stringResource(R.string.ds_guest)) }
+        TextButton(onBack) { Text(stringResource(R.string.register_back)) }
     }
 }
 

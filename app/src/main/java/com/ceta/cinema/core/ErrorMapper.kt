@@ -35,6 +35,9 @@ object ErrorMapper {
             AuthCodes.EMAIL_IN_USE -> R.string.error_email_in_use
             AuthCodes.WEAK_PASSWORD -> R.string.error_weak_password
             AuthCodes.CANCELLED -> R.string.error_sign_in_cancelled
+            AuthCodes.INVALID_CODE -> R.string.error_invalid_code
+            AuthCodes.CODE_EXPIRED -> R.string.error_code_expired
+            AuthCodes.INVALID_PHONE -> R.string.ds_phone_err
             AuthCodes.LINK_INVALID -> R.string.error_link_invalid
             ApiError.NETWORK -> R.string.error_network
             else -> R.string.error_generic

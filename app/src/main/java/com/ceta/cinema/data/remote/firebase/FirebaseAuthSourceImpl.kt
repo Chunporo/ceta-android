@@ -1,5 +1,6 @@
 package com.ceta.cinema.data.remote.firebase
 
+import android.app.Activity
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -9,13 +10,21 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.FirebaseException
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.actionCodeSettings
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.firestore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -66,6 +75,37 @@ class FirebaseAuthSourceImpl @Inject constructor() : FirebaseAuthSource {
     override suspend fun sendPasswordReset(email: String) {
         auth.sendPasswordResetEmail(email).await()
     }
+
+    override suspend fun sendPhoneCode(activity: Activity, phoneE164: String): PhoneCodeResult =
+        suspendCancellableCoroutine { cont ->
+            val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                    // Instant verification / auto-retrieval: Firebase has already checked the number, sign in right here.
+                    auth.signInWithCredential(credential)
+                        .addOnSuccessListener { result ->
+                            result.user!!.getIdToken(true)
+                                .addOnSuccessListener { if (cont.isActive) cont.resume(PhoneCodeResult.AutoVerified(it.token!!)) }
+                                .addOnFailureListener { if (cont.isActive) cont.resumeWithException(it) }
+                        }
+                        .addOnFailureListener { if (cont.isActive) cont.resumeWithException(it) }
+                }
+
+                override fun onVerificationFailed(e: FirebaseException) {
+                    if (cont.isActive) cont.resumeWithException(e)
+                }
+
+                override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
+                    if (cont.isActive) cont.resume(PhoneCodeResult.CodeSent(verificationId))
+                }
+            }
+            PhoneAuthProvider.verifyPhoneNumber(
+                PhoneAuthOptions.newBuilder(auth).setPhoneNumber(phoneE164).setTimeout(60L, TimeUnit.SECONDS)
+                    .setActivity(activity).setCallbacks(callbacks).build(),
+            )
+        }
+
+    override suspend fun signInWithPhoneCode(verificationId: String, code: String): String =
+        finish(auth.signInWithCredential(PhoneAuthProvider.getCredential(verificationId, code)).await().user!!)
 
     override fun signOut() = auth.signOut()
 

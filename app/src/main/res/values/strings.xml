@@ -59,4 +59,11 @@
     <string name="error_booking_not_editable">Đơn này không còn chỉnh sửa được.</string>
     <string name="error_review_not_allowed">Bạn chỉ có thể đánh giá phim sau khi đã xem.</string>
     <string name="error_already_on_sale">Phim này đã mở bán vé rồi.</string>
+    <string name="error_invalid_code">Mã xác thực không đúng.</string>
+    <string name="error_code_expired">Mã đã hết hạn. Hãy gửi lại mã.</string>
+    <string name="login_use_email">Dùng email để đăng nhập</string>
+    <string name="otp_resend_in">Gửi lại mã sau %1$s</string>
+    <string name="otp_resend">Gửi lại mã</string>
+    <string name="otp_sent_to">Mã 6 số đã được gửi tới %1$s</string>
+    <string name="login_email_title">Đăng nhập bằng email</string>
 </resources>

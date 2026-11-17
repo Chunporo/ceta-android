@@ -1,5 +1,6 @@
 package com.ceta.cinema.data.repository
 
+import android.app.Activity
 import android.content.Context
 import com.ceta.cinema.core.ApiError
 import com.ceta.cinema.core.AuthCodes
@@ -10,6 +11,7 @@ import com.ceta.cinema.data.remote.api.CetaApi
 import com.ceta.cinema.data.remote.dto.FirebaseLoginRequest
 import com.ceta.cinema.data.remote.dto.RefreshRequest
 import com.ceta.cinema.data.remote.firebase.FirebaseAuthSource
+import com.ceta.cinema.data.remote.firebase.PhoneCodeResult
 import com.ceta.cinema.data.remote.firebase.PendingEmailStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +42,30 @@ class SessionRepository @Inject constructor(
 
     suspend fun signInWithGoogle(context: Context, webClientId: String): ApiResult<Unit> =
         exchange { firebase.signInWithGoogle(context, webClientId) }
+
+    /** What happens after asking for an SMS code. */
+    sealed interface PhoneStart {
+        data class CodeSent(val verificationId: String) : PhoneStart
+        /** The phone verified itself; the customer is already signed in. */
+        data object SignedIn : PhoneStart
+    }
+
+    suspend fun sendPhoneCode(activity: Activity, phoneE164: String): ApiResult<PhoneStart> =
+        try {
+            when (val r = firebase.sendPhoneCode(activity, phoneE164)) {
+                is PhoneCodeResult.CodeSent -> ApiResult.Ok(PhoneStart.CodeSent(r.verificationId))
+                is PhoneCodeResult.AutoVerified -> exchange { r.idToken }.let {
+                    if (it is ApiResult.Ok) ApiResult.Ok(PhoneStart.SignedIn) else it as ApiResult.Err
+                }
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            ApiResult.Err(e.toAuthError())
+        }
+
+    suspend fun confirmPhoneCode(verificationId: String, code: String): ApiResult<Unit> =
+        exchange { firebase.signInWithPhoneCode(verificationId, code.trim()) }
 
     suspend fun sendEmailLink(email: String): ApiResult<Unit> = attempt {
         firebase.sendSignInLink(email.trim())
