@@ -22,7 +22,7 @@ object ShowtimeGrouping {
             MovieShows(key.first, key.second, list.first().posterUrl, list.sortedBy { it.start }.map { chip(it, now) })
         }.sortedBy { it.movieTitle }
 
-    fun chip(showtime: Showtime, now: Instant) = ShowChip(showtime, enabled = !showtime.cancelled && showtime.start.isAfter(now))
+    fun chip(showtime: Showtime, now: Instant) = ShowChip(showtime, enabled = !showtime.cancelled && !showtime.full && showtime.start.isAfter(now))
 
     fun filter(showtimes: List<Showtime>, format: ShowFormat?): List<Showtime> =
         showtimes.filter { format == null || it.format == format }.sortedBy { it.start }

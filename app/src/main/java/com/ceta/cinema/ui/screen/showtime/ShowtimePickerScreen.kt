@@ -153,12 +153,27 @@ private fun ByCinema(shows: List<Showtime>, now: Instant, onPick: (Long) -> Unit
 @Composable
 private fun TimeButton(chip: ShowChip, modifier: Modifier, onClick: () -> Unit) {
     val c = Ceta.colors
-    Box(
+    val s = chip.showtime
+    Column(
         modifier.alpha(if (chip.enabled) 1f else 0.35f).height(52.dp).clip(RoundedCornerShape(14.dp)).background(c.bg)
             .border(1.5.dp, c.ln2, RoundedCornerShape(14.dp)).clickable(enabled = chip.enabled, onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) { Text(Formatters.time(chip.showtime.start), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.Bold) }
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(1.dp, Alignment.CenterVertically),
+    ) {
+        Text(Formatters.time(s.start), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        seatsLeftText(s)?.let { Text(it, color = if (s.isScarce) c.ac else c.mu, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, maxLines = 1) }
+    }
 }
+
+/** "Sold out", or "12 left" / "12 ghế"; nothing when the server did not say. */
+@Composable
+private fun seatsLeftText(s: Showtime): String? = when {
+    s.availableSeats == null -> null
+    s.full -> stringResource(R.string.ds_full)
+    else -> "${s.availableSeats} ${stringResource(R.string.ds_seats_left).trim()}"
+}
+
+/** Fewer than 20 seats left: shown in the accent colour, as in the design. */
+private val Showtime.isScarce: Boolean get() = availableSeats != null && availableSeats < 20
 
 /** The day split into morning / afternoon / evening, one row per show: start → end, format badge, cinema. */
 @Composable
@@ -199,7 +214,11 @@ private fun ShowRow(chip: ShowChip, onClick: () -> Unit) {
                 Text(s.format.label, color = badgeFg, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(badgeBg).padding(horizontal = 7.dp, vertical = 2.dp))
                 Text(s.cinemaName.orEmpty(), color = c.tx, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            Text(stringResource(if (s.languageMode == LanguageMode.DUB) R.string.dub_tag else R.string.sub_tag), color = c.mu, fontSize = 11.5.sp)
+            val filled = s.filled
+            if (filled != null) Box(Modifier.fillMaxWidth().height(5.dp).clip(RoundedCornerShape(3.dp)).background(c.sf2)) {
+                Box(Modifier.fillMaxWidth(filled.coerceIn(0.04f, 1f)).fillMaxHeight().clip(RoundedCornerShape(3.dp)).background(if (s.isScarce) c.ac else c.mu))
+            } else Text(stringResource(if (s.languageMode == LanguageMode.DUB) R.string.dub_tag else R.string.sub_tag), color = c.mu, fontSize = 11.5.sp)
         }
+        seatsLeftText(s)?.let { Text(it, color = c.mu, fontSize = 11.5.sp, textAlign = androidx.compose.ui.text.style.TextAlign.End, modifier = Modifier.width(52.dp)) }
     }
 }

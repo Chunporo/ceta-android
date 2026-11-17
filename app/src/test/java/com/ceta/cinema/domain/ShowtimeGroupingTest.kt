@@ -22,6 +22,17 @@ class ShowtimeGroupingTest {
         assertEquals(listOf(3L, 1L, 2L), ShowtimeGrouping.filter(list, null).map { it.id })
     }
 
+    @Test fun aSoldOutShowIsVisibleButNotTappableAndKnowsHowFullItIs() {
+        val soldOut = show(1, "2026-11-18T12:00:00Z").copy(availableSeats = 0, totalSeats = 120)
+        val busy = show(2, "2026-11-18T12:30:00Z").copy(availableSeats = 30, totalSeats = 120)
+        val unknown = show(3, "2026-11-18T13:00:00Z")
+        val chips = ShowtimeGrouping.byCinema(listOf(soldOut, busy, unknown), now).single().chips
+        assertEquals(listOf(false, true, true), chips.map { it.enabled })
+        assertEquals(1f, soldOut.filled)
+        assertEquals(0.75f, busy.filled)
+        assertNull(unknown.filled)
+    }
+
     @Test fun pastAndCancelledShowsAreVisibleButNotTappable() {
         val past = show(1, "2026-11-18T05:00:00Z")      // 12:00, already over at 14:00
         val cancelled = show(2, "2026-11-18T12:00:00Z", cancelled = true)

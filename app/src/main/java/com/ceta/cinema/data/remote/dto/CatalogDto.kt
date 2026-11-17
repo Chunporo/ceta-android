@@ -53,6 +53,8 @@ data class ShowtimeDto(
     val format: String? = null,             // TWO_D | THREE_D | IMAX
     val languageMode: String? = null,       // SUB | DUB
     val status: String? = null,             // SCHEDULED | CANCELLED
+    val availableSeats: Int? = null,
+    val totalSeats: Int? = null,
 )
 
 data class SeatDto(

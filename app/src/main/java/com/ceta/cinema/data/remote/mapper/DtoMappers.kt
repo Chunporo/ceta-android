@@ -25,6 +25,7 @@ fun ShowtimeDto.toDomain() = Showtime(
     cinemaId = cinema?.id, cinemaName = cinema?.name, roomName = room?.name,
     start = startTime.toInstantOrNull() ?: Instant.EPOCH, end = endTime.toInstantOrNull(), basePrice = basePrice ?: 0L,
     format = ShowFormat.parse(format), languageMode = LanguageMode.parse(languageMode), cancelled = status == "CANCELLED",
+    availableSeats = availableSeats, totalSeats = totalSeats,
 )
 
 fun SeatDto.toDomain() = Seat(

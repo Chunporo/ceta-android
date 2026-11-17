@@ -73,7 +73,14 @@ data class Showtime(
     val cinemaId: Long?, val cinemaName: String?, val roomName: String?,
     val start: Instant, val end: Instant?, val basePrice: Long, val format: ShowFormat, val languageMode: LanguageMode,
     val cancelled: Boolean,
-)
+    /** Free and sellable seats as the server counts them; null when it does not say (no inventory yet). */
+    val availableSeats: Int? = null, val totalSeats: Int? = null,
+) {
+    val full: Boolean get() = availableSeats == 0
+
+    /** How much of the room is taken, 0..1, for the availability bar; null when unknown. */
+    val filled: Float? get() = if (availableSeats != null && totalSeats != null && totalSeats > 0) 1f - availableSeats.toFloat() / totalSeats else null
+}
 
 data class Combo(val id: Long, val name: String, val nameEn: String?, val description: String?, val descriptionEn: String?, val imageUrl: String?, val price: Long) {
     fun title(english: Boolean) = if (english && !nameEn.isNullOrBlank()) nameEn else name
