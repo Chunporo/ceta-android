@@ -13,8 +13,14 @@ import com.ceta.cinema.domain.model.Loyalty
 import com.ceta.cinema.ui.screen.account.AccountViewModel
 import com.ceta.cinema.ui.screen.account.HistoryViewModel
 import com.ceta.cinema.ui.screen.account.NotificationsViewModel
+import com.ceta.cinema.ui.screen.account.ProfileMessage
+import com.ceta.cinema.ui.screen.account.ProfileViewModel
+import com.ceta.cinema.ui.screen.account.RemindersViewModel
+import com.ceta.cinema.ui.screen.account.VouchersViewModel
+import com.ceta.cinema.ui.screen.account.initialsOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.*
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -165,5 +171,83 @@ class AccountViewModelsTest {
         answers["PUT /api/v1/notifications/read-all"] = { json("""{"code":"BOOM"}""", 500) }
         failing.markAllRead()
         eventually { nu(failing).unread == 2 && nu(failing).problem != null }
+    }
+
+    private fun profile(firebase: FakeFirebaseAuth = FakeFirebaseAuth()) = ProfileViewModel(AccountRepository(api()), SessionRepository(api(), tokens, firebase, FakePendingEmail(), settings), settings)
+    private fun content(vm: ProfileViewModel) = (vm.state.value as UiState.Content).data
+
+    @Test fun theProfileShowsTheEmailOfAnEmailAccountAndOffersAPasswordReset() = runTest {
+        setup()
+        answers["GET /api/v1/auth/me"] = ok("""{"id":7,"username":"Minh","email":"minh@example.com","roles":["USER"]}""")
+        val firebase = FakeFirebaseAuth()
+        val vm = profile(firebase)
+        eventually { vm.state.value is UiState.Content }
+        assertEquals("minh@example.com", content(vm).profile.email)
+        assertNull(content(vm).profile.phone)
+        assertTrue(content(vm).canResetPassword)
+        vm.sendPasswordReset()
+        eventually { content(vm).message == ProfileMessage.ResetSent }
+        assertEquals(listOf("reset:minh@example.com"), firebase.calls)
+    }
+
+    @Test fun aPhoneAccountShowsItsNumberNeverTheInternalAddressAndHasNoPassword() = runTest {
+        setup()
+        answers["GET /api/v1/auth/me"] = ok("""{"id":8,"username":"Lan","email":"p84912345678@phone.ceta.invalid","roles":["USER"]}""")
+        val vm = profile()
+        eventually { vm.state.value is UiState.Content }
+        assertEquals("+84912345678", content(vm).profile.phone)
+        assertNull(content(vm).profile.email)
+        assertFalse(content(vm).canResetPassword)
+    }
+
+    @Test fun renamingSavesOnTheServerAndUpdatesTheNameShownAroundTheApp() = runTest {
+        setup()
+        answers["GET /api/v1/auth/me"] = ok("""{"id":7,"username":"Minh","email":"minh@example.com"}""")
+        answers["PATCH /api/v1/auth/me"] = ok("""{"id":7,"username":"Minh Nguyen","email":"minh@example.com"}""")
+        val vm = profile()
+        eventually { vm.state.value is UiState.Content }
+        vm.saveName("  Minh Nguyen ")
+        eventually { content(vm).message == ProfileMessage.Saved }
+        assertEquals("Minh Nguyen", content(vm).profile.username)
+        assertEquals("Minh Nguyen", kotlinx.coroutines.runBlocking { settings.settings.first().displayName })
+    }
+
+    @Test fun aTooShortNameIsRefusedWithoutAskingTheServer() = runTest {
+        setup()
+        answers["GET /api/v1/auth/me"] = ok("""{"id":7,"username":"Minh","email":"minh@example.com"}""")
+        val vm = profile()
+        eventually { vm.state.value is UiState.Content }
+        vm.saveName("Mi")
+        assertEquals(ProfileMessage.NameInvalid, content(vm).message)
+        assertTrue(requests.none { it.startsWith("PATCH") })
+    }
+
+    @Test fun removingAVoucherTakesItOutAtOnceAndAnEmptyWalletIsAnEmptyState() = runTest {
+        setup()
+        answers["GET /api/v1/vouchers"] = ok("""[{"promotion":{"id":1,"code":"CETA20","title":"New","kind":"PERCENT_OFF"}}]""")
+        answers["DELETE /api/v1/vouchers/1"] = { MockResponse().setResponseCode(204) }
+        val vm = VouchersViewModel(AccountRepository(api()))
+        eventually { vm.state.value is UiState.Content }
+        vm.remove(1)
+        assertTrue(vm.state.value is UiState.Empty)
+        eventually { requests.any { it.startsWith("DELETE /api/v1/vouchers/1") } }
+    }
+
+    @Test fun theReminderListShowsMoviesAndDropsOneOnRemove() = runTest {
+        setup()
+        answers["GET /api/v1/reminders"] = ok("""[{"id":"m1","title":"Dune 3","posterUrl":null},{"id":"m2","title":"Zorro"}]""")
+        answers["DELETE /api/v1/movies/m1/reminder"] = { MockResponse().setResponseCode(204) }
+        val vm = RemindersViewModel(AccountRepository(api()))
+        eventually { vm.state.value is UiState.Content }
+        assertEquals(listOf("Dune 3", "Zorro"), (vm.state.value as UiState.Content).data.map { it.title })
+        vm.remove("m1")
+        assertEquals(listOf("m2"), (vm.state.value as UiState.Content).data.map { it.id })
+    }
+
+    @Test fun initialsAreTheFirstAndLastWord() {
+        assertEquals("HT", initialsOf("Huynh Quco Trung"))
+        assertEquals("M", initialsOf("Minh"))
+        assertEquals("C", initialsOf(null))
+        assertEquals("C", initialsOf("   "))
     }
 }

@@ -33,7 +33,8 @@ import com.ceta.cinema.ui.theme.Ceta
 fun AccountTab(
     settings: AppSettings, signedIn: Boolean,
     onDark: (Boolean) -> Unit, onLanguage: (String) -> Unit, onSignIn: () -> Unit, onSignOut: () -> Unit,
-    onHistory: () -> Unit = {}, onSoon: () -> Unit = {},
+    onHistory: () -> Unit = {}, onProfile: () -> Unit = {}, onVouchers: () -> Unit = {}, onReminders: () -> Unit = {},
+    onPayments: () -> Unit = {}, onHelp: () -> Unit = {},
     vm: AccountViewModel = hiltViewModel(),
 ) {
     val c = Ceta.colors
@@ -41,7 +42,7 @@ fun AccountTab(
     val name by vm.displayName.collectAsState()
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding().verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (signedIn) {
-            Header(name, (loyalty as? UiState.Content)?.data, onSoon)
+            Header(name, (loyalty as? UiState.Content)?.data, onProfile)
             when (val l = loyalty) {
                 UiState.Loading -> Box(Modifier.fillMaxWidth().height(96.dp)) { CircularProgressIndicator(Modifier.align(Alignment.Center), color = c.ac) }
                 is UiState.Error -> ErrorBox(l.error, vm::load, Modifier.height(140.dp))
@@ -66,10 +67,12 @@ fun AccountTab(
                 Switch(checked = settings.dark, onCheckedChange = onDark, colors = SwitchDefaults.colors(checkedTrackColor = c.ac, checkedThumbColor = Color.White, uncheckedTrackColor = c.ln2, uncheckedThumbColor = Color.White, uncheckedBorderColor = Color.Transparent))
             }
             if (signedIn) {
-                MenuRow(Icons.Rounded.Person, R.string.ds_profile, onSoon)
+                MenuRow(Icons.Rounded.Person, R.string.ds_profile, onProfile)
+                MenuRow(Icons.Rounded.ConfirmationNumber, R.string.ds_my_vouchers, onVouchers)
+                MenuRow(Icons.Rounded.NotificationsActive, R.string.reminders_title, onReminders)
                 MenuRow(Icons.Rounded.ReceiptLong, R.string.ds_history, onHistory)
-                MenuRow(Icons.Rounded.CreditCard, R.string.ds_pay_methods, onSoon)
-                MenuRow(Icons.Rounded.HelpOutline, R.string.ds_help, onSoon)
+                MenuRow(Icons.Rounded.CreditCard, R.string.ds_pay_methods, onPayments)
+                MenuRow(Icons.Rounded.HelpOutline, R.string.ds_help, onHelp)
                 MenuRow(Icons.Rounded.Logout, R.string.ds_logout, onSignOut, danger = true)
             }
         }
@@ -96,9 +99,7 @@ private fun LanguagePills(english: Boolean, onChange: (Boolean) -> Unit) {
 @Composable
 private fun Header(name: String?, loyalty: Loyalty?, onEdit: () -> Unit) {
     val c = Ceta.colors
-    val initials = name.orEmpty().trim().split(Regex("\\s+")).filter { it.isNotEmpty() }.let { parts ->
-        when { parts.isEmpty() -> "C"; parts.size == 1 -> parts[0].take(1); else -> "${parts.first().first()}${parts.last().first()}" }
-    }.uppercase()
+    val initials = com.ceta.cinema.ui.screen.account.initialsOf(name)
     Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
         Box(Modifier.size(60.dp).clip(CircleShape).background(c.ac2), contentAlignment = Alignment.Center) {
             Text(initials, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)

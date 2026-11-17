@@ -1,0 +1,139 @@
+package com.ceta.cinema.ui.screen.account
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ceta.cinema.core.ApiError
+import com.ceta.cinema.core.ApiResult
+import com.ceta.cinema.core.UiState
+import com.ceta.cinema.data.local.prefs.SettingsStore
+import com.ceta.cinema.data.repository.AccountRepository
+import com.ceta.cinema.data.repository.SessionRepository
+import com.ceta.cinema.domain.model.Profile
+import com.ceta.cinema.domain.model.Promotion
+import com.ceta.cinema.domain.model.ReminderMovie
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+sealed interface ProfileMessage {
+    data object Saved : ProfileMessage
+    data object NameInvalid : ProfileMessage
+    data object ResetSent : ProfileMessage
+    data class Failed(val error: ApiError) : ProfileMessage
+}
+
+data class ProfileUi(val profile: Profile, val saving: Boolean = false, val message: ProfileMessage? = null) {
+    /** Only an account with a real email has a password to reset. */
+    val canResetPassword: Boolean get() = !profile.email.isNullOrBlank()
+}
+
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
+    private val account: AccountRepository,
+    private val session: SessionRepository,
+    private val settings: SettingsStore,
+) : ViewModel() {
+    private val _state = MutableStateFlow<UiState<ProfileUi>>(UiState.Loading)
+    val state: StateFlow<UiState<ProfileUi>> = _state
+
+    init { load() }
+
+    fun load() {
+        _state.value = UiState.Loading
+        viewModelScope.launch {
+            _state.value = when (val r = account.profile()) {
+                is ApiResult.Ok -> UiState.Content(ProfileUi(r.data))
+                is ApiResult.Err -> UiState.Error(r.error)
+            }
+        }
+    }
+
+    fun saveName(name: String) {
+        val ui = current() ?: return
+        val clean = name.trim()
+        if (clean.length !in NAME_LENGTH) { update { it.copy(message = ProfileMessage.NameInvalid) }; return }
+        if (clean == ui.profile.username) return
+        update { it.copy(saving = true, message = null) }
+        viewModelScope.launch {
+            when (val r = account.rename(clean)) {
+                is ApiResult.Ok -> {
+                    settings.setDisplayName(r.data.username)
+                    update { it.copy(profile = r.data, saving = false, message = ProfileMessage.Saved) }
+                }
+                is ApiResult.Err -> update { it.copy(saving = false, message = ProfileMessage.Failed(r.error)) }
+            }
+        }
+    }
+
+    fun sendPasswordReset() {
+        val email = current()?.profile?.email ?: return
+        update { it.copy(saving = true, message = null) }
+        viewModelScope.launch {
+            val r = session.forgotPassword(email)
+            update { it.copy(saving = false, message = if (r is ApiResult.Err) ProfileMessage.Failed(r.error) else ProfileMessage.ResetSent) }
+        }
+    }
+
+    fun consumeMessage() = update { it.copy(message = null) }
+
+    private fun current(): ProfileUi? = (_state.value as? UiState.Content)?.data
+    private fun update(change: (ProfileUi) -> ProfileUi) { _state.update { s -> if (s is UiState.Content) UiState.Content(change(s.data)) else s } }
+
+    companion object { val NAME_LENGTH = 3..50 }
+}
+
+/** The offers the customer saved to their wallet, with a way to drop one. */
+@HiltViewModel
+class VouchersViewModel @Inject constructor(private val account: AccountRepository) : ViewModel() {
+    private val _state = MutableStateFlow<UiState<List<Promotion>>>(UiState.Loading)
+    val state: StateFlow<UiState<List<Promotion>>> = _state
+
+    init { load() }
+
+    fun load() {
+        _state.value = UiState.Loading
+        viewModelScope.launch {
+            _state.value = when (val r = account.wallet()) {
+                is ApiResult.Err -> UiState.Error(r.error)
+                is ApiResult.Ok -> if (r.data.isEmpty()) UiState.Empty() else UiState.Content(r.data)
+            }
+        }
+    }
+
+    /** Gone from the list at once; if the server refuses, the list is reloaded so it tells the truth. */
+    fun remove(promotionId: Long) {
+        val before = (_state.value as? UiState.Content)?.data ?: return
+        val after = before.filterNot { it.id == promotionId }
+        _state.value = if (after.isEmpty()) UiState.Empty() else UiState.Content(after)
+        viewModelScope.launch { if (account.removeVoucher(promotionId) is ApiResult.Err) load() }
+    }
+}
+
+/** Coming-soon movies the customer asked to be told about. */
+@HiltViewModel
+class RemindersViewModel @Inject constructor(private val account: AccountRepository) : ViewModel() {
+    private val _state = MutableStateFlow<UiState<List<ReminderMovie>>>(UiState.Loading)
+    val state: StateFlow<UiState<List<ReminderMovie>>> = _state
+
+    init { load() }
+
+    fun load() {
+        _state.value = UiState.Loading
+        viewModelScope.launch {
+            _state.value = when (val r = account.reminders()) {
+                is ApiResult.Err -> UiState.Error(r.error)
+                is ApiResult.Ok -> if (r.data.isEmpty()) UiState.Empty() else UiState.Content(r.data)
+            }
+        }
+    }
+
+    fun remove(movieId: String) {
+        val before = (_state.value as? UiState.Content)?.data ?: return
+        val after = before.filterNot { it.id == movieId }
+        _state.value = if (after.isEmpty()) UiState.Empty() else UiState.Content(after)
+        viewModelScope.launch { if (account.removeReminder(movieId) is ApiResult.Err) load() }
+    }
+}

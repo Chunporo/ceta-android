@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_name_label">Tên hiển thị</string>
+    <string name="profile_save">Lưu thay đổi</string>
+    <string name="profile_email">Email</string>
+    <string name="profile_phone">Số điện thoại</string>
+    <string name="profile_saved">Đã lưu thay đổi</string>
+    <string name="profile_name_invalid">Tên cần từ 3 đến 50 ký tự</string>
+    <string name="profile_reset_password">Đổi mật khẩu</string>
+    <string name="profile_reset_hint">Chúng tôi sẽ gửi liên kết đặt lại mật khẩu tới email của bạn.</string>
+    <string name="profile_reset_sent">Đã gửi email đặt lại mật khẩu</string>
+    <string name="profile_signed_with_phone">Bạn đăng nhập bằng số điện thoại nên không có mật khẩu để đổi.</string>
+
+    <string name="ds_my_vouchers">Voucher của tôi</string>
+    <string name="vouchers_empty">Bạn chưa lưu voucher nào.</string>
+    <string name="vouchers_find">Xem ưu đãi</string>
+    <string name="voucher_unsave">Bỏ lưu</string>
+
+    <string name="reminders_title">Phim đang chờ</string>
+    <string name="reminders_empty">Bạn chưa đặt nhắc phim nào. Nhấn "Nhắc tôi" ở trang phim sắp chiếu.</string>
+    <string name="reminders_remove">Bỏ nhắc</string>
+
+    <string name="pm_default">Mặc định</string>
+    <string name="pm_vnpay_desc">Thanh toán bằng mã QR, thẻ ATM nội địa hoặc thẻ Visa / Mastercard qua VNPay.</string>
+    <string name="pm_note">CETA không lưu thông tin thẻ của bạn. Bạn nhập thông tin thanh toán trực tiếp trên VNPay.</string>
+    <string name="pm_more">Các phương thức khác sẽ sớm có mặt.</string>
+
+    <string name="help_faq">Câu hỏi thường gặp</string>
+    <string name="help_about">Về CETA</string>
+    <string name="help_version">Phiên bản %1$s</string>
+    <string name="faq_q1">Làm sao để đặt vé?</string>
+    <string name="faq_a1">Chọn phim, suất chiếu và ghế, thêm bắp nước nếu muốn, rồi thanh toán qua VNPay. Vé xuất hiện ngay trong mục Vé của tôi.</string>
+    <string name="faq_q2">Ghế được giữ trong bao lâu?</string>
+    <string name="faq_a2">Ghế được giữ 10 phút kể từ lúc bạn tiếp tục sau bước chọn ghế. Hết giờ mà chưa thanh toán, ghế được trả lại cho người khác.</string>
+    <string name="faq_q3">Tôi đã thanh toán nhưng chưa thấy vé?</string>
+    <string name="faq_a3">Vé xuất hiện sau khi VNPay xác nhận, thường trong vài giây. Nếu chưa thấy, mở Lịch sử giao dịch để xem trạng thái đơn của bạn.</string>
+    <string name="faq_q4">Điểm CETA dùng thế nào?</string>
+    <string name="faq_a4">Mỗi 1.000đ thanh toán được 1 điểm. Mỗi 2.000 điểm đổi được 20.000đ ở bước thanh toán, khi đơn hàng đủ lớn.</string>
+    <string name="faq_q5">Dùng voucher ở đâu?</string>
+    <string name="faq_a5">Lưu mã trong mục Ưu đãi hoặc nhập mã ở bước thanh toán. Mỗi đơn dùng một voucher và giảm trên tiền vé.</string>
+    <string name="faq_q6">Vào rạp bằng cách nào?</string>
+    <string name="faq_a6">Đưa mã QR trong Vé của tôi cho nhân viên soát vé. Hãy tăng độ sáng màn hình để quét nhanh hơn.</string>
+</resources>

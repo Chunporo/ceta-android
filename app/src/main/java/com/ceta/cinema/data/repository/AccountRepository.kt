@@ -4,6 +4,8 @@ import com.ceta.cinema.core.ApiResult
 import com.ceta.cinema.core.safeApiCall
 import com.ceta.cinema.data.remote.api.CetaApi
 import com.ceta.cinema.data.remote.dto.ReviewRequest
+import com.ceta.cinema.data.remote.dto.UpdateProfileRequest
+import com.ceta.cinema.data.remote.mapper.toProfile
 import com.ceta.cinema.data.remote.mapper.toDomain
 import com.ceta.cinema.domain.model.*
 import javax.inject.Inject
@@ -12,6 +14,10 @@ import javax.inject.Singleton
 /** Everything that belongs to the signed-in customer and is never cached: points, wallet, reviews, reminders, notifications. */
 @Singleton
 class AccountRepository @Inject constructor(private val api: CetaApi) {
+    suspend fun profile(): ApiResult<Profile> = safeApiCall { api.me().toProfile() }
+    suspend fun rename(name: String): ApiResult<Profile> = safeApiCall { api.updateProfile(UpdateProfileRequest(name.trim())).toProfile() }
+    suspend fun reminders(): ApiResult<List<ReminderMovie>> = safeApiCall { api.reminders().map { ReminderMovie(it.id, it.title, it.posterUrl) } }
+
     suspend fun loyalty(): ApiResult<Loyalty> = safeApiCall { api.loyalty().toDomain() }
 
     suspend fun walletPromotionIds(): ApiResult<Set<Long>> = safeApiCall { api.vouchers().map { it.promotion.id }.toSet() }

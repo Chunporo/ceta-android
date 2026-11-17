@@ -4,6 +4,7 @@ import com.ceta.cinema.data.remote.dto.*
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -13,6 +14,8 @@ import retrofit2.http.Query
 interface CetaApi {
     @POST("auth/firebase") suspend fun loginWithFirebase(@Body body: FirebaseLoginRequest): TokenResponse
     @POST("auth/logout") suspend fun logout(@Body body: RefreshRequest)
+    @GET("auth/me") suspend fun me(): UserDto
+    @PATCH("auth/me") suspend fun updateProfile(@Body body: UpdateProfileRequest): UserDto
 
     @GET("movies")
     suspend fun movies(

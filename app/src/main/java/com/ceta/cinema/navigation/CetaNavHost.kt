@@ -23,7 +23,12 @@ import com.ceta.cinema.ui.screen.auth.ForgotPasswordScreen
 import com.ceta.cinema.ui.screen.auth.LoginScreen
 import com.ceta.cinema.ui.screen.auth.RegisterScreen
 import com.ceta.cinema.domain.model.BookingStatus
+import com.ceta.cinema.ui.screen.account.HelpScreen
 import com.ceta.cinema.ui.screen.account.HistoryScreen
+import com.ceta.cinema.ui.screen.account.PaymentMethodsScreen
+import com.ceta.cinema.ui.screen.account.ProfileScreen
+import com.ceta.cinema.ui.screen.account.RemindersScreen
+import com.ceta.cinema.ui.screen.account.VouchersScreen
 import com.ceta.cinema.ui.screen.account.NotificationsScreen
 import com.ceta.cinema.ui.screen.cinema.CinemasTab
 import com.ceta.cinema.ui.screen.home.HomeTab
@@ -124,6 +129,11 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                 }
             })
         }
+        composable(Routes.PROFILE) { ProfileScreen(onBack = { nav.popBackStack() }) }
+        composable(Routes.VOUCHERS) { VouchersScreen(onBack = { nav.popBackStack() }, onFind = { nav.popBackStack(); main.openTab(Tab.PROMOS) }) }
+        composable(Routes.REMINDERS) { RemindersScreen(onBack = { nav.popBackStack() }, onMovie = { nav.navigate(Routes.movieDetail(it)) }) }
+        composable(Routes.PAYMENT_METHODS) { PaymentMethodsScreen(onBack = { nav.popBackStack() }) }
+        composable(Routes.HELP) { HelpScreen(onBack = { nav.popBackStack() }) }
         composable(Routes.NOTIFICATIONS) {
             NotificationsScreen(onBack = { nav.popBackStack() }, onOpen = { n ->
                 when {
@@ -171,7 +181,9 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                     )
                     Tab.ACCOUNT -> AccountTab(settings, known, main::setDark, main::setLanguage,
                         onSignIn = { nav.navigate(Routes.LOGIN) }, onSignOut = main::signOut,
-                        onHistory = { nav.navigate(Routes.HISTORY) }, onSoon = { /* profile, payment methods and help are not built yet */ })
+                        onHistory = { nav.navigate(Routes.HISTORY) }, onProfile = { nav.navigate(Routes.PROFILE) },
+                        onVouchers = { nav.navigate(Routes.VOUCHERS) }, onReminders = { nav.navigate(Routes.REMINDERS) },
+                        onPayments = { nav.navigate(Routes.PAYMENT_METHODS) }, onHelp = { nav.navigate(Routes.HELP) })
                 }
             }
         }

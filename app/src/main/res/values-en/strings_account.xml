@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_name_label">Display name</string>
+    <string name="profile_save">Save changes</string>
+    <string name="profile_email">Email</string>
+    <string name="profile_phone">Phone number</string>
+    <string name="profile_saved">Changes saved</string>
+    <string name="profile_name_invalid">The name needs 3 to 50 characters</string>
+    <string name="profile_reset_password">Change password</string>
+    <string name="profile_reset_hint">We will email you a link to reset your password.</string>
+    <string name="profile_reset_sent">Password reset email sent</string>
+    <string name="profile_signed_with_phone">You sign in with your phone number, so there is no password to change.</string>
+
+    <string name="ds_my_vouchers">My vouchers</string>
+    <string name="vouchers_empty">You have not saved any vouchers yet.</string>
+    <string name="vouchers_find">Browse offers</string>
+    <string name="voucher_unsave">Remove</string>
+
+    <string name="reminders_title">Movies I am waiting for</string>
+    <string name="reminders_empty">You have no reminders yet. Tap "Remind me" on a coming-soon movie.</string>
+    <string name="reminders_remove">Remove reminder</string>
+
+    <string name="pm_default">Default</string>
+    <string name="pm_vnpay_desc">Pay with a QR code, a domestic ATM card or a Visa / Mastercard through VNPay.</string>
+    <string name="pm_note">CETA does not store your card details. You enter payment details directly on VNPay.</string>
+    <string name="pm_more">More payment methods are coming soon.</string>
+
+    <string name="help_faq">Frequently asked questions</string>
+    <string name="help_about">About CETA</string>
+    <string name="help_version">Version %1$s</string>
+    <string name="faq_q1">How do I book tickets?</string>
+    <string name="faq_a1">Pick a movie, a showtime and your seats, add snacks if you like, then pay with VNPay. Your tickets appear in My tickets right away.</string>
+    <string name="faq_q2">How long are seats held?</string>
+    <string name="faq_a2">Seats are held for 10 minutes once you continue from the seat map. If you have not paid by then, they go back on sale.</string>
+    <string name="faq_q3">I paid but see no ticket?</string>
+    <string name="faq_a3">Tickets appear once VNPay confirms the payment, usually within seconds. If yours has not, open Transactions to see the status of your order.</string>
+    <string name="faq_q4">How do CETA points work?</string>
+    <string name="faq_a4">You earn 1 point for every 1,000đ paid. Every 2,000 points are worth 20,000đ at checkout, when the order is large enough.</string>
+    <string name="faq_q5">Where do I use a voucher?</string>
+    <string name="faq_a5">Save the code in Offers or type it at checkout. One voucher per order, taken off the ticket price.</string>
+    <string name="faq_q6">How do I get into the cinema?</string>
+    <string name="faq_a6">Show the QR code in My tickets to the staff at the door. Turn the screen brightness up so it scans faster.</string>
+</resources>

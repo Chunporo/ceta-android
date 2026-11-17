@@ -151,3 +151,9 @@ data class AppNotification(
     val id: Long, val type: String, val title: String, val body: String, val bookingId: Long?, val movieId: String?,
     val createdAt: Instant?, val read: Boolean,
 )
+
+/** Who the signed-in customer is. A phone sign-in has no real email, so it carries the phone number instead. */
+data class Profile(val username: String, val email: String?, val phone: String?)
+
+/** A coming-soon movie the customer asked to be told about. */
+data class ReminderMovie(val id: String, val title: String, val posterUrl: String?)

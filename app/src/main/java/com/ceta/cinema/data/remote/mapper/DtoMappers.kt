@@ -80,3 +80,12 @@ fun TicketDto.toDomain() = Ticket(
 )
 
 fun NotificationDto.toDomain() = AppNotification(id, type, title, body, bookingId, movieId, createdAt.toInstantOrNull(), read)
+
+private const val PHONE_EMAIL_DOMAIN = "@phone.ceta.invalid"
+
+/** The backend gives a phone sign-in an internal address "p<digits>@phone.ceta.invalid"; show the number, never that address. */
+fun UserDto.toProfile(): Profile {
+    val mail = email.orEmpty()
+    val phone = if (mail.endsWith(PHONE_EMAIL_DOMAIN)) "+" + mail.removeSuffix(PHONE_EMAIL_DOMAIN).removePrefix("p").filter { it.isDigit() } else null
+    return Profile(username = username.orEmpty(), email = mail.takeIf { it.isNotBlank() && phone == null }, phone = phone)
+}

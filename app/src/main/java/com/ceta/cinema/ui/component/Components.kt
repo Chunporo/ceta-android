@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import com.ceta.cinema.core.ApiError
 import com.ceta.cinema.core.ErrorMapper
@@ -120,11 +121,13 @@ fun Poster(url: String?, seed: String, modifier: Modifier = Modifier) {
 @Composable
 fun CetaTopBar(title: String, onBack: (() -> Unit)?, modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit = {}) {
     val c = Ceta.colors
-    Row(modifier.fillMaxWidth().height(56.dp).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         if (onBack != null) {
-            IconButton(onClick = onBack) { Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(R.string.back), tint = c.tx) }
-        } else Spacer(Modifier.width(12.dp))
-        Text(title, style = MaterialTheme.typography.titleMedium, color = c.tx, modifier = Modifier.weight(1f))
+            Box(Modifier.size(44.dp).clip(CircleShape).background(c.sf).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
+                Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(R.string.back), tint = c.tx, modifier = Modifier.size(22.dp))
+            }
+        } else Spacer(Modifier.width(8.dp))
+        Text(title, color = c.tx, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
         actions()
     }
 }
