@@ -1,6 +1,8 @@
 package com.ceta.cinema.ui.screen.auth
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,14 +30,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ceta.cinema.R
 import com.ceta.cinema.core.ApiError
 import com.ceta.cinema.core.ErrorMapper
+import com.ceta.cinema.ui.theme.Ceta
 import com.ceta.cinema.ui.theme.Spacing
 
 @Composable
 private fun AuthColumn(content: @Composable () -> Unit) {
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(Spacing.m),
-        verticalArrangement = Arrangement.spacedBy(Spacing.s, Alignment.CenterVertically),
-    ) { content() }
+    // A Surface gives bare Text the theme's text colour; without one it is black on our dark background.
+    androidx.compose.material3.Surface(color = Ceta.colors.bg, contentColor = Ceta.colors.tx, modifier = Modifier.fillMaxSize()) {
+        Column(
+            Modifier.fillMaxSize().systemBarsPadding().verticalScroll(rememberScrollState()).padding(Spacing.m),
+            verticalArrangement = Arrangement.spacedBy(Spacing.s, Alignment.CenterVertically),
+        ) { content() }
+    }
 }
 
 @Composable
