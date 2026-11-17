@@ -4,36 +4,27 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.lifecycle.lifecycleScope
-import com.ceta.cinema.auth.AuthRepository
+import androidx.activity.viewModels
 import com.ceta.cinema.navigation.CetaNavHost
-import com.ceta.cinema.navigation.Routes
 import com.ceta.cinema.ui.theme.CetaTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject lateinit var auth: AuthRepository
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        handleSignInLink(intent)
-        setContent { CetaTheme { CetaNavHost(startDestination = Routes.LOGIN) } }
+        if (savedInstanceState == null) handleLink(intent)
+        setContent { CetaTheme { CetaNavHost(viewModel) } }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        handleSignInLink(intent)
+        handleLink(intent)
     }
 
-    /** Completes email-link sign-in when the app is opened from the emailed link. */
-    private fun handleSignInLink(intent: Intent) {
-        val link = intent.data?.toString() ?: return
-        if (!auth.isSignInLink(link)) return
-        // The login screen saves the typed email under "pending_email" when it sends the link.
-        val email = getSharedPreferences("auth", MODE_PRIVATE).getString("pending_email", null) ?: return
-        lifecycleScope.launch { runCatching { auth.signInWithLink(email, link) } }
+    private fun handleLink(intent: Intent) {
+        intent.data?.toString()?.let(viewModel::onLink)
     }
 }

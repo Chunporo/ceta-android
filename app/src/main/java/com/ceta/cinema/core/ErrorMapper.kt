@@ -22,6 +22,11 @@ object ErrorMapper {
             "HAS_ACTIVE_TICKETS" -> R.string.error_has_active_tickets
             "ACCOUNT_LOCKED" -> R.string.error_account_locked
             "EMAIL_NOT_VERIFIED" -> R.string.error_email_not_verified
+            AuthCodes.INVALID_CREDENTIALS -> R.string.error_invalid_credentials
+            AuthCodes.EMAIL_IN_USE -> R.string.error_email_in_use
+            AuthCodes.WEAK_PASSWORD -> R.string.error_weak_password
+            AuthCodes.CANCELLED -> R.string.error_sign_in_cancelled
+            AuthCodes.LINK_INVALID -> R.string.error_link_invalid
             ApiError.NETWORK -> R.string.error_network
             else -> R.string.error_generic
         }

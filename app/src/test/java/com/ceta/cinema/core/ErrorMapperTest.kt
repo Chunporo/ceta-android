@@ -28,4 +28,10 @@ class ErrorMapperTest {
         assertEquals(R.string.error_network, ErrorMapper.messageFor(ApiError(ApiError.NETWORK, 0)))
         assertEquals(R.string.error_generic, msg("SOMETHING_NEW", 500))
     }
+
+    @Test fun sign_in_codes_have_their_own_text() {
+        val codes = listOf(AuthCodes.INVALID_CREDENTIALS, AuthCodes.EMAIL_IN_USE, AuthCodes.WEAK_PASSWORD, AuthCodes.CANCELLED, AuthCodes.LINK_INVALID)
+        assertEquals(codes.size, codes.map { msg(it) }.toSet().size)
+        codes.forEach { assertNotEquals(R.string.error_generic, msg(it)) }
+    }
 }

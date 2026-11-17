@@ -16,14 +16,14 @@ import com.ceta.cinema.ui.theme.Spacing
 
 /** D1 placeholder. D4 replaces it with featured movies and the now-showing grid. */
 @Composable
-fun HomeScreen(onSignedOut: () -> Unit) {
+fun HomeScreen(onSignOut: () -> Unit) {
     Column(
         Modifier.fillMaxSize().padding(Spacing.m),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(stringResource(R.string.home_title), style = MaterialTheme.typography.titleLarge)
-        Button(onClick = onSignedOut, modifier = Modifier.padding(top = Spacing.l)) {
+        Button(onClick = onSignOut, modifier = Modifier.padding(top = Spacing.l)) {
             Text(stringResource(R.string.home_sign_out))
         }
     }

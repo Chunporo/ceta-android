@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">CETA Cinema</string>
-    <string name="login_title">Đăng nhập</string>
-    <string name="login_action">Vào ứng dụng</string>
     <string name="home_title">Trang chủ</string>
     <string name="home_sign_out">Đăng xuất</string>
     <string name="error_session_expired">Phiên đăng nhập đã hết hạn.</string>
@@ -20,4 +18,33 @@
     <string name="error_email_not_verified">Vui lòng xác minh email trước khi đăng nhập.</string>
     <string name="error_network">Không kết nối được. Kiểm tra mạng và thử lại.</string>
     <string name="error_generic">Có lỗi xảy ra. Vui lòng thử lại.</string>
+    <string name="error_invalid_credentials">Email hoặc mật khẩu không đúng.</string>
+    <string name="error_email_in_use">Email này đã được đăng ký.</string>
+    <string name="error_weak_password">Mật khẩu quá yếu. Hãy dùng ít nhất 8 ký tự.</string>
+    <string name="error_sign_in_cancelled">Bạn đã huỷ đăng nhập.</string>
+    <string name="error_link_invalid">Liên kết không hợp lệ hoặc đã hết hạn. Hãy yêu cầu liên kết mới ngay trên thiết bị này.</string>
+    <string name="validation_email">Email không hợp lệ.</string>
+    <string name="validation_password">Mật khẩu phải có ít nhất 8 ký tự.</string>
+    <string name="validation_password_required">Vui lòng nhập mật khẩu.</string>
+    <string name="validation_username">Tên hiển thị dài từ 3 đến 50 ký tự.</string>
+    <string name="validation_confirm">Mật khẩu nhập lại không khớp.</string>
+    <string name="field_email">Email</string>
+    <string name="field_password">Mật khẩu</string>
+    <string name="field_username">Tên hiển thị</string>
+    <string name="field_confirm">Nhập lại mật khẩu</string>
+    <string name="login_title">Đăng nhập</string>
+    <string name="login_action">Đăng nhập</string>
+    <string name="login_google">Đăng nhập bằng Google</string>
+    <string name="login_email_link">Gửi liên kết đăng nhập qua email</string>
+    <string name="login_link_sent">Đã gửi liên kết đăng nhập tới %1$s. Mở email trên máy này và bấm vào liên kết.</string>
+    <string name="login_forgot">Quên mật khẩu?</string>
+    <string name="login_register">Chưa có tài khoản? Đăng ký</string>
+    <string name="register_title">Đăng ký</string>
+    <string name="register_action">Tạo tài khoản</string>
+    <string name="register_back">Quay lại</string>
+    <string name="register_verify_sent">Đã gửi email xác minh tới %1$s. Hãy xác minh email rồi đăng nhập.</string>
+    <string name="register_to_login">Về trang đăng nhập</string>
+    <string name="forgot_title">Quên mật khẩu</string>
+    <string name="forgot_action">Gửi hướng dẫn</string>
+    <string name="forgot_done">Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.</string>
 </resources>

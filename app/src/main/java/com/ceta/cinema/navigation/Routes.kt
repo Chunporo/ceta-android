@@ -3,6 +3,7 @@ package com.ceta.cinema.navigation
 object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val FORGOT_PASSWORD = "forgot-password"
     const val HOME = "home"
     const val MOVIE_LIST = "movies?q={q}"
     const val MOVIE_DETAIL = "movie/{movieId}"
