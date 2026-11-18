@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vietqr_name">Chuyển khoản VietQR (mọi ngân hàng)</string>
+    <string name="pay_with_vietqr">Thanh toán %1$s bằng VietQR</string>
+    <string name="vq_title">Quét mã bằng ứng dụng ngân hàng</string>
+    <string name="vq_amount">Số tiền</string>
+    <string name="vq_note">Nội dung chuyển khoản</string>
+    <string name="vq_copy">Sao chép</string>
+    <string name="vq_hint">Giữ nguyên nội dung chuyển khoản để hệ thống tự xác nhận. Vé sẽ xuất hiện ngay khi nhận được tiền.</string>
+    <string name="vq_waiting">Đang chờ thanh toán…</string>
+    <string name="vq_expired">Hết thời gian giữ ghế</string>
+    <string name="vq_image_failed">Không tải được mã QR</string>
+</resources>

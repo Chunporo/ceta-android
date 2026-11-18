@@ -41,13 +41,14 @@ import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.theme.Ceta
 
 @Composable
-fun CheckoutScreen(onBack: () -> Unit, onPaying: (Long) -> Unit, onChooseSeats: () -> Unit, vm: CheckoutViewModel = hiltViewModel()) {
+fun CheckoutScreen(onBack: () -> Unit, onPaying: (Long) -> Unit, onVietQr: (Long, String, String) -> Unit, onChooseSeats: () -> Unit, vm: CheckoutViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
     val c = Ceta.colors
     val context = LocalContext.current
     EverySecond(vm::tick)
     LaunchedEffect(Unit) {
         vm.events.collect { event ->
+            if (event is CheckoutEvent.ShowVietQr) onVietQr(event.bookingId, event.imageUrl, event.note)
             if (event is CheckoutEvent.OpenPayment) {
                 // VNPay opens in a Custom Tab (not a WebView: saved cards work and banks accept it); the result is asked of the server.
                 runCatching { CustomTabsIntent.Builder().build().launchUrl(context, Uri.parse(event.url)) }
@@ -94,7 +95,7 @@ private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, o
         }
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)).background(c.sf).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 14.dp)) {
             if (ui.warning && !ui.expired) Text(stringResource(R.string.hold_pay_now), color = c.mu, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(bottom = 6.dp))
-            PrimaryButton(stringResource(if (ui.method == PaymentProvider.MOMO) R.string.pay_with_momo else R.string.pay_with_vnpay, MoneyFormatter.format(b.totalAmount)), vm::pay, enabled = ui.canPay, loading = ui.working)
+            PrimaryButton(stringResource(when (ui.method) { PaymentProvider.MOMO -> R.string.pay_with_momo; PaymentProvider.VIETQR -> R.string.pay_with_vietqr; else -> R.string.pay_with_vnpay }, MoneyFormatter.format(b.totalAmount)), vm::pay, enabled = ui.canPay, loading = ui.working)
         }
     }
 }
@@ -176,6 +177,7 @@ private fun MethodRow(ui: CheckoutUi, onSelect: (PaymentProvider) -> Unit) {
             val (badge, color, label) = when (method) {
                 PaymentProvider.VNPAY -> Triple("VN", Color(0xFFD64B3A), R.string.vnpay_name)
                 PaymentProvider.MOMO -> Triple("Mo", Color(0xFFA50064), R.string.momo_name)
+                PaymentProvider.VIETQR -> Triple("QR", Color(0xFF0E7C86), R.string.vietqr_name)
             }
             Row(
                 Modifier.fillMaxWidth().height(60.dp).clip(RoundedCornerShape(18.dp)).background(c.sf)

@@ -47,6 +47,9 @@ data class CheckoutUi(
 sealed interface CheckoutEvent {
     /** Open the payment page (VNPay or MoMo) in a Custom Tab, then wait for the result on the next screen. */
     data class OpenPayment(val url: String, val bookingId: Long) : CheckoutEvent
+
+    /** VietQR is a bank transfer, not a web page: show the QR image and the transfer note, and wait there. */
+    data class ShowVietQr(val imageUrl: String, val note: String, val bookingId: Long) : CheckoutEvent
 }
 
 @HiltViewModel
@@ -132,7 +135,10 @@ class CheckoutViewModel @Inject constructor(
             when (val result = bookings.paymentUrl(bookingId, ui.method)) {
                 is ApiResult.Ok -> {
                     update { it.copy(working = false) }
-                    _events.send(CheckoutEvent.OpenPayment(result.data, bookingId))
+                    _events.send(
+                        if (ui.method == PaymentProvider.VIETQR) CheckoutEvent.ShowVietQr(result.data, transferNote(result.data), bookingId)
+                        else CheckoutEvent.OpenPayment(result.data, bookingId),
+                    )
                 }
                 is ApiResult.Err -> update { it.copy(working = false, error = result.error, expired = result.error.code == "HOLD_EXPIRED" || it.expired) }
             }
@@ -148,3 +154,7 @@ class CheckoutViewModel @Inject constructor(
         _state.update { s -> if (s is UiState.Content) UiState.Content(change(s.data)) else s }
     }
 }
+
+/** The transfer note the server baked into the QR (`addInfo=CETA5A1`): the customer can also type it by hand. */
+internal fun transferNote(imageUrl: String): String =
+    Regex("[?&]addInfo=([^&]+)").find(imageUrl)?.groupValues?.get(1)?.let { java.net.URLDecoder.decode(it, "UTF-8") }.orEmpty()

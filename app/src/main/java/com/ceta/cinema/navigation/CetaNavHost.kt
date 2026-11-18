@@ -44,6 +44,7 @@ import com.ceta.cinema.ui.screen.showtime.ShowtimePickerScreen
 import com.ceta.cinema.ui.screen.booking.CheckoutScreen
 import com.ceta.cinema.ui.screen.booking.ComboScreen
 import com.ceta.cinema.ui.screen.booking.PaymentResultScreen
+import com.ceta.cinema.ui.screen.booking.VietQrScreen
 import com.ceta.cinema.ui.screen.ticket.TicketDetailScreen
 import com.ceta.cinema.ui.screen.ticket.TicketsTab
 import androidx.navigation.NavType
@@ -153,7 +154,18 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
             CheckoutScreen(
                 onBack = { nav.popBackStack() },
                 onPaying = { nav.navigate(Routes.paymentResult(it)) },
+                onVietQr = { id, img, note -> nav.navigate(Routes.vietQr(id, img, note)) },
                 onChooseSeats = { nav.popBackStack(Routes.SEAT_MAP, inclusive = false) },
+            )
+        }
+        composable(Routes.VIETQR, arguments = listOf(
+            navArgument("bookingId") { type = NavType.LongType },
+            navArgument("img") { type = NavType.StringType; defaultValue = "" },
+            navArgument("note") { type = NavType.StringType; defaultValue = "" },
+        )) {
+            VietQrScreen(
+                onBack = { nav.popBackStack() },
+                onPaid = { id -> nav.navigate(Routes.paymentResult(id)) { popUpTo(Routes.VIETQR) { inclusive = true } } },
             )
         }
         composable(Routes.PAYMENT_RESULT, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) {

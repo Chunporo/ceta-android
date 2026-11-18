@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vietqr_name">Bank transfer (VietQR, any bank)</string>
+    <string name="pay_with_vietqr">Pay %1$s with VietQR</string>
+    <string name="vq_title">Scan with your banking app</string>
+    <string name="vq_amount">Amount</string>
+    <string name="vq_note">Transfer note</string>
+    <string name="vq_copy">Copy</string>
+    <string name="vq_hint">Keep the transfer note as it is so the payment is matched automatically. Your tickets appear as soon as the money arrives.</string>
+    <string name="vq_waiting">Waiting for payment…</string>
+    <string name="vq_expired">The seat hold has ended</string>
+    <string name="vq_image_failed">Could not load the QR code</string>
+</resources>

@@ -160,7 +160,7 @@ data class ReminderMovie(val id: String, val title: String, val posterUrl: Strin
 
 /** The ways to pay. The server says which are switched on; VNPay is always there. */
 enum class PaymentProvider(val code: String) {
-    VNPAY("VNPAY"), MOMO("MOMO");
+    VNPAY("VNPAY"), MOMO("MOMO"), VIETQR("VIETQR");
 
     companion object {
         fun parse(code: String): PaymentProvider? = entries.firstOrNull { it.code.equals(code, ignoreCase = true) }

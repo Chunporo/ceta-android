@@ -28,6 +28,8 @@ object Routes {
     fun combo(bookingId: Long) = "combo/$bookingId"
     const val PAYMENT_RESULT = "payment/result/{bookingId}"
     fun paymentResult(bookingId: Long) = "payment/result/$bookingId"
+    const val VIETQR = "payment/vietqr/{bookingId}?img={img}&note={note}"
+    fun vietQr(bookingId: Long, img: String, note: String) = "payment/vietqr/$bookingId?img=${android.net.Uri.encode(img)}&note=${android.net.Uri.encode(note)}"
     const val CHECKOUT = "checkout/{bookingId}"
     fun checkout(bookingId: Long) = "checkout/$bookingId"
 }
