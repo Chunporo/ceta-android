@@ -15,6 +15,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
@@ -68,14 +71,20 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
     Box(Modifier.fillMaxSize().background(c.bg)) {
         Column(Modifier.fillMaxSize()) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                Header(movie, onBack, onTrailer = { movie.trailerUrl?.let(uri::openUri) }, onShare = { shareMovie(context, movie) })
-                Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                    Text(movie.title, color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 32.sp, modifier = Modifier.padding(top = 14.dp))
-                    StatsRow(movie)
-                    Synopsis(movie.description)
-                    People(movie)
-                    Reviews(ui, onWrite = { if (vm.requestReview()) showReview = true })
-                    Spacer(Modifier.height(8.dp))
+                Box(Modifier.fillMaxWidth()) {
+                    // Behind everything, scrolling with it: the poster blurred into a soft glow under the content.
+                    PosterGlow(movie.posterUrl, Modifier.align(Alignment.TopCenter).offset(y = 170.dp))
+                    Column(Modifier.fillMaxWidth()) {
+                        Header(movie, onBack, onTrailer = { movie.trailerUrl?.let(uri::openUri) }, onShare = { shareMovie(context, movie) })
+                        Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                            Text(movie.title, color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 32.sp, modifier = Modifier.padding(top = 14.dp))
+                            StatsRow(movie)
+                            Synopsis(movie.description)
+                            People(movie)
+                            Reviews(ui, onWrite = { if (vm.requestReview()) showReview = true })
+                            Spacer(Modifier.height(8.dp))
+                        }
+                    }
                 }
             }
             BottomBar(ui, onBook = { onBook(movie.id) }, onRemind = vm::toggleReminder)
@@ -93,6 +102,25 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
 private fun shareMovie(context: android.content.Context, movie: Movie) {
     val text = movie.title + (movie.trailerUrl?.let { "\n$it" } ?: "")
     context.startActivity(android.content.Intent.createChooser(android.content.Intent(android.content.Intent.ACTION_SEND).setType("text/plain").putExtra(android.content.Intent.EXTRA_TEXT, text), null))
+}
+
+/** The blurred poster behind the movie page (design item 2): 460dp tall from 170dp down, 45% opaque, faded out at top and bottom. */
+@Composable
+private fun PosterGlow(url: String?, modifier: Modifier = Modifier) {
+    if (url.isNullOrBlank()) return
+    val saturate = remember { androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix().apply { setToSaturation(1.3f) }) }
+    Box(
+        modifier.fillMaxWidth().height(460.dp).graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
+            .drawWithContent {
+                drawContent()
+                drawRect(Brush.verticalGradient(0f to Color.Transparent, 0.2f to Color.Black, 0.45f to Color.Black, 1f to Color.Transparent), blendMode = androidx.compose.ui.graphics.BlendMode.DstIn)
+            },
+    ) {
+        coil3.compose.AsyncImage(
+            model = url, contentDescription = null, contentScale = ContentScale.Crop, colorFilter = saturate,
+            modifier = Modifier.fillMaxSize().graphicsLayer { scaleX = 1.2f; alpha = 0.45f }.blur(50.dp),
+        )
+    }
 }
 
 /** A backdrop with a centred trailer button, then the poster card overlapping it next to the age badge, length and genres. */
