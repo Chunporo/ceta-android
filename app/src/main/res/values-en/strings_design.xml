@@ -147,4 +147,8 @@
     <string name="ob_body_2">A clear seat map with standard, VIP and couple seats, updated in real time.</string>
     <string name="ob_title_3">Earn points, unlock offers</string>
     <string name="ob_body_3">Every ticket earns CETA member points. Redeem them for tickets, snacks and gifts.</string>
+    <string name="home_tag_hot" formatted="false">HOT</string>
+    <string name="home_tag_early" formatted="false">EARLY SHOW</string>
+    <string name="home_next_shows">Next showtimes · %1$s</string>
+    <string name="home_other_days">See other days</string>
 </resources>

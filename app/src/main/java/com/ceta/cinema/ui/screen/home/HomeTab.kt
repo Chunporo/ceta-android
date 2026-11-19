@@ -45,7 +45,7 @@ import java.time.ZoneId
 @Composable
 fun HomeTab(
     onMovie: (String) -> Unit, onBook: (String) -> Unit, onSearch: () -> Unit,
-    onNotifications: () -> Unit, onOffers: () -> Unit, onCinemas: () -> Unit, onResume: (Long) -> Unit = {},
+    onNotifications: () -> Unit, onOffers: () -> Unit, onCinemas: () -> Unit, onResume: (Long) -> Unit = {}, onShow: (Long) -> Unit = {},
     vm: HomeViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsState()
@@ -62,7 +62,7 @@ fun HomeTab(
             UiState.Loading -> LoadingBox()
             is UiState.Error -> ErrorBox(s.error, vm::load)
             is UiState.Empty -> EmptyState(stringResource(R.string.ds_no_results))
-            is UiState.Content -> HomeContent(s.data, name, onMovie, onBook, onSearch, onOffers)
+            is UiState.Content -> HomeContent(s.data, name, vm, onMovie, onBook, onSearch, onOffers, onShow)
         }
     }
 }
@@ -110,12 +110,12 @@ fun OfflineBanner() {
 
 @Composable
 private fun HomeContent(
-    data: HomeData, name: String?, onMovie: (String) -> Unit, onBook: (String) -> Unit, onSearch: () -> Unit, onOffers: () -> Unit,
+    data: HomeData, name: String?, vm: HomeViewModel, onMovie: (String) -> Unit, onBook: (String) -> Unit, onSearch: () -> Unit, onOffers: () -> Unit, onShow: (Long) -> Unit,
 ) {
+    val nextShows by vm.nextShows.collectAsState()
     val c = Ceta.colors
     var segment by rememberSaveable { mutableIntStateOf(0) }
     val grid = if (segment == 0) data.nowShowing else data.comingSoon
-    val heroWidth = LocalConfiguration.current.screenWidthDp.dp * 0.78f
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
         item {
             Column(Modifier.padding(horizontal = 20.dp)) {
@@ -133,11 +133,7 @@ private fun HomeContent(
             }
         }
         if (data.featured.isNotEmpty()) item {
-            LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(data.featured, key = { it.id }) { m ->
-                    HeroCard(m, onClick = { onMovie(m.id) }, onBook = { onBook(m.id) }, modifier = Modifier.width(heroWidth).aspectRatio(3f / 4f))
-                }
-            }
+            PosterCarousel(data.featured, nextShows, vm::onCentered, onMovie, onBook, onShow)
         }
         item {
             SegmentedTabs(listOf(stringResource(R.string.ds_now_showing), stringResource(R.string.ds_coming_soon)), segment, { segment = it },

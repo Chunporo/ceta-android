@@ -182,6 +182,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                         onMovie = { nav.navigate(Routes.movieDetail(it)) }, onBook = { nav.navigate(Routes.showtimes(it)) },
                         onSearch = { nav.navigate(Routes.SEARCH) }, onNotifications = { if (known) nav.navigate(Routes.NOTIFICATIONS) else nav.navigate(Routes.LOGIN) }, onOffers = { main.openTab(Tab.PROMOS) }, onCinemas = { main.openTab(Tab.CINEMAS) },
                         onResume = { nav.navigate(Routes.checkout(it)) },
+                        onShow = { id -> if (known) nav.navigate(Routes.seatMap(id)) else nav.navigate(Routes.LOGIN) },
                     )
                     Tab.CINEMAS -> CinemasTab(
                         onMovie = { nav.navigate(Routes.movieDetail(it)) },

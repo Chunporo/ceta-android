@@ -68,7 +68,7 @@ class ScreenViewModelsTest {
 
     // ---- Home
 
-    @Test fun homeSplitsNowShowingFromComingSoonAndKeepsTheFirstFourAsFeatured() = runTest {
+    @Test fun homeSplitsNowShowingFromComingSoonAndKeepsTheFirstFiveAsFeatured() = runTest {
         setup()
         val movies = (1..6).joinToString(",", "[", "]") { """{"id":"m$it","title":"Phim $it","status":"NOW_SHOWING","cast":[],"formats":[],"genres":[]}""" }
         answers["GET /api/v1/movies?status=NOW_SHOWING"] = ok(movies)
@@ -76,12 +76,12 @@ class ScreenViewModelsTest {
         answers["GET /api/v1/promotions"] = ok((1..6).joinToString(",", "[", "]") { """{"id":$it,"code":"P$it","title":"Offer $it","kind":"COUNTER_PERK"}""" })
 
         val catalog = CatalogRepository(api(), offline)
-        val vm = HomeViewModel(catalog, AccountRepository(api()), session(false), settings, offline)
+        val vm = HomeViewModel(catalog, AccountRepository(api()), session(false), settings, offline, java.time.Clock.systemUTC())
 
         eventually { vm.state.value is UiState.Content }
         val data = (vm.state.value as UiState.Content).data
         assertEquals(6, data.nowShowing.size)
-        assertEquals(4, data.featured.size)
+        assertEquals(5, data.featured.size)
         assertEquals(listOf("Soon"), data.comingSoon.map { it.title })
         assertEquals("offers on the home page are capped", HomeViewModel.OFFERS_ON_HOME, data.offers.size)
         assertEquals("Minh", vm.displayName.value)
@@ -92,14 +92,14 @@ class ScreenViewModelsTest {
         answers["GET /api/v1/movies?status=NOW_SHOWING"] = ok("""[{"id":"m1","title":"Phim"}]""")
         answers["GET /api/v1/movies?status=COMING_SOON"] = ok("[]")
         // promotions: 404 from the default answer
-        val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), session(false), settings, offline)
+        val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), session(false), settings, offline, java.time.Clock.systemUTC())
         eventually { vm.state.value is UiState.Content }
         assertTrue((vm.state.value as UiState.Content).data.offers.isEmpty())
     }
 
     @Test fun homeShowsAnErrorWhenTheMovieListFails() = runTest {
         setup()
-        val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), session(false), settings, offline)
+        val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), session(false), settings, offline, java.time.Clock.systemUTC())
         eventually { vm.state.value is UiState.Error }
     }
 
@@ -109,7 +109,7 @@ class ScreenViewModelsTest {
         answers["GET /api/v1/movies?status=COMING_SOON"] = ok("[]")
         answers["GET /api/v1/promotions"] = ok("[]")
         val s = session(false); s.restore()
-        val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), s, settings, offline)
+        val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), s, settings, offline, java.time.Clock.systemUTC())
         eventually { vm.state.value is UiState.Content }
         Thread.sleep(100)
         assertTrue(requests.none { it.contains("unread-count") })
@@ -122,7 +122,7 @@ class ScreenViewModelsTest {
         answers["GET /api/v1/movies?status=COMING_SOON"] = ok("[]")
         answers["GET /api/v1/promotions"] = ok("[]")
         settings.setPendingBooking(42, System.currentTimeMillis() + 300_000)
-        val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), session(false), settings, offline)
+        val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), session(false), settings, offline, java.time.Clock.systemUTC())
         eventually { vm.pendingOrder.value == 42L }
 
         settings.setPendingBooking(43, System.currentTimeMillis() - 1_000)
@@ -139,7 +139,7 @@ class ScreenViewModelsTest {
         answers["GET /api/v1/promotions"] = ok("[]")
         answers["GET /api/v1/notifications/unread-count"] = ok("""{"unread":3}""")
         val s = session(true); s.restore()
-        val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), s, settings, offline)
+        val vm = HomeViewModel(CatalogRepository(api(), offline), AccountRepository(api()), s, settings, offline, java.time.Clock.systemUTC())
         eventually { vm.unread.value == 3L }
     }
 

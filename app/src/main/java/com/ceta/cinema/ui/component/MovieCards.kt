@@ -46,26 +46,6 @@ fun PosterCard(movie: Movie, onClick: () -> Unit, modifier: Modifier = Modifier)
     }
 }
 
-/** The big card of the home carousel. */
-@Composable
-fun HeroCard(movie: Movie, onClick: () -> Unit, onBook: () -> Unit, modifier: Modifier = Modifier) {
-    Box(modifier.clip(RoundedCornerShape(24.dp)).clickable(onClick = onClick)) {
-        Poster(movie.posterUrl, movie.id, Modifier.fillMaxSize())
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.45f to Color.Transparent, 1f to Color(0xE6000000))))
-        Column(Modifier.align(Alignment.BottomStart).padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                AgeBadge(movie.ageRating)
-                movie.ratingAverage?.let { Text("★ ${Formatters.score(it)}", color = Color.White, style = MaterialTheme.typography.labelMedium) }
-                movie.durationMin?.let { Text("· " + stringResource(R.string.duration_min, it), color = Color(0xCCFFFFFF), style = MaterialTheme.typography.labelMedium) }
-            }
-            Text(movie.title, color = Color.White, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text(movie.genres.joinToString(" · "), color = Color(0xCCFFFFFF), style = MaterialTheme.typography.bodySmall, maxLines = 1)
-            Spacer(Modifier.height(4.dp))
-            PrimaryButton(stringResource(R.string.ds_book_now), onBook, Modifier.height(44.dp))
-        }
-    }
-}
-
 /** Half-star rating: 1..10 where 10 is five full stars. Tapping the left half of a star gives the odd value. */
 @Composable
 fun StarRating(value: Int, modifier: Modifier = Modifier, onChange: ((Int) -> Unit)? = null, size: Int = 36) {

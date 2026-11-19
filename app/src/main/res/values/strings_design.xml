@@ -147,4 +147,8 @@
     <string name="ob_body_2">Sơ đồ ghế trực quan với ghế thường, VIP và ghế đôi. Thấy rõ chỗ trống theo thời gian thực.</string>
     <string name="ob_title_3">Tích điểm, nhận ưu đãi</string>
     <string name="ob_body_3">Mỗi vé đều cộng điểm thành viên CETA. Đổi điểm lấy vé, bắp nước và quà tặng.</string>
+    <string name="home_tag_hot" formatted="false">HOT</string>
+    <string name="home_tag_early" formatted="false">SUẤT SỚM</string>
+    <string name="home_next_shows">Suất gần nhất · %1$s</string>
+    <string name="home_other_days">Xem suất ngày khác</string>
 </resources>
