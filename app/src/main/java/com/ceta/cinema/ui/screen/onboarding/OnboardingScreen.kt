@@ -23,7 +23,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.ceta.cinema.R
+import com.ceta.cinema.ui.component.CetaWordmark
 import com.ceta.cinema.ui.component.Dot
 import com.ceta.cinema.ui.component.PrimaryButton
 import com.ceta.cinema.ui.theme.Ceta
@@ -41,7 +43,8 @@ fun OnboardingScreen(onFinish: () -> Unit) {
     val (title, body, icon) = pages[index]
     val last = index == pages.lastIndex
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding().padding(24.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            CetaWordmark(30.dp, 22.sp)
             TextButton(onClick = onFinish) { Text(stringResource(R.string.ds_skip), color = c.mu) }
         }
         Box(

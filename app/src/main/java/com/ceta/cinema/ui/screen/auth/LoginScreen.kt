@@ -34,6 +34,7 @@ import com.ceta.cinema.R
 import com.ceta.cinema.core.ApiError
 import com.ceta.cinema.core.ErrorMapper
 import com.ceta.cinema.core.PhoneNumber
+import com.ceta.cinema.ui.component.CetaLogo
 import com.ceta.cinema.ui.component.CetaTopBar
 import com.ceta.cinema.ui.component.OutlineButton
 import com.ceta.cinema.ui.component.PrimaryButton
@@ -55,7 +56,9 @@ fun LoginScreen(linkError: ApiError?, onGuest: () -> Unit, onUseEmail: () -> Uni
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             TextButton(onGuest) { Text(stringResource(R.string.ds_skip), color = c.mu) }
         }
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(12.dp))
+        CetaLogo(56.dp)
+        Spacer(Modifier.height(28.dp))
         Text(stringResource(R.string.ds_login), style = MaterialTheme.typography.headlineMedium, color = c.tx)
         Spacer(Modifier.height(8.dp))
         Text(stringResource(R.string.ds_login_sub), style = MaterialTheme.typography.bodyLarge, color = c.mu)
