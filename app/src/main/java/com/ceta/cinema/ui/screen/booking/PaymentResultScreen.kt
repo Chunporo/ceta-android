@@ -32,6 +32,7 @@ import com.ceta.cinema.domain.usecase.PaymentOutcome
 import com.ceta.cinema.ui.component.OutlineButton
 import com.ceta.cinema.ui.component.PrimaryButton
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 /** What happened to the payment, as the server tells it. There is deliberately no back button while it is still being confirmed. */
 @Composable
@@ -62,7 +63,7 @@ fun PaymentResultScreen(
                 val code = ui.booking?.tickets?.firstOrNull()?.code
                 if (code != null) {
                     Spacer(Modifier.height(18.dp))
-                    Column(Modifier.clip(RoundedCornerShape(18.dp)).background(c.sf).padding(horizontal = 20.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(Modifier.cardSurface(RoundedCornerShape(18.dp)).padding(horizontal = 20.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(stringResource(R.string.ds_booking_code), color = c.mu, fontSize = 12.sp)
                         Text(code, color = c.tx, fontSize = 20.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.6.sp, fontFamily = FontFamily.Monospace)
                     }

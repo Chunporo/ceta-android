@@ -31,6 +31,7 @@ import com.ceta.cinema.domain.model.Promotion
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.screen.home.OfflineBanner
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 @Composable
 fun OffersTab(onLogin: () -> Unit, vm: OffersViewModel = hiltViewModel()) {
@@ -73,7 +74,7 @@ private fun OfferCard(promo: Promotion, saved: Boolean, busy: Boolean, onToggle:
     val c = Ceta.colors
     val english = LocalConfiguration.current.locales[0].language == "en"
     val hue = (promo.code.hashCode().toUInt().toLong() % 360).toFloat()
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(c.sf)) {
+    Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(24.dp))) {
         Box(
             Modifier.fillMaxWidth().height(120.dp).background(Brush.linearGradient(listOf(Color.hsv(hue, 0.6f, 0.62f), Color.hsv((hue + 40) % 360, 0.65f, 0.45f)))).padding(16.dp),
             contentAlignment = Alignment.BottomStart,

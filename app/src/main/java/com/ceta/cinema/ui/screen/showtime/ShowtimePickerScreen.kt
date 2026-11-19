@@ -45,6 +45,7 @@ import com.ceta.cinema.domain.usecase.ShowChip
 import com.ceta.cinema.domain.usecase.ShowtimeGrouping
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 import java.time.Instant
 
 @Composable
@@ -112,10 +113,10 @@ private fun FormatChip(label: String, selected: Boolean, onClick: () -> Unit) {
 @Composable
 private fun ViewToggle(byCinema: Boolean, onToggle: () -> Unit) {
     val c = Ceta.colors
-    Row(Modifier.clip(RoundedCornerShape(18.dp)).background(c.sf).padding(3.dp)) {
+    Row(Modifier.cardSurface(RoundedCornerShape(18.dp)).padding(3.dp)) {
         listOf(true to Icons.Rounded.Storefront, false to Icons.Rounded.Schedule).forEach { (value, icon) ->
             val on = byCinema == value
-            Box(Modifier.width(38.dp).height(30.dp).clip(RoundedCornerShape(15.dp)).background(if (on) c.ac else Color.Transparent)
+            Box(Modifier.width(38.dp).height(30.dp).clip(RoundedCornerShape(16.dp)).background(if (on) c.ac else Color.Transparent)
                 .clickable { if (!on) onToggle() }, contentAlignment = Alignment.Center) {
                 Icon(icon, stringResource(if (value) R.string.view_by_cinema else R.string.view_by_time), tint = if (on) Color.White else c.mu, modifier = Modifier.size(19.dp))
             }
@@ -129,7 +130,7 @@ private fun ByCinema(shows: List<Showtime>, now: Instant, onPick: (Long) -> Unit
     val c = Ceta.colors
     LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         items(ShowtimeGrouping.byCinema(shows, now)) { cinema ->
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text(cinema.cinemaName.ifBlank { "CETA" }, color = c.tx, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 val groups = cinema.chips.groupBy { it.showtime.format to it.showtime.languageMode }
                 for (format in ShowFormat.entries.reversed()) for ((key, chips) in groups.filterKeys { it.first == format }) {
@@ -161,7 +162,7 @@ private fun TimeButton(chip: ShowChip, modifier: Modifier, onClick: () -> Unit) 
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(1.dp, Alignment.CenterVertically),
     ) {
         Text(Formatters.time(s.start), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        seatsLeftText(s)?.let { Text(it, color = if (s.isScarce) c.ac else c.mu, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, maxLines = 1) }
+        seatsLeftText(s)?.let { Text(it, color = if (s.isScarce) c.ac else c.mu, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, maxLines = 1) }
     }
 }
 
@@ -202,13 +203,13 @@ private fun ShowRow(chip: ShowChip, onClick: () -> Unit) {
     val s = chip.showtime
     val (badgeBg, badgeFg) = when (s.format) { ShowFormat.IMAX -> c.ac2 to Color.White; ShowFormat.THREE_D -> c.acs to c.ac; ShowFormat.TWO_D -> c.sf2 to c.tx }
     Row(
-        Modifier.fillMaxWidth().alpha(if (chip.enabled) 1f else 0.35f).clip(RoundedCornerShape(18.dp)).background(c.sf)
+        Modifier.fillMaxWidth().alpha(if (chip.enabled) 1f else 0.35f).cardSurface(RoundedCornerShape(18.dp))
             .clickable(enabled = chip.enabled, onClick = onClick).padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Column(Modifier.width(64.dp)) {
-            Text(Formatters.time(s.start), color = c.tx, fontSize = 19.sp, fontWeight = FontWeight.ExtraBold)
-            s.end?.let { Text("→ " + Formatters.time(it), color = c.mu, fontSize = 11.5.sp) }
+            Text(Formatters.time(s.start), color = c.tx, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+            s.end?.let { Text("→ " + Formatters.time(it), color = c.mu, fontSize = 12.sp) }
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -218,8 +219,8 @@ private fun ShowRow(chip: ShowChip, onClick: () -> Unit) {
             val filled = s.filled
             if (filled != null) Box(Modifier.fillMaxWidth().height(5.dp).clip(RoundedCornerShape(3.dp)).background(c.sf2)) {
                 Box(Modifier.fillMaxWidth(filled.coerceIn(0.04f, 1f)).fillMaxHeight().clip(RoundedCornerShape(3.dp)).background(if (s.isScarce) c.ac else c.mu))
-            } else Text(stringResource(if (s.languageMode == LanguageMode.DUB) R.string.dub_tag else R.string.sub_tag), color = c.mu, fontSize = 11.5.sp)
+            } else Text(stringResource(if (s.languageMode == LanguageMode.DUB) R.string.dub_tag else R.string.sub_tag), color = c.mu, fontSize = 12.sp)
         }
-        seatsLeftText(s)?.let { Text(it, color = c.mu, fontSize = 11.5.sp, textAlign = androidx.compose.ui.text.style.TextAlign.End, modifier = Modifier.width(52.dp)) }
+        seatsLeftText(s)?.let { Text(it, color = c.mu, fontSize = 12.sp, textAlign = androidx.compose.ui.text.style.TextAlign.End, modifier = Modifier.width(52.dp)) }
     }
 }

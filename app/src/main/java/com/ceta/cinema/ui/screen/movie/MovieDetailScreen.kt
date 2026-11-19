@@ -39,6 +39,7 @@ import com.ceta.cinema.domain.model.Movie
 import com.ceta.cinema.domain.model.Review
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 @Composable
 fun MovieDetailScreen(onBack: () -> Unit, onBook: (String) -> Unit, onLogin: () -> Unit, vm: MovieDetailViewModel = hiltViewModel()) {
@@ -175,7 +176,7 @@ private fun StatsRow(movie: Movie) {
 @Composable
 private fun Stat(modifier: Modifier, value: String, label: String, big: Boolean = false) {
     val c = Ceta.colors
-    Column(modifier.clip(RoundedCornerShape(18.dp)).background(c.sf).padding(horizontal = 14.dp, vertical = 12.dp)) {
+    Column(modifier.cardSurface(RoundedCornerShape(18.dp)).padding(horizontal = 14.dp, vertical = 12.dp)) {
         Text(value, color = c.tx, fontSize = if (big) 20.sp else 16.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
         Text(label, color = c.mu, fontSize = 12.sp, maxLines = 1)
     }

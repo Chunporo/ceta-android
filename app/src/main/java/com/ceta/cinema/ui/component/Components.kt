@@ -66,7 +66,7 @@ fun SegmentedTabs(options: List<String>, selected: Int, onSelect: (Int) -> Unit,
         options.forEachIndexed { i, label ->
             val on = i == selected
             Box(
-                Modifier.weight(1f).height(40.dp).clip(RoundedCornerShape(11.dp)).background(if (on) c.ac else Color.Transparent)
+                Modifier.weight(1f).height(40.dp).clip(RoundedCornerShape(12.dp)).background(if (on) c.ac else Color.Transparent)
                     .clickable { onSelect(i) },
                 contentAlignment = Alignment.Center,
             ) { Text(label, color = if (on) Color.White else c.mu, style = MaterialTheme.typography.labelLarge) }

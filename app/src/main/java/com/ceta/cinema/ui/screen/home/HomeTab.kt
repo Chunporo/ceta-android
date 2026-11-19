@@ -40,6 +40,7 @@ import com.ceta.cinema.domain.model.Movie
 import com.ceta.cinema.domain.model.Promotion
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 import java.time.ZoneId
 
 @Composable
@@ -73,7 +74,7 @@ private fun TopRow(unread: Long, onNotifications: () -> Unit, onCinemas: () -> U
     Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         CetaWordmark(32.dp, 22.sp)
         Spacer(Modifier.weight(1f))
-        Row(Modifier.clip(RoundedCornerShape(20.dp)).background(c.sf).clickable(onClick = onCinemas).padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.cardSurface(RoundedCornerShape(20.dp)).clickable(onClick = onCinemas).padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Rounded.LocationOn, null, tint = c.ac, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(4.dp))
             Text(stringResource(R.string.ds_hcm), color = c.tx, style = MaterialTheme.typography.labelMedium)
@@ -123,7 +124,7 @@ private fun HomeContent(
             }
         }
         item {
-            Row(Modifier.padding(horizontal = 20.dp).fillMaxWidth().height(52.dp).clip(RoundedCornerShape(16.dp)).background(c.sf).clickable(onClick = onSearch).padding(horizontal = 16.dp),
+            Row(Modifier.padding(horizontal = 20.dp).fillMaxWidth().height(52.dp).cardSurface(RoundedCornerShape(16.dp)).clickable(onClick = onSearch).padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Rounded.Search, null, tint = c.mu)
                 Spacer(Modifier.width(10.dp))

@@ -46,6 +46,7 @@ import com.ceta.cinema.domain.usecase.FeaturedTag
 import com.ceta.cinema.domain.usecase.NextShowtimes
 import com.ceta.cinema.ui.component.Poster
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 import com.ceta.cinema.ui.theme.ageColor
 import kotlin.math.abs
 import kotlin.math.max
@@ -219,7 +220,7 @@ private fun NextShows(next: NextShowtimes?, onOtherDays: () -> Unit, onShow: (Lo
     val c = Ceta.colors
     if (next == null) { Spacer(Modifier.height(48.dp)); return } // still loading: keep the height so the page does not jump
     if (next.none) {
-        Box(Modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).background(c.sf).clickable(onClick = onOtherDays).padding(horizontal = 20.dp), contentAlignment = Alignment.Center) {
+        Box(Modifier.height(44.dp).cardSurface(RoundedCornerShape(22.dp)).clickable(onClick = onOtherDays).padding(horizontal = 20.dp), contentAlignment = Alignment.Center) {
             Text(stringResource(R.string.home_other_days), color = c.tx, fontSize = 13.sp, fontWeight = FontWeight.Bold)
         }
         return
@@ -233,7 +234,7 @@ private fun NextShows(next: NextShowtimes?, onOtherDays: () -> Unit, onShow: (Lo
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         next.chips.forEach { show ->
             Column(
-                Modifier.height(48.dp).widthIn(min = 72.dp).clip(RoundedCornerShape(16.dp)).background(c.sf)
+                Modifier.height(48.dp).widthIn(min = 72.dp).cardSurface(RoundedCornerShape(16.dp))
                     .border(1.dp, c.ln2, RoundedCornerShape(16.dp)).clickable { onShow(show.id) }.padding(horizontal = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center,
             ) {

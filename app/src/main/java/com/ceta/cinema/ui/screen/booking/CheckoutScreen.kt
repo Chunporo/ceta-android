@@ -39,6 +39,7 @@ import com.ceta.cinema.core.UiState
 import com.ceta.cinema.domain.model.PaymentProvider
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 @Composable
 fun CheckoutScreen(onBack: () -> Unit, onPaying: (Long) -> Unit, onVietQr: (Long, String, String) -> Unit, onChooseSeats: () -> Unit, onHoldExpired: () -> Unit = {}, vm: CheckoutViewModel = hiltViewModel()) {
@@ -87,7 +88,7 @@ private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, o
                 Text(stringResource(R.string.ds_hold_expired), color = c.ac, style = MaterialTheme.typography.bodyMedium)
                 PrimaryButton(stringResource(R.string.choose_seats_again), onChooseSeats)
             } else {
-                Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp)).padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     VoucherBox(ui, vm)
                     if (ui.loyalty != null) { HorizontalDivider(color = c.ln); PointsRow(ui, vm) }
                 }
@@ -110,7 +111,7 @@ private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, o
 private fun Summary(ui: CheckoutUi) {
     val c = Ceta.colors
     val b = ui.booking
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+    Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp)).padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
         Text(b.movieTitle.orEmpty(), color = c.tx, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
         b.roomName?.let { Text(it, color = c.mu, fontSize = 13.sp) }
         b.startTime?.let { Text(Formatters.date(Formatters.localDate(it)) + " · " + Formatters.time(it), color = c.tx, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) }
@@ -186,7 +187,7 @@ private fun MethodRow(ui: CheckoutUi, onSelect: (PaymentProvider) -> Unit) {
                 PaymentProvider.VIETQR -> Triple("QR", Color(0xFF0E7C86), R.string.vietqr_name)
             }
             Row(
-                Modifier.fillMaxWidth().height(60.dp).clip(RoundedCornerShape(18.dp)).background(c.sf)
+                Modifier.fillMaxWidth().height(60.dp).cardSurface(RoundedCornerShape(18.dp))
                     .border(1.5.dp, if (on) c.ac else Color.Transparent, RoundedCornerShape(18.dp)).clickable { onSelect(method) }.padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
@@ -206,7 +207,7 @@ private fun MethodRow(ui: CheckoutUi, onSelect: (PaymentProvider) -> Unit) {
 private fun Lines(ui: CheckoutUi) {
     val b = ui.booking
     val c = Ceta.colors
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp)).padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Line(stringResource(R.string.ds_tickets) + " × " + b.seats.size, MoneyFormatter.format(b.seatsAmount))
         if (b.comboAmount > 0) Line(stringResource(R.string.ds_combo_line), MoneyFormatter.format(b.comboAmount))
         if (b.discountAmount > 0) Line(stringResource(R.string.ds_discount), MoneyFormatter.format(-b.discountAmount), accent = true)

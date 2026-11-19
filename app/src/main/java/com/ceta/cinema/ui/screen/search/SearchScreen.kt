@@ -42,6 +42,7 @@ import com.ceta.cinema.R
 import com.ceta.cinema.domain.model.Movie
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
@@ -55,7 +56,7 @@ fun SearchScreen(onBack: () -> Unit, onMovie: (String) -> Unit, vm: SearchViewMo
             Box(Modifier.size(44.dp).clip(CircleShape).background(c.sf).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
                 Icon(Icons.Rounded.ArrowBack, stringResource(R.string.back), tint = c.tx, modifier = Modifier.size(22.dp))
             }
-            Row(Modifier.weight(1f).height(48.dp).clip(RoundedCornerShape(24.dp)).background(c.sf).border(1.5.dp, c.ac, RoundedCornerShape(24.dp)).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.weight(1f).height(48.dp).cardSurface(RoundedCornerShape(24.dp)).border(1.5.dp, c.ac, RoundedCornerShape(24.dp)).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Rounded.Search, null, tint = c.mu, modifier = Modifier.size(21.dp))
                 Spacer(Modifier.width(8.dp))
                 BasicTextField(
@@ -99,7 +100,7 @@ private fun IdleContent(s: SearchUiState, vm: SearchViewModel) {
                 androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 14.dp)) {
                     s.recents.forEach { r ->
                         Row(
-                            Modifier.height(38.dp).clip(RoundedCornerShape(19.dp)).background(c.sf).clickable { vm.pickRecent(r) }.padding(horizontal = 14.dp),
+                            Modifier.height(38.dp).cardSurface(RoundedCornerShape(20.dp)).clickable { vm.pickRecent(r) }.padding(horizontal = 14.dp),
                             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
                             Icon(Icons.Rounded.History, null, tint = c.mu, modifier = Modifier.size(17.dp))

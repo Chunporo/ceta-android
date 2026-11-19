@@ -31,6 +31,7 @@ import com.ceta.cinema.core.MoneyFormatter
 import com.ceta.cinema.ui.component.CetaTopBar
 import com.ceta.cinema.ui.component.OutlineButton
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 /** The VietQR step: the QR to scan with any banking app, the amount and the note to keep, then wait until the bank feed confirms it. */
 @Composable
@@ -48,7 +49,7 @@ fun VietQrScreen(onBack: () -> Unit, onPaid: (Long) -> Unit, vm: VietQrViewModel
                     loading = { CircularProgressIndicator(color = c.ac) },
                     error = { Text(stringResource(R.string.vq_image_failed), color = Color.Black, textAlign = TextAlign.Center) })
             }
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.sf).padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(18.dp)).padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(stringResource(R.string.vq_amount), color = c.mu, fontSize = 13.sp)
                     Text(MoneyFormatter.format(ui.amount), color = c.tx, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)

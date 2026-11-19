@@ -29,6 +29,7 @@ import com.ceta.cinema.domain.usecase.TicketGroup
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.screen.home.OfflineBanner
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 @Composable
 fun TicketsTab(onTicket: (Long) -> Unit, onBook: () -> Unit, onSignIn: () -> Unit, vm: TicketsViewModel = hiltViewModel()) {
@@ -66,7 +67,7 @@ private fun TicketCard(group: TicketGroup, past: Boolean, onClick: () -> Unit) {
     val c = Ceta.colors
     val t = group.lead
     Row(
-        Modifier.fillMaxWidth().alpha(if (past) 0.7f else 1f).clip(RoundedCornerShape(22.dp)).background(c.sf).clickable(onClick = onClick).padding(12.dp),
+        Modifier.fillMaxWidth().alpha(if (past) 0.7f else 1f).cardSurface(RoundedCornerShape(22.dp)).clickable(onClick = onClick).padding(12.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically,
     ) {
         Poster(t.posterUrl, t.movieTitle, Modifier.size(width = 64.dp, height = 92.dp).clip(RoundedCornerShape(14.dp)))

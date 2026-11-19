@@ -40,6 +40,7 @@ import com.ceta.cinema.ui.component.OutlineButton
 import com.ceta.cinema.ui.component.PrimaryButton
 import com.ceta.cinema.ui.findActivity
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 /** The design's login: phone number then SMS code, or Google. Email is one tap away; guests can browse. */
 @Composable
@@ -88,11 +89,11 @@ fun LoginScreen(linkError: ApiError?, onGuest: () -> Unit, onUseEmail: () -> Uni
 private fun PhoneField(value: String, onChange: (String) -> Unit, hasError: Boolean) {
     val c = Ceta.colors
     Row(Modifier.fillMaxWidth().height(56.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Box(Modifier.fillMaxHeight().clip(RoundedCornerShape(16.dp)).background(c.sf).border(1.dp, c.ln2, RoundedCornerShape(16.dp)).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxHeight().cardSurface(RoundedCornerShape(16.dp)).border(1.dp, c.ln2, RoundedCornerShape(16.dp)).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
             Text("+84", color = c.tx, style = MaterialTheme.typography.bodyLarge)
         }
         Box(
-            Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(16.dp)).background(c.sf)
+            Modifier.weight(1f).fillMaxHeight().cardSurface(RoundedCornerShape(16.dp))
                 .border(1.5.dp, if (hasError) c.ac else c.ln2, RoundedCornerShape(16.dp)).padding(horizontal = 16.dp),
             contentAlignment = Alignment.CenterStart,
         ) {
@@ -153,7 +154,7 @@ private fun OtpBoxes(code: String, onChange: (String) -> Unit, hasError: Boolean
                 repeat(PhoneLoginViewModel.CODE_LENGTH) { i ->
                     val border = if (i == code.length || hasError) c.ac else c.ln2
                     Box(
-                        Modifier.weight(1f).height(60.dp).clip(RoundedCornerShape(16.dp)).background(c.sf).border(1.5.dp, border, RoundedCornerShape(16.dp)),
+                        Modifier.weight(1f).height(60.dp).cardSurface(RoundedCornerShape(16.dp)).border(1.5.dp, border, RoundedCornerShape(16.dp)),
                         contentAlignment = Alignment.Center,
                     ) { Text(code.getOrNull(i)?.toString().orEmpty(), style = MaterialTheme.typography.titleLarge, color = c.tx) }
                 }

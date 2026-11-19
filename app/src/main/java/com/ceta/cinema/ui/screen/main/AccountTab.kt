@@ -28,6 +28,7 @@ import com.ceta.cinema.domain.model.Loyalty
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.screen.account.AccountViewModel
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 @Composable
 fun AccountTab(
@@ -54,7 +55,7 @@ fun AccountTab(
             EmptyState(stringResource(R.string.account_guest_title), cta = stringResource(R.string.ds_login), onCta = onSignIn)
         }
         // One card for settings and menu, as in the design: language, dark mode, then the account rows.
-        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf)) {
+        Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp))) {
             Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 Icon(Icons.Rounded.Translate, null, tint = c.mu, modifier = Modifier.size(22.dp))
                 Text(stringResource(R.string.ds_lang), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
@@ -89,7 +90,7 @@ private fun LanguagePills(english: Boolean, onChange: (Boolean) -> Unit) {
         listOf("VI" to false, "EN" to true).forEach { (label, value) ->
             val on = english == value
             Box(
-                Modifier.height(30.dp).clip(RoundedCornerShape(13.dp)).background(if (on) c.ac else Color.Transparent).clickable { onChange(value) }.padding(horizontal = 12.dp),
+                Modifier.height(30.dp).clip(RoundedCornerShape(12.dp)).background(if (on) c.ac else Color.Transparent).clickable { onChange(value) }.padding(horizontal = 12.dp),
                 contentAlignment = Alignment.Center,
             ) { Text(label, color = if (on) Color.White else c.mu, fontSize = 13.sp, fontWeight = FontWeight.Bold) }
         }
@@ -148,7 +149,7 @@ private fun Stats(l: Loyalty) {
 @Composable
 private fun Stat(modifier: Modifier, value: Long, label: Int) {
     val c = Ceta.colors
-    Column(modifier.clip(RoundedCornerShape(18.dp)).background(c.sf).padding(14.dp)) {
+    Column(modifier.cardSurface(RoundedCornerShape(18.dp)).padding(14.dp)) {
         Text(value.toString(), color = c.tx, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
         Text(stringResource(label), color = c.mu, fontSize = 12.sp)
     }

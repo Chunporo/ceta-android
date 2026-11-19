@@ -40,6 +40,7 @@ import com.ceta.cinema.domain.model.ReminderMovie
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.findActivity
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 /** "Huynh Quco Trung" -> "HT": first letter of the first and last word. */
 fun initialsOf(name: String?): String {
@@ -82,7 +83,7 @@ private fun ProfileContent(ui: ProfileUi, vm: ProfileViewModel, deleteVm: Delete
             Box(Modifier.align(Alignment.CenterHorizontally).size(88.dp).clip(CircleShape).background(c.ac2), contentAlignment = Alignment.Center) {
                 Text(initialsOf(name), color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold)
             }
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(stringResource(R.string.profile_name_label), color = c.mu, fontSize = 12.sp)
                 OutlinedTextField(
                     value = name, onValueChange = { name = it.take(50) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp),
@@ -90,11 +91,11 @@ private fun ProfileContent(ui: ProfileUi, vm: ProfileViewModel, deleteVm: Delete
                 )
                 PrimaryButton(stringResource(R.string.profile_save), { vm.saveName(name) }, enabled = name.trim() != ui.profile.username && !ui.saving, loading = ui.saving)
             }
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 ui.profile.email?.let { Fact(R.string.profile_email, it) }
                 ui.profile.phone?.let { Fact(R.string.profile_phone, it) }
             }
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (ui.canResetPassword) {
                     Text(stringResource(R.string.profile_reset_hint), color = c.mu, fontSize = 13.sp)
                     OutlineButton(stringResource(R.string.profile_reset_password), vm::sendPasswordReset, enabled = !ui.saving)
@@ -142,7 +143,7 @@ private fun VoucherCard(promo: Promotion, onRemove: () -> Unit) {
     val c = Ceta.colors
     val english = LocalConfiguration.current.locales[0].language == "en"
     val hue = (promo.code.hashCode().toUInt().toLong() % 360).toFloat()
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf)) {
+    Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp))) {
         Box(
             Modifier.fillMaxWidth().height(84.dp).background(Brush.linearGradient(listOf(Color.hsv(hue, 0.6f, 0.62f), Color.hsv((hue + 40) % 360, 0.65f, 0.45f)))).padding(16.dp),
             contentAlignment = Alignment.BottomStart,
@@ -180,7 +181,7 @@ fun RemindersScreen(onBack: () -> Unit, onMovie: (String) -> Unit, vm: Reminders
 private fun ReminderRow(movie: ReminderMovie, onOpen: () -> Unit, onRemove: () -> Unit) {
     val c = Ceta.colors
     Row(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).clickable(onClick = onOpen).padding(12.dp),
+        Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp)).clickable(onClick = onOpen).padding(12.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Poster(movie.posterUrl, movie.id, Modifier.size(width = 56.dp, height = 84.dp).clip(RoundedCornerShape(12.dp)))
@@ -200,7 +201,7 @@ fun PaymentMethodsScreen(onBack: () -> Unit) {
         CetaTopBar(stringResource(R.string.ds_pay_methods), onBack)
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).border(1.5.dp, c.ac, RoundedCornerShape(22.dp)).padding(16.dp),
+                Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp)).border(1.5.dp, c.ac, RoundedCornerShape(22.dp)).padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 Box(Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFD64B3A)), contentAlignment = Alignment.Center) {
@@ -236,7 +237,7 @@ fun HelpScreen(onBack: () -> Unit) {
         CetaTopBar(stringResource(R.string.ds_help), onBack)
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(stringResource(R.string.help_faq), color = c.tx, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold)
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf)) {
+            Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp))) {
                 FAQ.forEachIndexed { i, (q, a) ->
                     if (i > 0) HorizontalDivider(color = c.ln)
                     Column(Modifier.fillMaxWidth().clickable { open = if (open == i) -1 else i }.padding(horizontal = 16.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -248,7 +249,7 @@ fun HelpScreen(onBack: () -> Unit) {
                     }
                 }
             }
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf).padding(16.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(stringResource(R.string.help_about), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 Text(stringResource(R.string.help_version, BuildConfig.VERSION_NAME), color = c.mu, fontSize = 13.sp)
             }

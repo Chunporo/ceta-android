@@ -26,6 +26,7 @@ import com.ceta.cinema.domain.model.BookingStatus
 import com.ceta.cinema.domain.model.BookingSummary
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 /** The customer's orders, newest first. A paid one opens its tickets; an unpaid one still holding seats opens checkout. */
 @Composable
@@ -49,7 +50,7 @@ fun HistoryScreen(onBack: () -> Unit, onOpen: (BookingSummary) -> Unit, vm: Hist
 private fun Row(order: BookingSummary, onOpen: (BookingSummary) -> Unit) {
     val c = Ceta.colors
     Row(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.sf).clickable { onOpen(order) }.padding(14.dp),
+        Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(18.dp)).clickable { onOpen(order) }.padding(14.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically,
     ) {
         Poster(order.posterUrl, order.movieTitle ?: order.id.toString(), Modifier.width(48.dp).aspectRatio(2f / 3f))

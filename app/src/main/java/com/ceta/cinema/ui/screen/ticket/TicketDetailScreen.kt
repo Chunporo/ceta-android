@@ -56,6 +56,7 @@ import com.ceta.cinema.domain.model.Ticket
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.findActivity
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 @Composable
 fun TicketDetailScreen(onBack: () -> Unit, vm: TicketDetailViewModel = hiltViewModel()) {
@@ -121,7 +122,7 @@ private fun Content(ui: TicketDetailUi, soon: String) {
     val scope = rememberCoroutineScope()
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 24.dp)) {
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(c.sf)) {
+            Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(28.dp))) {
                 Header(lead)
                 Fields(lead, ui, seatsText)
                 Perforation()
@@ -211,7 +212,7 @@ private fun QrBlock(tickets: List<Ticket>) {
     val pager = rememberPagerState(pageCount = { tickets.size })
     Column(Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
         HorizontalPager(pager, Modifier.fillMaxWidth()) { page -> QrCard(tickets[page], page, tickets.size) }
-        Text(stringResource(R.string.ds_show_qr), color = c.mu, fontSize = 12.5.sp, textAlign = TextAlign.Center, lineHeight = 18.sp, modifier = Modifier.widthIn(max = 260.dp))
+        Text(stringResource(R.string.ds_show_qr), color = c.mu, fontSize = 13.sp, textAlign = TextAlign.Center, lineHeight = 18.sp, modifier = Modifier.widthIn(max = 260.dp))
     }
 }
 
@@ -219,7 +220,7 @@ private fun QrBlock(tickets: List<Ticket>) {
 private fun ActionButton(modifier: Modifier, icon: ImageVector, label: Int, onClick: () -> Unit) {
     val c = Ceta.colors
     Row(
-        modifier.height(52.dp).clip(RoundedCornerShape(26.dp)).background(c.sf).clickable(onClick = onClick),
+        modifier.height(52.dp).cardSurface(RoundedCornerShape(26.dp)).clickable(onClick = onClick),
         horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(icon, null, tint = c.tx, modifier = Modifier.size(20.dp))

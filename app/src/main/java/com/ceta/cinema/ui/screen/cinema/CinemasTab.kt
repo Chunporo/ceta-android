@@ -40,6 +40,7 @@ import com.ceta.cinema.domain.usecase.ShowtimeGrouping
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.screen.home.OfflineBanner
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 import java.time.Instant
 
 @Composable
@@ -86,7 +87,7 @@ private fun cityLabel(code: String) = when (code) {
 private fun CinemaCard(cinema: Cinema, open: Boolean, shows: UiState<List<Showtime>>?, onToggle: () -> Unit, onMovie: (String) -> Unit, onShow: (Long) -> Unit) {
     val c = Ceta.colors
     val uri = LocalUriHandler.current
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.sf)) {
+    Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(22.dp))) {
         Row(Modifier.fillMaxWidth().clickable(onClick = onToggle).padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Box(Modifier.size(48.dp).clip(RoundedCornerShape(16.dp)).background(c.acs), contentAlignment = Alignment.Center) {
                 Icon(Icons.Rounded.Theaters, null, tint = c.ac, modifier = Modifier.size(24.dp))

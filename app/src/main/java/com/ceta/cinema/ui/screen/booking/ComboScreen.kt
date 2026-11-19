@@ -41,6 +41,7 @@ import com.ceta.cinema.core.UiState
 import com.ceta.cinema.domain.model.Combo
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.theme.Ceta
+import com.ceta.cinema.ui.theme.cardSurface
 
 @Composable
 fun ComboScreen(onBack: () -> Unit, onNext: () -> Unit, onChooseSeats: () -> Unit, onHoldExpired: () -> Unit = {}, vm: ComboViewModel = hiltViewModel()) {
@@ -112,13 +113,13 @@ private fun ComboRow(combo: Combo, english: Boolean, quantity: Int, onChange: (I
     val c = Ceta.colors
     val shape = RoundedCornerShape(22.dp)
     Row(
-        Modifier.fillMaxWidth().clip(shape).background(c.sf).border(1.5.dp, if (quantity > 0) c.ac else Color.Transparent, shape).padding(12.dp),
+        Modifier.fillMaxWidth().cardSurface(shape).border(1.5.dp, if (quantity > 0) c.ac else Color.Transparent, shape).padding(12.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Poster(combo.imageUrl, "combo${combo.id}", Modifier.size(84.dp).clip(RoundedCornerShape(16.dp)))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(combo.title(english), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            combo.detail(english)?.let { Text(it, color = c.mu, fontSize = 12.5.sp, lineHeight = 17.sp, maxLines = 3) }
+            combo.detail(english)?.let { Text(it, color = c.mu, fontSize = 13.sp, lineHeight = 17.sp, maxLines = 3) }
             Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(MoneyFormatter.format(combo.price), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
                 Stepper(quantity, onChange)
