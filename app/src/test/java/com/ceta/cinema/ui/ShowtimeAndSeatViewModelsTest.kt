@@ -48,7 +48,8 @@ class ShowtimeAndSeatViewModelsTest {
             s.start()
         }
     }
-    @After fun stop() { server.shutdown(); Dispatchers.resetMain() }
+    // Main is not reset: a ViewModel from an earlier test may still have a coroutine in flight, and it must not find Main gone.
+    @After fun stop() { server.shutdown() }
 
     private fun TestScope.setup() { Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler)) }
     private fun api() = apiFor(server, tokens)

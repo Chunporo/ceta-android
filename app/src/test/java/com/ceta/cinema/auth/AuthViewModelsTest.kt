@@ -35,7 +35,7 @@ class AuthViewModelsTest {
         server = MockWebServer().also { it.start() }
         session = SessionRepository(apiFor(server, tokens, SessionEvents()), tokens, firebase, FakePendingEmail(), com.ceta.cinema.data.FakeSettingsStore())
     }
-    @After fun stop() { server.shutdown(); Dispatchers.resetMain() }
+    @After fun stop() { server.shutdown() } // Main is left set: a ViewModel from an earlier test may still have a coroutine in flight
 
     @Test fun login_with_a_bad_form_makes_no_call_and_flags_the_fields() = runTest {
         val vm = LoginViewModel(session)

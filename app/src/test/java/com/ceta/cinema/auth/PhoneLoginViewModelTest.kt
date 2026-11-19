@@ -32,7 +32,7 @@ class PhoneLoginViewModelTest {
         server = MockWebServer().also { it.start() }
         session = SessionRepository(apiFor(server, tokens, SessionEvents()), tokens, firebase, FakePendingEmail(), com.ceta.cinema.data.FakeSettingsStore())
     }
-    @After fun stop() { server.shutdown(); Dispatchers.resetMain() }
+    @After fun stop() { server.shutdown() } // Main is left set: a ViewModel from an earlier test may still have a coroutine in flight
 
     /** The backend exchange runs on a real OkHttp thread, so wait for its effect instead of asserting straight away. */
     private fun eventually(timeoutMs: Long = 3_000, check: () -> Boolean) {

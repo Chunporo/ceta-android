@@ -51,7 +51,7 @@ class CinemaAndOfferViewModelsTest {
             s.start()
         }
     }
-    @After fun stop() { server.shutdown(); Dispatchers.resetMain() }
+    @After fun stop() { server.shutdown() } // Main is left set: a ViewModel from an earlier test may still have a coroutine in flight
 
     private fun TestScope.setup() { Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler)) }
     private fun api() = apiFor(server, tokens)
