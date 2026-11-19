@@ -11,7 +11,9 @@ import com.ceta.cinema.data.repository.CatalogRepository
 import com.ceta.cinema.data.repository.SeatRepository
 import com.ceta.cinema.domain.model.Seat
 import com.ceta.cinema.domain.model.Showtime
+import com.ceta.cinema.domain.usecase.HoldClock
 import com.ceta.cinema.domain.usecase.SeatSelection
+import java.time.Clock
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +29,10 @@ sealed interface SeatMessage {
     data object CouplePartnerTaken : SeatMessage
     data class SeatsTaken(val labels: List<String>) : SeatMessage
     data class Failed(val error: ApiError) : SeatMessage
+    /** Two minutes left of the 10 minutes since the first seat was chosen. */
+    data object HoldWarning : SeatMessage
+    /** Ten minutes passed: the chosen seats were cleared. */
+    data object HoldExpired : SeatMessage
 }
 
 data class SeatMapUi(
@@ -37,6 +43,9 @@ data class SeatMapUi(
     val conflicts: Set<Long> = emptySet(),
     val submitting: Boolean = false,
     val message: SeatMessage? = null,
+    /** The countdown since the first chosen seat; null while no seat is chosen. */
+    val holdSecondsLeft: Long? = null,
+    val holdWarning: Boolean = false,
 ) {
     val selectedSeats: List<Seat> get() = seats.filter { it.id in selected }.sortedWith(compareBy({ it.row }, { it.column }))
     val total: Long get() = selectedSeats.sumOf { it.price }
@@ -48,7 +57,10 @@ class SeatMapViewModel @Inject constructor(
     private val seatRepository: SeatRepository,
     private val catalog: CatalogRepository,
     private val bookings: BookingRepository,
+    clock: Clock,
 ) : ViewModel() {
+    private val hold = HoldClock { clock.instant() }
+    private var warned = false
     private val showtimeId: Long = checkNotNull(savedState["showtimeId"])
     private val rules = SeatSelection()
     private val _state = MutableStateFlow<UiState<SeatMapUi>>(UiState.Loading)
@@ -58,7 +70,15 @@ class SeatMapViewModel @Inject constructor(
     /** The id of the booking just created: the screen moves on to checkout. */
     val booked: Flow<Long> = _booked.receiveAsFlow()
 
-    init { load() }
+    init {
+        load()
+        // Checkout or snacks ran out of time and sent the customer back here: start again with no seat chosen.
+        viewModelScope.launch {
+            savedState.getStateFlow(HOLD_EXPIRED_KEY, false).collect { expired ->
+                if (expired) { savedState[HOLD_EXPIRED_KEY] = false; clearSelection(SeatMessage.HoldExpired) }
+            }
+        }
+    }
 
     /** The seat map is never cached, so every load and every refresh asks the server. */
     fun load() {
@@ -80,10 +100,11 @@ class SeatMapViewModel @Inject constructor(
             val result = seatRepository.seats(showtimeId) as? ApiResult.Ok ?: return@launch // a failed refresh keeps what is shown
             update { latest ->
                 val (kept, lost) = rules.reconcile(result.data, latest.selected)
+                if (kept.isEmpty() && hold.isRunning()) { hold.stop(); warned = false } // the last chosen seat was taken
                 latest.copy(
                     seats = result.data, selected = kept, conflicts = latest.conflicts.filter { id -> result.data.any { it.id == id && !it.selectable } }.toSet(),
                     message = if (lost.isNotEmpty()) SeatMessage.SeatsTaken(lost.map { it.label }) else latest.message,
-                )
+                ).withHold()
             }
         }
     }
@@ -92,7 +113,12 @@ class SeatMapViewModel @Inject constructor(
         val ui = current() ?: return
         if (ui.submitting) return
         when (val outcome = rules.toggle(ui.seats, ui.selected, seatId)) {
-            is SeatSelection.Outcome.Changed -> update { it.copy(selected = outcome.selected, conflicts = it.conflicts - outcome.selected, message = null) }
+            is SeatSelection.Outcome.Changed -> {
+                // The countdown starts with the first chosen seat and ends when none is left.
+                if (ui.selected.isEmpty() && outcome.selected.isNotEmpty()) { hold.startFor(HoldClock.HOLD); warned = false }
+                if (outcome.selected.isEmpty()) { hold.stop(); warned = false }
+                update { it.copy(selected = outcome.selected, conflicts = it.conflicts - outcome.selected, message = null).withHold() }
+            }
             SeatSelection.Outcome.TooMany -> update { it.copy(message = SeatMessage.MaxSeats) }
             SeatSelection.Outcome.CouplePartnerTaken -> update { it.copy(message = SeatMessage.CouplePartnerTaken) }
             SeatSelection.Outcome.Ignored -> Unit
@@ -100,6 +126,24 @@ class SeatMapViewModel @Inject constructor(
     }
 
     fun consumeMessage() = update { it.copy(message = null) }
+
+    /** Called once a second while the screen is visible. */
+    fun tick() {
+        if (!hold.isRunning()) return
+        if (hold.isExpired()) { clearSelection(SeatMessage.HoldExpired); return }
+        update {
+            val next = it.withHold()
+            if (next.holdWarning && !warned) { warned = true; next.copy(message = SeatMessage.HoldWarning) } else next
+        }
+    }
+
+    private fun clearSelection(message: SeatMessage) {
+        hold.stop(); warned = false
+        update { it.copy(selected = emptySet(), conflicts = emptySet(), message = message, holdSecondsLeft = null, holdWarning = false) }
+    }
+
+    private fun SeatMapUi.withHold() = if (hold.isRunning()) copy(holdSecondsLeft = hold.remainingSeconds(), holdWarning = hold.isWarning())
+        else copy(holdSecondsLeft = null, holdWarning = false)
 
     fun continueBooking() {
         val ui = current() ?: return
@@ -124,6 +168,8 @@ class SeatMapViewModel @Inject constructor(
             }
         }
     }
+
+    companion object { const val HOLD_EXPIRED_KEY = "holdExpired" }
 
     private fun current(): SeatMapUi? = (_state.value as? UiState.Content)?.data
 

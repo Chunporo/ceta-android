@@ -124,8 +124,16 @@ class ShowtimeAndSeatViewModelsTest {
     }
     private val showJson = """{"id":501,"movie":{"id":"m1","title":"Dune"},"cinema":{"id":1,"name":"CETA Landmark"},"startTime":"2026-11-18T12:30:00Z","basePrice":85000,"format":"IMAX","status":"SCHEDULED"}"""
 
-    private fun seatMap(): SeatMapViewModel =
-        SeatMapViewModel(SavedStateHandle(mapOf("showtimeId" to 501L)), SeatRepository(api()), CatalogRepository(api(), offline), BookingRepository(api(), FakeSettingsStore()))
+    private fun seatMap(clock: Clock = Clock.systemUTC(), state: SavedStateHandle = SavedStateHandle(mapOf("showtimeId" to 501L))): SeatMapViewModel =
+        SeatMapViewModel(state, SeatRepository(api()), CatalogRepository(api(), offline), BookingRepository(api(), FakeSettingsStore()), clock)
+
+    /** A clock the test moves by hand. */
+    private class Hand(var now: Instant = Instant.parse("2026-11-18T07:00:00Z")) : Clock() {
+        override fun getZone() = ZoneOffset.UTC
+        override fun withZone(zone: java.time.ZoneId?) = this
+        override fun instant() = now
+        fun advanceMinutes(m: Long) { now = now.plusSeconds(m * 60) }
+    }
 
     private fun ui(vm: SeatMapViewModel) = (vm.state.value as UiState.Content).data
 
@@ -170,6 +178,61 @@ class ShowtimeAndSeatViewModelsTest {
         vm.onSeat(2); vm.onSeat(3)
         assertTrue(ui(vm).selected.isEmpty())
         assertNull(ui(vm).message)
+    }
+
+    @Test fun theSeatCountdownStartsAtTheFirstSeatWarnsOnceAtTwoMinutesAndClearsTheSeatsAtTenMinutes() = runTest {
+        setup()
+        seatApi()
+        val clock = Hand()
+        val vm = seatMap(clock)
+        eventually { vm.state.value is UiState.Content }
+        assertNull("no countdown before a seat is chosen", ui(vm).holdSecondsLeft)
+
+        vm.onSeat(1)
+        assertEquals(600L, ui(vm).holdSecondsLeft)
+        clock.advanceMinutes(3); vm.onSeat(2)                       // a second seat does not restart it
+        vm.tick()
+        assertEquals(420L, ui(vm).holdSecondsLeft)
+        assertFalse(ui(vm).holdWarning)
+
+        clock.advanceMinutes(5); vm.tick()                          // 2:00 left
+        assertTrue(ui(vm).holdWarning)
+        assertEquals(SeatMessage.HoldWarning, ui(vm).message)
+        vm.consumeMessage(); vm.tick()
+        assertNull("the warning is shown once", ui(vm).message)
+
+        clock.advanceMinutes(2); vm.tick()
+        assertTrue(ui(vm).selected.isEmpty())
+        assertEquals(SeatMessage.HoldExpired, ui(vm).message)
+        assertNull(ui(vm).holdSecondsLeft)
+    }
+
+    @Test fun unselectingEverySeatEndsTheCountdownAndTheNextSeatStartsANewOne() = runTest {
+        setup()
+        seatApi()
+        val clock = Hand()
+        val vm = seatMap(clock)
+        eventually { vm.state.value is UiState.Content }
+        vm.onSeat(1)
+        clock.advanceMinutes(4)
+        vm.onSeat(1)
+        assertNull(ui(vm).holdSecondsLeft)
+        vm.onSeat(2)
+        assertEquals(600L, ui(vm).holdSecondsLeft)
+    }
+
+    @Test fun beingSentBackFromCheckoutAfterTheHoldRanOutClearsTheSeats() = runTest {
+        setup()
+        seatApi()
+        val state = SavedStateHandle(mapOf("showtimeId" to 501L))
+        val vm = seatMap(Hand(), state)
+        eventually { vm.state.value is UiState.Content }
+        vm.onSeat(1); vm.onSeat(2)
+        state[SeatMapViewModel.HOLD_EXPIRED_KEY] = true
+        eventually { ui(vm).selected.isEmpty() }
+        assertEquals(SeatMessage.HoldExpired, ui(vm).message)
+        assertNull(ui(vm).holdSecondsLeft)
+        assertEquals("the flag is consumed", false, state.get<Boolean>(SeatMapViewModel.HOLD_EXPIRED_KEY))
     }
 
     @Test fun aRefreshDropsASeatSomeoneElseJustTookAndSaysSo() = runTest {

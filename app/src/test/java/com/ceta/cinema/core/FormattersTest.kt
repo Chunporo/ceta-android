@@ -40,6 +40,9 @@ class FormattersTest {
         assertEquals("2:00", Formatters.mmss(120))
         assertEquals("0:09", Formatters.mmss(9))
         assertEquals("0:00", Formatters.mmss(-5))
+        assertEquals("09:56", Formatters.clock(596))
+        assertEquals("10:00", Formatters.clock(600))
+        assertEquals("00:00", Formatters.clock(-3))
     }
 
     @Test fun dates() = assertEquals("07/11/2026", Formatters.date(LocalDate.of(2026, 11, 7)))

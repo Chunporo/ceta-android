@@ -151,4 +151,5 @@
     <string name="home_tag_early" formatted="false">SUẤT SỚM</string>
     <string name="home_next_shows">Suất gần nhất · %1$s</string>
     <string name="home_other_days">Xem suất ngày khác</string>
+    <string name="hold_warn_toast">Còn 2 phút giữ ghế. Hãy hoàn tất để không mất ghế.</string>
 </resources>

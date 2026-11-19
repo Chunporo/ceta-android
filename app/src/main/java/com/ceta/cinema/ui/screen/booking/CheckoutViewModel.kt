@@ -146,7 +146,8 @@ class CheckoutViewModel @Inject constructor(
     }
 
     /** Called once a second by the screen while it is visible (no background loop lives in the ViewModel). */
-    fun tick() = update { it.copy(secondsLeft = hold.remainingSeconds(), warning = hold.isWarning(), expired = hold.isExpired()) }
+    /** The countdown stands still while a payment is being processed (design item 3). */
+    fun tick() = update { if (it.working) it else it.copy(secondsLeft = hold.remainingSeconds(), warning = hold.isWarning(), expired = hold.isExpired()) }
 
     private fun current(): CheckoutUi? = (_state.value as? UiState.Content)?.data
 

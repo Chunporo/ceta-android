@@ -39,6 +39,12 @@ object Formatters {
         1 -> "T2"; 2 -> "T3"; 3 -> "T4"; 4 -> "T5"; 5 -> "T6"; 6 -> "T7"; else -> "CN"
     }
 
+    /** The seat-hold chip: "09:56" (always two digits each, never negative). */
+    fun clock(totalSeconds: Long): String {
+        val s = totalSeconds.coerceAtLeast(0)
+        return "%02d:%02d".format(s / 60, s % 60)
+    }
+
     /** Whole minutes as the design writes them: "128 phút" / "128 min". */
     fun mmss(totalSeconds: Long): String {
         val s = totalSeconds.coerceAtLeast(0)

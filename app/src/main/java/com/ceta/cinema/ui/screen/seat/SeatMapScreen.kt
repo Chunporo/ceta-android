@@ -62,6 +62,7 @@ fun SeatMapScreen(onBack: () -> Unit, onBooked: (Long) -> Unit, vm: SeatMapViewM
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { while (true) { delay(REFRESH_MS); vm.refresh() } }
     }
     LaunchedEffect(Unit) { vm.booked.collect(onBooked) }
+    EverySecond(vm::tick)
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding()) {
         when (val s = state) {
             UiState.Loading -> { CetaTopBar("", onBack); LoadingBox() }
@@ -93,6 +94,7 @@ private fun Content(ui: SeatMapUi, vm: SeatMapViewModel, onBack: () -> Unit) {
                         color = c.mu, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )
                 }
+                ui.holdSecondsLeft?.let { HoldChip(it, ui.holdWarning) }
                 val zoomed = zoom > 1.01f
                 RoundIconButton(if (zoomed) Icons.Rounded.ZoomOut else Icons.Rounded.ZoomIn, stringResource(R.string.seatmap_hint), { zoom = if (zoomed) 1f else BUTTON_ZOOM })
             }
@@ -203,4 +205,6 @@ private fun messageText(message: SeatMessage): String = when (message) {
     SeatMessage.CouplePartnerTaken -> stringResource(R.string.error_invalid_couple_seat)
     is SeatMessage.SeatsTaken -> stringResource(R.string.seat_taken, message.labels.joinToString(", "))
     is SeatMessage.Failed -> stringResource(ErrorMapper.messageFor(message.error))
+    SeatMessage.HoldWarning -> stringResource(R.string.hold_warn_toast)
+    SeatMessage.HoldExpired -> stringResource(R.string.ds_hold_expired)
 }

@@ -12,6 +12,14 @@ class HoldClock(private val now: () -> Instant = Instant::now) {
 
     fun start(expiresAt: Instant) { deadline = expiresAt }
 
+    /** Starts a hold of [ttl] from now (the seat screen's own countdown, which begins at the first chosen seat). */
+    fun startFor(ttl: Duration) { deadline = now().plus(ttl) }
+
+    /** Ends the countdown (every seat was un-chosen). */
+    fun stop() { deadline = null }
+
+    fun isRunning(): Boolean = deadline != null
+
     /** Re-aim the deadline from the server's seconds-remaining, measured from this moment. */
     fun sync(serverSecondsRemaining: Long) { deadline = now().plusSeconds(serverSecondsRemaining.coerceAtLeast(0)) }
 
@@ -24,7 +32,10 @@ class HoldClock(private val now: () -> Instant = Instant::now) {
     /** The last two minutes turn the chip yellow and offer "pay now". */
     fun isWarning(): Boolean = deadline != null && !isExpired() && remaining() <= WARNING
 
-    companion object { val WARNING: Duration = Duration.ofSeconds(120) }
+    companion object {
+        val WARNING: Duration = Duration.ofSeconds(120)
+        val HOLD: Duration = Duration.ofMinutes(10)
+    }
 }
 
 private fun Duration.coerceAtLeast(min: Duration): Duration = if (this < min) min else this

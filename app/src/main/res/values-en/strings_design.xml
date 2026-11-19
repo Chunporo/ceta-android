@@ -151,4 +151,5 @@
     <string name="home_tag_early" formatted="false">EARLY SHOW</string>
     <string name="home_next_shows">Next showtimes · %1$s</string>
     <string name="home_other_days">See other days</string>
+    <string name="hold_warn_toast">2 minutes left on your seat hold. Finish checkout to keep your seats.</string>
 </resources>

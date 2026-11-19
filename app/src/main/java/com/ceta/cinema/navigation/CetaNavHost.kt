@@ -40,6 +40,7 @@ import com.ceta.cinema.ui.screen.movie.MovieDetailScreen
 import com.ceta.cinema.ui.screen.onboarding.OnboardingScreen
 import com.ceta.cinema.ui.screen.search.SearchScreen
 import com.ceta.cinema.ui.screen.seat.SeatMapScreen
+import com.ceta.cinema.ui.screen.seat.SeatMapViewModel
 import com.ceta.cinema.ui.screen.showtime.ShowtimePickerScreen
 import com.ceta.cinema.ui.screen.booking.CheckoutScreen
 import com.ceta.cinema.ui.screen.booking.ComboScreen
@@ -148,7 +149,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
         }
         composable(Routes.COMBO, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) { entry ->
             val id = entry.arguments?.getLong("bookingId") ?: 0L
-            ComboScreen(onBack = { nav.popBackStack() }, onNext = { nav.navigate(Routes.checkout(id)) }, onChooseSeats = { nav.popBackStack(Routes.SEAT_MAP, inclusive = false) })
+            ComboScreen(onBack = { nav.popBackStack() }, onNext = { nav.navigate(Routes.checkout(id)) }, onChooseSeats = { nav.popBackStack(Routes.SEAT_MAP, inclusive = false) }, onHoldExpired = { backToSeatsAfterHoldExpired(nav) })
         }
         composable(Routes.CHECKOUT, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) {
             CheckoutScreen(
@@ -156,6 +157,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                 onPaying = { nav.navigate(Routes.paymentResult(it)) },
                 onVietQr = { id, img, note -> nav.navigate(Routes.vietQr(id, img, note)) },
                 onChooseSeats = { nav.popBackStack(Routes.SEAT_MAP, inclusive = false) },
+                onHoldExpired = { backToSeatsAfterHoldExpired(nav) },
             )
         }
         composable(Routes.VIETQR, arguments = listOf(
@@ -203,4 +205,15 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
             }
         }
     }
+}
+
+/**
+ * The seat hold ran out on the snacks or payment screen: go back to the seat map and tell it, so it clears the chosen seats and
+ * says so. If the seat map is not in the back stack (an order resumed from Home) nothing happens and the screen keeps its own
+ * "hold expired" message with a button.
+ */
+private fun backToSeatsAfterHoldExpired(nav: androidx.navigation.NavHostController) {
+    val seatMap = runCatching { nav.getBackStackEntry(Routes.SEAT_MAP) }.getOrNull() ?: return
+    seatMap.savedStateHandle[SeatMapViewModel.HOLD_EXPIRED_KEY] = true
+    nav.popBackStack(Routes.SEAT_MAP, inclusive = false)
 }

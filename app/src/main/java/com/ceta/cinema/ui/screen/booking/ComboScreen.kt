@@ -22,6 +22,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,7 +43,7 @@ import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.theme.Ceta
 
 @Composable
-fun ComboScreen(onBack: () -> Unit, onNext: () -> Unit, onChooseSeats: () -> Unit, vm: ComboViewModel = hiltViewModel()) {
+fun ComboScreen(onBack: () -> Unit, onNext: () -> Unit, onChooseSeats: () -> Unit, onHoldExpired: () -> Unit = {}, vm: ComboViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
     val c = Ceta.colors
     EverySecond(vm::tick)
@@ -50,15 +53,18 @@ fun ComboScreen(onBack: () -> Unit, onNext: () -> Unit, onChooseSeats: () -> Uni
             UiState.Loading -> { CetaTopBar(stringResource(R.string.ds_combo), onBack); LoadingBox() }
             is UiState.Error -> { CetaTopBar(stringResource(R.string.ds_combo), onBack); ErrorBox(s.error, vm::load) }
             is UiState.Empty -> Unit
-            is UiState.Content -> Content(s.data, vm, onBack, onChooseSeats)
+            is UiState.Content -> Content(s.data, vm, onBack, onChooseSeats, onHoldExpired)
         }
     }
 }
 
 @Composable
-private fun Content(ui: ComboUi, vm: ComboViewModel, onBack: () -> Unit, onChooseSeats: () -> Unit) {
+private fun Content(ui: ComboUi, vm: ComboViewModel, onBack: () -> Unit, onChooseSeats: () -> Unit, onHoldExpired: () -> Unit) {
     val c = Ceta.colors
     val english = LocalConfiguration.current.locales[0].language == "en"
+    val snackbar = remember { SnackbarHostState() }
+    HoldToasts("b${ui.booking.id}", ui.warning, ui.expired, snackbar, onHoldExpired)
+    Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(Modifier.size(44.dp).clip(CircleShape).background(c.sf).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
@@ -96,6 +102,8 @@ private fun Content(ui: ComboUi, vm: ComboViewModel, onBack: () -> Unit, onChoos
                 PrimaryButton(stringResource(if (any) R.string.ds_cont else R.string.ds_skip_combo), { vm.proceed(skip = !any) }, loading = ui.saving)
             }
         }
+    }
+    SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp))
     }
 }
 

@@ -41,7 +41,7 @@ import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.theme.Ceta
 
 @Composable
-fun CheckoutScreen(onBack: () -> Unit, onPaying: (Long) -> Unit, onVietQr: (Long, String, String) -> Unit, onChooseSeats: () -> Unit, vm: CheckoutViewModel = hiltViewModel()) {
+fun CheckoutScreen(onBack: () -> Unit, onPaying: (Long) -> Unit, onVietQr: (Long, String, String) -> Unit, onChooseSeats: () -> Unit, onHoldExpired: () -> Unit = {}, vm: CheckoutViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
     val c = Ceta.colors
     val context = LocalContext.current
@@ -61,15 +61,18 @@ fun CheckoutScreen(onBack: () -> Unit, onPaying: (Long) -> Unit, onVietQr: (Long
             UiState.Loading -> { CetaTopBar(stringResource(R.string.ds_payment), onBack); LoadingBox() }
             is UiState.Error -> { CetaTopBar(stringResource(R.string.ds_payment), onBack); ErrorBox(s.error, vm::load) }
             is UiState.Empty -> Unit
-            is UiState.Content -> Content(s.data, vm, onBack, onChooseSeats)
+            is UiState.Content -> Content(s.data, vm, onBack, onChooseSeats, onHoldExpired)
         }
     }
 }
 
 @Composable
-private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, onChooseSeats: () -> Unit) {
+private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, onChooseSeats: () -> Unit, onHoldExpired: () -> Unit) {
     val c = Ceta.colors
     val b = ui.booking
+    val snackbar = androidx.compose.runtime.remember { androidx.compose.material3.SnackbarHostState() }
+    HoldToasts("b${b.id}", ui.warning, ui.expired, snackbar, onHoldExpired)
+    Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(Modifier.size(44.dp).clip(CircleShape).background(c.sf).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
@@ -97,6 +100,8 @@ private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, o
             if (ui.warning && !ui.expired) Text(stringResource(R.string.hold_pay_now), color = c.mu, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(bottom = 6.dp))
             PrimaryButton(stringResource(when (ui.method) { PaymentProvider.MOMO -> R.string.pay_with_momo; PaymentProvider.VIETQR -> R.string.pay_with_vietqr; else -> R.string.pay_with_vnpay }, MoneyFormatter.format(b.totalAmount)), vm::pay, enabled = ui.canPay, loading = ui.working)
         }
+    }
+    androidx.compose.material3.SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = 120.dp))
     }
 }
 
