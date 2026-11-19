@@ -54,9 +54,20 @@ import kotlin.math.min
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/** Larger than the design's 240x350 so the centred poster stands out (2:3 like every poster); the neighbours still peek in from the sides. */
-private val STEP = 280.dp
-private val CARD_H = 420.dp
+/** The centred poster stands out but must leave room for the title and showtimes under it and for the neighbours to peek in. */
+private val MAX_CARD_W = 280.dp
+private val MIN_CARD_H = 280.dp
+private val MAX_CARD_H = 420.dp
+/** Everything on the home screen besides the poster: header, greeting, search, bottom bar, and the title and showtimes under it. */
+private val AROUND_POSTER = 540.dp
+private const val WIDTH_SHARE = 0.66f
+
+/** The poster's size for this screen: as tall as fits (2:3 like every poster), never more than two thirds of the width. */
+private fun cardSize(screenW: androidx.compose.ui.unit.Dp, screenH: androidx.compose.ui.unit.Dp): Pair<androidx.compose.ui.unit.Dp, androidx.compose.ui.unit.Dp> {
+    val h = (screenH - AROUND_POSTER).coerceIn(MIN_CARD_H, MAX_CARD_H)
+    val w = minOf(h * 2f / 3f, screenW * WIDTH_SHARE, MAX_CARD_W)
+    return w to w * 1.5f
+}
 private const val AUTOPLAY_MS = 4_500L
 private const val IDLE_MS = 7_000L
 
@@ -74,7 +85,9 @@ fun PosterCarousel(
     val c = Ceta.colors
     val scope = rememberCoroutineScope()
     val pager = rememberPagerState { movies.size }
-    val sidePad = ((LocalConfiguration.current.screenWidthDp.dp - STEP) / 2).coerceAtLeast(0.dp)
+    val config = LocalConfiguration.current
+    val (cardW, cardH) = cardSize(config.screenWidthDp.dp, config.screenHeightDp.dp)
+    val sidePad = ((config.screenWidthDp.dp - cardW) / 2).coerceAtLeast(0.dp)
     var lastTouch by remember { mutableLongStateOf(0L) }
     fun touched() { lastTouch = SystemClock.elapsedRealtime() }
     suspend fun goTo(page: Int) = pager.animateScrollToPage(page, animationSpec = tween(350))
@@ -95,11 +108,11 @@ fun PosterCarousel(
         Box(Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp)) {
             BlurredBackdrop(movies, pager)
             HorizontalPager(
-                state = pager, pageSize = androidx.compose.foundation.pager.PageSize.Fixed(STEP), pageSpacing = 0.dp,
+                state = pager, pageSize = androidx.compose.foundation.pager.PageSize.Fixed(cardW), pageSpacing = 0.dp,
                 contentPadding = PaddingValues(horizontal = sidePad, vertical = 14.dp), beyondViewportPageCount = 1,
                 modifier = Modifier.fillMaxWidth(),
             ) { page ->
-                PosterPage(movies[page], page, pager, onTap = {
+                PosterPage(movies[page], page, pager, cardW, cardH, onTap = {
                     touched()
                     if (page == pager.currentPage) onMovie(movies[page].id) else scope.launch { goTo(page) }
                 }, onBook = { onBook(movies[page].id) })
@@ -138,12 +151,12 @@ private fun BoxScope.BlurredBackdrop(movies: List<Movie>, pager: PagerState) {
 }
 
 @Composable
-private fun PosterPage(movie: Movie, page: Int, pager: PagerState, onTap: () -> Unit, onBook: () -> Unit) {
+private fun PosterPage(movie: Movie, page: Int, pager: PagerState, cardW: androidx.compose.ui.unit.Dp, cardH: androidx.compose.ui.unit.Dp, onTap: () -> Unit, onBook: () -> Unit) {
     val c = Ceta.colors
     val shape = RoundedCornerShape(26.dp)
     fun d() = min(abs(page - pager.position()), 1f)
     Box(
-        Modifier.width(STEP).height(CARD_H + 4.dp).graphicsLayer {
+        Modifier.width(cardW).height(cardH + 4.dp).graphicsLayer {
             val d = d()
             val s = 1f - 0.28f * d
             scaleX = s; scaleY = s
@@ -156,7 +169,7 @@ private fun PosterPage(movie: Movie, page: Int, pager: PagerState, onTap: () -> 
         },
         contentAlignment = Alignment.Center,
     ) {
-        Box(Modifier.width(STEP).height(CARD_H).clip(shape).clickable(onClick = onTap)) {
+        Box(Modifier.width(cardW).height(cardH).clip(shape).clickable(onClick = onTap)) {
             Poster(movie.posterUrl, movie.id, Modifier.fillMaxSize())
             FeaturedTag.of(movie)?.let { TagPill(it, Modifier.align(Alignment.TopStart).padding(14.dp)) }
             movie.ageRating?.takeIf { it.isNotBlank() }?.let {

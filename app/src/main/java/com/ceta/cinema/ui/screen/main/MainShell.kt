@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.ceta.cinema.R
 import com.ceta.cinema.ui.theme.Ceta
 
@@ -44,18 +45,19 @@ fun MainShell(requested: Tab? = null, onTabShown: () -> Unit = {}, content: @Com
     Column(Modifier.fillMaxSize().background(c.bg)) {
         Box(Modifier.weight(1f).fillMaxWidth()) { content(Tab.entries[selected]) }
         Row(
-            Modifier.fillMaxWidth().background(c.sf).navigationBarsPadding().padding(horizontal = 8.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
+            Modifier.fillMaxWidth().background(c.sf).navigationBarsPadding().padding(horizontal = 4.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Tab.entries.forEach { tab ->
                 val on = tab.ordinal == selected
                 Column(
-                    Modifier.clip(RoundedCornerShape(16.dp)).background(if (on) c.acs else androidx.compose.ui.graphics.Color.Transparent)
-                        .clickable { selected = tab.ordinal }.padding(horizontal = 14.dp, vertical = 6.dp),
+                    // Five equal cells: a label such as "Tài khoản" must stay on one line on a 360dp phone.
+                    Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(if (on) c.acs else androidx.compose.ui.graphics.Color.Transparent)
+                        .clickable { selected = tab.ordinal }.padding(horizontal = 2.dp, vertical = 6.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Icon(tab.icon, null, tint = if (on) c.ac else c.mu, modifier = Modifier.size(24.dp))
-                    Text(stringResource(tab.label), style = MaterialTheme.typography.labelSmall, color = if (on) c.ac else c.mu)
+                    Text(stringResource(tab.label), style = MaterialTheme.typography.labelSmall, fontSize = 11.sp, color = if (on) c.ac else c.mu, maxLines = 1, softWrap = false, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                 }
             }
         }

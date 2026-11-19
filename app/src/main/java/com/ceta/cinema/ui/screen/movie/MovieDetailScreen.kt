@@ -168,8 +168,8 @@ private fun StatsRow(movie: Movie) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         Stat(Modifier.weight(1f), if (movie.ratingAverage != null) "★ ${Formatters.score(movie.ratingAverage)}" else "—",
             if (movie.ratingCount > 0) "${Formatters.votes(movie.ratingCount)} ${stringResource(R.string.ds_votes)}" else stringResource(R.string.movie_not_rated), big = true)
-        Stat(Modifier.weight(1f), movie.releaseDate?.let(Formatters::date) ?: "—", stringResource(R.string.ds_release))
-        Stat(Modifier.weight(1f), movie.language ?: "—", stringResource(R.string.ds_language))
+        Stat(Modifier.weight(1.35f), movie.releaseDate?.let(Formatters::date) ?: "—", stringResource(R.string.ds_release))
+        Stat(Modifier.weight(0.8f), movie.language ?: "—", stringResource(R.string.ds_language))
     }
 }
 
@@ -177,7 +177,7 @@ private fun StatsRow(movie: Movie) {
 private fun Stat(modifier: Modifier, value: String, label: String, big: Boolean = false) {
     val c = Ceta.colors
     Column(modifier.cardSurface(RoundedCornerShape(18.dp)).padding(horizontal = 14.dp, vertical = 12.dp)) {
-        Text(value, color = c.tx, fontSize = if (big) 20.sp else 16.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+        Text(value, color = c.tx, fontSize = if (big) 20.sp else 15.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
         Text(label, color = c.mu, fontSize = 12.sp, maxLines = 1)
     }
 }
