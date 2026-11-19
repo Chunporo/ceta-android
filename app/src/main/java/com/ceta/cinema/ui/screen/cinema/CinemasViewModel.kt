@@ -56,15 +56,29 @@ class CinemasViewModel @Inject constructor(
                     else UiState.Content(CinemasUi(cinemas, city = cinemas.map { it.city }.distinct().sorted().let { if ("HCM" in it) "HCM" else it.first() }))
                 }
             }
+            openFirst() // the design opens the first cinema of the city straight away, with today's showings
         }
     }
 
-    fun selectCity(city: String) = update { it.copy(city = city, open = null) }
+    fun selectCity(city: String) {
+        update { it.copy(city = city, open = null) }
+        openFirst()
+    }
+
+    private fun openFirst() {
+        val first = current()?.visible?.firstOrNull() ?: return
+        open(first.id)
+    }
 
     /** Opening a card shows today's showings; closing it again keeps what was loaded. */
     fun toggle(cinemaId: Long) {
         val ui = current() ?: return
         if (ui.open == cinemaId) { update { it.copy(open = null) }; return }
+        open(cinemaId)
+    }
+
+    private fun open(cinemaId: Long) {
+        val ui = current() ?: return
         update { it.copy(open = cinemaId) }
         if (ui.shows[cinemaId] is UiState.Content) return
         update { it.copy(shows = it.shows + (cinemaId to UiState.Loading)) }

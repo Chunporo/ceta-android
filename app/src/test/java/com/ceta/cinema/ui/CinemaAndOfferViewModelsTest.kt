@@ -82,18 +82,18 @@ class CinemaAndOfferViewModelsTest {
         assertEquals(listOf("CETA Landmark", "CETA Nguyễn Du"), ui.visible.map { it.name })
     }
 
-    @Test fun changingCityClosesTheOpenCard() = runTest {
+    @Test fun theFirstCinemaOfTheCityIsOpenAtOnceAndChangingCityOpensThatCitysFirst() = runTest {
         setup()
         answers["GET /api/v1/cinemas"] = ok(cinemasJson)
         answers["GET /api/v1/showtimes"] = ok("[]")
         val vm = CinemasViewModel(CatalogRepository(api(), offline), session(false), offline, clock)
-        eventually { vm.state.value is UiState.Content }
-        vm.toggle(1)
+        eventually { vm.state.value is UiState.Content && (vm.state.value as UiState.Content).data.open != null }
+        assertEquals(1L, (vm.state.value as UiState.Content).data.open)       // CETA Landmark, first by name in HCM
         eventually { (vm.state.value as UiState.Content).data.shows[1L] is UiState.Content }
         vm.selectCity("HN")
         val ui = (vm.state.value as UiState.Content).data
         assertEquals("HN", ui.city)
-        assertNull(ui.open)
+        assertEquals(2L, ui.open)                                              // CETA Bà Triệu, the only one in HN
         assertEquals(listOf("CETA Bà Triệu"), ui.visible.map { it.name })
     }
 
@@ -104,10 +104,11 @@ class CinemaAndOfferViewModelsTest {
         val vm = CinemasViewModel(CatalogRepository(api(), offline), session(false), offline, clock)
         eventually { vm.state.value is UiState.Content }
 
-        vm.toggle(1)
+        // The first cinema opens by itself, so its showings load without a tap.
         eventually { (vm.state.value as UiState.Content).data.shows[1L] is UiState.Content }
         val path = requests.last { it.contains("showtimes") }
         assertTrue(path, path.contains("cinemaId=1") && path.contains("date=2026-11-18"))
+        assertEquals(1L, (vm.state.value as UiState.Content).data.open)
         vm.toggle(1)                                    // close
         assertNull((vm.state.value as UiState.Content).data.open)
         requests.clear()
