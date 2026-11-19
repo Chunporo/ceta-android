@@ -118,7 +118,8 @@ private fun HomeContent(
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
         item {
             Column(Modifier.padding(horizontal = 20.dp)) {
-                Text(if (name.isNullOrBlank()) stringResource(R.string.home_hello_guest) else stringResource(R.string.home_hello, name),
+                val vietnamese = LocalConfiguration.current.locales[0].language == "vi"
+                Text(if (name.isNullOrBlank()) stringResource(R.string.home_hello_guest) else stringResource(R.string.home_hello, Formatters.greetingName(name, vietnamese)),
                     style = MaterialTheme.typography.headlineMedium, color = c.tx)
                 Text(stringResource(R.string.ds_hello_sub), style = MaterialTheme.typography.bodyLarge, color = c.mu)
             }

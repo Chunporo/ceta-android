@@ -39,6 +39,19 @@ object Formatters {
         1 -> "T2"; 2 -> "T3"; 3 -> "T4"; 4 -> "T5"; 5 -> "T6"; 6 -> "T7"; else -> "CN"
     }
 
+    /**
+     * The name for "Xin chào, Minh": the given name. A Vietnamese name ends with it ("Huỳnh Quốc Trung" -> "Trung"), an English one
+     * starts with it ("Ada Lovelace" -> "Ada"); a single word stays as it is.
+     */
+    fun greetingName(fullName: String, vietnamese: Boolean): String {
+        val words = fullName.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+        return when {
+            words.isEmpty() -> ""
+            vietnamese -> words.last()
+            else -> words.first()
+        }
+    }
+
     /** The seat-hold chip: "09:56" (always two digits each, never negative). */
     fun clock(totalSeconds: Long): String {
         val s = totalSeconds.coerceAtLeast(0)

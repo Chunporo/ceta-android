@@ -46,4 +46,11 @@ class FormattersTest {
     }
 
     @Test fun dates() = assertEquals("07/11/2026", Formatters.date(LocalDate.of(2026, 11, 7)))
+
+    @Test fun greetingUsesTheGivenNameWhicheverEndOfTheNameItIsOn() {
+        assertEquals("Trung", Formatters.greetingName("Huynh Quoc Trung", vietnamese = true))
+        assertEquals("Ada", Formatters.greetingName("Ada Lovelace", vietnamese = false))
+        assertEquals("Minh", Formatters.greetingName("  Minh ", vietnamese = true))
+        assertEquals("", Formatters.greetingName("   ", vietnamese = true))
+    }
 }
