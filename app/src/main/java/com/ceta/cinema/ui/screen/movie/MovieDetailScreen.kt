@@ -76,7 +76,7 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
                     // Behind everything, scrolling with it: the poster blurred into a soft glow under the content.
                     PosterGlow(movie.posterUrl, Modifier.align(Alignment.TopCenter).offset(y = 170.dp))
                     Column(Modifier.fillMaxWidth()) {
-                        Header(movie, onBack, onTrailer = { movie.trailerUrl?.let(uri::openUri) }, onShare = { shareMovie(context, movie) })
+                        Header(movie, onBack, onTrailer = { uri.openUri(trailerLink(movie)) }, onShare = { shareMovie(context, movie) })
                         Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                             Text(movie.title, color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 32.sp, modifier = Modifier.padding(top = 14.dp))
                             StatsRow(movie)
@@ -99,6 +99,10 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
         onDismiss = { showReview = false },
     )
 }
+
+/** The movie's trailer, or a YouTube search for it when the catalogue has none, so the Trailer button is always there as in the design. */
+internal fun trailerLink(movie: Movie): String =
+    movie.trailerUrl?.takeIf { it.isNotBlank() } ?: "https://www.youtube.com/results?search_query=" + android.net.Uri.encode(movie.title + " trailer")
 
 private fun shareMovie(context: android.content.Context, movie: Movie) {
     val text = movie.title + (movie.trailerUrl?.let { "\n$it" } ?: "")
@@ -141,7 +145,7 @@ private fun Header(movie: Movie, onBack: () -> Unit, onTrailer: () -> Unit, onSh
                 Icon(Icons.Rounded.Share, null, tint = Color.White, modifier = Modifier.size(21.dp))
             }
         }
-        if (!movie.trailerUrl.isNullOrBlank()) Row(
+        Row(
             Modifier.align(Alignment.Center).height(52.dp).clip(RoundedCornerShape(26.dp)).background(Color.White.copy(alpha = 0.92f)).clickable(onClick = onTrailer).padding(start = 14.dp, end = 20.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
