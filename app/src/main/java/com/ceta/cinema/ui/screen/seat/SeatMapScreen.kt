@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ZoomIn
 import androidx.compose.material.icons.rounded.ZoomOut
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.geometry.Offset
@@ -101,7 +102,7 @@ private fun Content(ui: SeatMapUi, vm: SeatMapViewModel, onBack: () -> Unit) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 CurvedScreen()
                 Spacer(Modifier.height(8.dp))
-                SeatMapCanvas(ui.seats, ui.selected, ui.conflicts, vm::onSeat, zoom, { zoom = it }, Modifier.padding(horizontal = 12.dp))
+                SeatMapCanvas(ui.seats, ui.selected, ui.conflicts, ui.loneSeats.map { it.id }.toSet(), vm::onSeat, zoom, { zoom = it }, Modifier.padding(horizontal = 12.dp))
                 Spacer(Modifier.height(20.dp))
                 Legend()
                 PriceTags(ui)
@@ -182,6 +183,7 @@ private fun BottomBar(ui: SeatMapUi, onContinue: () -> Unit) {
             .navigationBarsPadding().padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        if (ui.loneSeats.isNotEmpty()) LoneSeatBanner(ui.loneSeats.joinToString(", ") { it.label })
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.ds_seats_sel), color = c.mu, fontSize = 12.sp)
@@ -192,10 +194,23 @@ private fun BottomBar(ui: SeatMapUi, onContinue: () -> Unit) {
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(stringResource(R.string.ds_total), color = c.mu, fontSize = 12.sp)
-                Text(MoneyFormatter.format(ui.total), color = c.tx, fontSize = 19.sp, fontWeight = FontWeight.ExtraBold)
+                Text(MoneyFormatter.format(ui.total), color = c.tx, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
             }
         }
         PrimaryButton(stringResource(R.string.continue_booking), onContinue, enabled = ui.selected.isNotEmpty(), loading = ui.submitting)
+    }
+}
+
+/** A soft warning above Continue: it names the seat(s) that would be left alone and never stops the customer from going on. */
+@Composable
+private fun LoneSeatBanner(labels: String) {
+    val c = Ceta.colors
+    Row(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.acs).padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Icon(Icons.Rounded.Warning, null, tint = c.ac, modifier = Modifier.size(20.dp))
+        Text(stringResource(R.string.lone_seat_warning, labels), color = c.tx, fontSize = 13.sp, lineHeight = 18.85.sp)
     }
 }
 

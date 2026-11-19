@@ -1,7 +1,9 @@
 package com.ceta.cinema.ui.screen.seat
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.ceta.cinema.domain.model.Seat
 import com.ceta.cinema.domain.model.SeatKind
 import com.ceta.cinema.domain.model.SeatStatus
+import com.ceta.cinema.domain.usecase.SeatBlocks
 import com.ceta.cinema.ui.theme.Ceta
 import com.ceta.cinema.ui.theme.CetaPalette
 import kotlin.math.max
@@ -51,6 +54,7 @@ import kotlin.math.min
  */
 const val MAX_ZOOM = 3f
 const val BUTTON_ZOOM = 1.6f
+private const val DOUBLE_TAP_MS = 280L
 
 /** One drawn seat: where it sits in map units (before fit/zoom), and which server seat(s) it stands for. */
 private class SeatBox(val seat: Seat, val partner: Seat?, val rect: Rect, val curveDrop: Float)
@@ -62,9 +66,8 @@ private fun layout(seats: List<Seat>, density: Density): MapLayout = with(densit
     val rowGap = 6.dp.toPx(); val sectionGap = 8.dp.toPx()
     val maxRow = seats.maxOfOrNull { it.row } ?: 1
     val maxCol = seats.maxOfOrNull { it.column } ?: 1
-    val firstAisle = 3
-    val lastAisle = if ((maxCol - 1) % 2 == 1) maxCol - 1 else maxCol - 2
-    fun aislesBefore(col: Int) = if (maxCol < 8) 0 else (if (col >= firstAisle) 1 else 0) + (if (col >= lastAisle && lastAisle > firstAisle) 1 else 0)
+    val aisleStarts = SeatBlocks.aisleStarts(maxCol)
+    fun aislesBefore(col: Int) = aisleStarts.count { col >= it }
     fun x(col: Int) = label + (col - 1) * (seatW + gap) + aislesBefore(col) * aisle
     val byRow = seats.groupBy { it.row }
     val centre = (maxCol + 1) / 2f
@@ -100,7 +103,7 @@ private fun layout(seats: List<Seat>, density: Density): MapLayout = with(densit
 
 @Composable
 fun SeatMapCanvas(
-    seats: List<Seat>, selected: Set<Long>, conflicts: Set<Long>, onTap: (Long) -> Unit,
+    seats: List<Seat>, selected: Set<Long>, conflicts: Set<Long>, lone: Set<Long>, onTap: (Long) -> Unit,
     zoom: Float, onZoomChange: (Float) -> Unit, modifier: Modifier = Modifier,
 ) {
     val c = Ceta.colors
@@ -137,11 +140,31 @@ fun SeatMapCanvas(
                     }
                 }
                 .pointerInput(map, zoom, panX, panY, baseX) {
-                    detectTapGestures { p ->
+                    // A tap picks a seat at once (no wait to see whether a second tap follows). A second tap at the same spot within
+                    // 280 ms is a double-tap: it undoes the seat the first tap toggled and zooms in or out around that point.
+                    var lastUp = 0L
+                    var lastPos = Offset.Zero
+                    fun seatAt(p: Offset): SeatBox? {
                         val x = (p.x - baseX - panX) / scale
                         val y = (p.y - panY) / scale
-                        map.boxes.firstOrNull { x in it.rect.left..it.rect.right && y in (it.rect.top + it.curveDrop)..(it.rect.bottom + it.curveDrop) }
-                            ?.let { onTap(it.seat.id) }
+                        return map.boxes.firstOrNull { x in it.rect.left..it.rect.right && y in (it.rect.top + it.curveDrop)..(it.rect.bottom + it.curveDrop) }
+                    }
+                    awaitEachGesture {
+                        awaitFirstDown(requireUnconsumed = false)
+                        val up = waitForUpOrCancellation() ?: return@awaitEachGesture
+                        val doubled = up.uptimeMillis - lastUp <= DOUBLE_TAP_MS && (up.position - lastPos).getDistance() < 48.dp.toPx()
+                        if (doubled) {
+                            lastUp = 0L
+                            seatAt(up.position)?.let { onTap(it.seat.id) }
+                            val newZoom = if (zoom > 1.01f) 1f else BUTTON_ZOOM
+                            val ratio = newZoom / zoom
+                            panX = clampX(panX * ratio + (1 - ratio) * (up.position.x - baseX), map.width * fit * newZoom, widthPx)
+                            panY = clampY(panY * ratio + (1 - ratio) * up.position.y, map.height * fit * newZoom, heightPx)
+                            onZoomChange(newZoom)
+                        } else {
+                            lastUp = up.uptimeMillis; lastPos = up.position
+                            seatAt(up.position)?.let { onTap(it.seat.id) }
+                        }
                     }
                 },
         ) {
@@ -160,7 +183,7 @@ fun SeatMapCanvas(
                 map.boxes.forEach { box ->
                     val isSelected = box.seat.id in selected || (box.partner != null && box.partner.id in selected)
                     val isConflict = box.seat.id in conflicts || (box.partner != null && box.partner.id in conflicts)
-                    drawSeat(box, isSelected, isConflict, showNumbers, c, measurer)
+                    drawSeat(box, isSelected, isConflict, box.seat.id in lone, showNumbers, c, measurer)
                 }
             }
         }
@@ -173,7 +196,7 @@ private fun clampX(x: Float, contentWidth: Float, width: Float) =
 private fun clampY(y: Float, contentHeight: Float, height: Float) =
     if (contentHeight <= height) 0f else y.coerceIn(height - contentHeight, 0f)
 
-private fun DrawScope.drawSeat(box: SeatBox, selected: Boolean, conflict: Boolean, showNumber: Boolean, c: CetaPalette, measurer: TextMeasurer) {
+private fun DrawScope.drawSeat(box: SeatBox, selected: Boolean, conflict: Boolean, lone: Boolean, showNumber: Boolean, c: CetaPalette, measurer: TextMeasurer) {
     val seat = box.seat
     val topLeft = Offset(box.rect.left, box.rect.top + box.curveDrop)
     val size = Size(box.rect.width, box.rect.height)
@@ -186,12 +209,21 @@ private fun DrawScope.drawSeat(box: SeatBox, selected: Boolean, conflict: Boolea
     val number = if (box.partner != null) seat.label + "·" + box.partner.label.dropWhile { !it.isDigit() } else seat.label.dropWhile { !it.isDigit() }
     val (text, textColor) = when {
         selected -> number to Color.White
+        lone -> number to c.ac
         seat.status == SeatStatus.SOLD -> "×" to c.mu
         showNumber && !gone -> number to c.mu
         else -> "" to c.mu
     }
     when {
-        selected -> { drawPath(shape, c.ac); drawPath(shape, c.ac, style = Stroke(stroke)) }
+        selected -> {
+            // A soft ring around a chosen seat (box-shadow 0 0 0 3px accent-soft in the design).
+            val ring = 3.dp.toPx()
+            val outer = Path().apply { addRoundRect(RoundRect(Rect(topLeft - Offset(ring, ring), Size(size.width + 2 * ring, size.height + 2 * ring)), CornerRadius(top.x + ring), CornerRadius(top.x + ring), CornerRadius(bottom.x + ring), CornerRadius(bottom.x + ring))) }
+            drawPath(outer, c.acs)
+            drawPath(shape, c.ac); drawPath(shape, c.ac, style = Stroke(stroke))
+        }
+        // A seat that would be left alone: soft accent fill and outline (the number is drawn in accent below).
+        lone -> { drawPath(shape, c.acs); drawPath(shape, c.ac, style = Stroke(stroke)) }
         gone -> drawPath(shape, c.ln2, style = dashed)
         else -> {
             drawPath(shape, if (seat.kind == SeatKind.STANDARD) c.sf2 else tint.copy(alpha = 0.22f))

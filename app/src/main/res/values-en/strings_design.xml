@@ -154,4 +154,5 @@
     <string name="hold_warn_toast">2 minutes left on your seat hold. Finish checkout to keep your seats.</string>
     <string name="order_summary_seats">Seats: %1$s</string>
     <string name="order_summary_snacks">Snacks ×%1$d</string>
+    <string name="lone_seat_warning">%1$s would be left as a single empty seat. Add it or shift your selection.</string>
 </resources>

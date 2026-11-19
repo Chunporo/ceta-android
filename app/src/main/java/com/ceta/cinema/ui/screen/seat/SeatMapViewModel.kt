@@ -12,6 +12,7 @@ import com.ceta.cinema.data.repository.SeatRepository
 import com.ceta.cinema.domain.model.Seat
 import com.ceta.cinema.domain.model.Showtime
 import com.ceta.cinema.domain.usecase.HoldClock
+import com.ceta.cinema.domain.usecase.LoneSeats
 import com.ceta.cinema.domain.usecase.SeatSelection
 import java.time.Clock
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,6 +48,8 @@ data class SeatMapUi(
     val holdSecondsLeft: Long? = null,
     val holdWarning: Boolean = false,
 ) {
+    /** Free seats the current choice would leave alone (soft warning, never blocks). */
+    val loneSeats: List<Seat> get() = LoneSeats.find(seats, selected)
     val selectedSeats: List<Seat> get() = seats.filter { it.id in selected }.sortedWith(compareBy({ it.row }, { it.column }))
     val total: Long get() = selectedSeats.sumOf { it.price }
 }
