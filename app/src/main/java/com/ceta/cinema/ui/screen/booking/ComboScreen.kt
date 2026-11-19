@@ -95,8 +95,8 @@ private fun Content(ui: ComboUi, vm: ComboViewModel, onBack: () -> Unit, onChoos
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.ds_total), color = c.mu, fontSize = 12.sp)
-                Text(MoneyFormatter.format(ui.total), color = c.tx, fontSize = 19.sp, fontWeight = FontWeight.ExtraBold)
+                OrderSummaryLine(ui.booking.seats.map { it.label }, ui.quantities.values.sum())
+                Text(MoneyFormatter.format(ui.total), color = c.tx, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
             }
             Box(Modifier.width(180.dp)) {
                 PrimaryButton(stringResource(if (any) R.string.ds_cont else R.string.ds_skip_combo), { vm.proceed(skip = !any) }, loading = ui.saving)

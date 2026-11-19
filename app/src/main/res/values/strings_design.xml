@@ -152,4 +152,6 @@
     <string name="home_next_shows">Suất gần nhất · %1$s</string>
     <string name="home_other_days">Xem suất ngày khác</string>
     <string name="hold_warn_toast">Còn 2 phút giữ ghế. Hãy hoàn tất để không mất ghế.</string>
+    <string name="order_summary_seats">Ghế: %1$s</string>
+    <string name="order_summary_snacks">Bắp nước ×%1$d</string>
 </resources>

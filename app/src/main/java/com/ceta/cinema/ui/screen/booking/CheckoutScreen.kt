@@ -97,6 +97,7 @@ private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, o
             ui.error?.let { Text(stringResource(ErrorMapper.messageFor(it)), color = c.ac, style = MaterialTheme.typography.bodySmall) }
         }
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)).background(c.sf).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 14.dp)) {
+            OrderSummaryLine(b.seats.map { it.label }, b.combos.sumOf { it.quantity }, Modifier.padding(bottom = 8.dp))
             if (ui.warning && !ui.expired) Text(stringResource(R.string.hold_pay_now), color = c.mu, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(bottom = 6.dp))
             PrimaryButton(stringResource(when (ui.method) { PaymentProvider.MOMO -> R.string.pay_with_momo; PaymentProvider.VIETQR -> R.string.pay_with_vietqr; else -> R.string.pay_with_vnpay }, MoneyFormatter.format(b.totalAmount)), vm::pay, enabled = ui.canPay, loading = ui.working)
         }
