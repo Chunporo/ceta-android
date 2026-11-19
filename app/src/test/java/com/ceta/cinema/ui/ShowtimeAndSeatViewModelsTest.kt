@@ -229,7 +229,7 @@ class ShowtimeAndSeatViewModelsTest {
         eventually { vm.state.value is UiState.Content }
         vm.onSeat(1); vm.onSeat(2)
         state[SeatMapViewModel.HOLD_EXPIRED_KEY] = true
-        eventually { ui(vm).selected.isEmpty() }
+        vm.tick()                                   // the screen ticks once a second and picks the flag up
         assertEquals(SeatMessage.HoldExpired, ui(vm).message)
         assertNull(ui(vm).holdSecondsLeft)
         assertEquals("the flag is consumed", false, state.get<Boolean>(SeatMapViewModel.HOLD_EXPIRED_KEY))

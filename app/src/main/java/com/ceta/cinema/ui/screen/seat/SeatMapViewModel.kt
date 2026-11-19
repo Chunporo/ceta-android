@@ -56,7 +56,7 @@ data class SeatMapUi(
 
 @HiltViewModel
 class SeatMapViewModel @Inject constructor(
-    savedState: SavedStateHandle,
+    private val savedState: SavedStateHandle,
     private val seatRepository: SeatRepository,
     private val catalog: CatalogRepository,
     private val bookings: BookingRepository,
@@ -73,15 +73,7 @@ class SeatMapViewModel @Inject constructor(
     /** The id of the booking just created: the screen moves on to checkout. */
     val booked: Flow<Long> = _booked.receiveAsFlow()
 
-    init {
-        load()
-        // Checkout or snacks ran out of time and sent the customer back here: start again with no seat chosen.
-        viewModelScope.launch {
-            savedState.getStateFlow(HOLD_EXPIRED_KEY, false).collect { expired ->
-                if (expired) { savedState[HOLD_EXPIRED_KEY] = false; clearSelection(SeatMessage.HoldExpired) }
-            }
-        }
-    }
+    init { load() }
 
     /** The seat map is never cached, so every load and every refresh asks the server. */
     fun load() {
@@ -132,6 +124,8 @@ class SeatMapViewModel @Inject constructor(
 
     /** Called once a second while the screen is visible. */
     fun tick() {
+        // Checkout or snacks ran out of time and sent the customer back here: start again with no seat chosen.
+        if (savedState.get<Boolean>(HOLD_EXPIRED_KEY) == true) { savedState[HOLD_EXPIRED_KEY] = false; clearSelection(SeatMessage.HoldExpired); return }
         if (!hold.isRunning()) return
         if (hold.isExpired()) { clearSelection(SeatMessage.HoldExpired); return }
         update {
