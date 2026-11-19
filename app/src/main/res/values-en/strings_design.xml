@@ -155,4 +155,8 @@
     <string name="order_summary_seats">Seats: %1$s</string>
     <string name="order_summary_snacks">Snacks ×%1$d</string>
     <string name="lone_seat_warning">%1$s would be left as a single empty seat. Add it or shift your selection.</string>
+    <string name="trailer_cannot_embed">This video cannot be played inside the app.</string>
+    <string name="trailer_open_youtube">Open on YouTube</string>
+    <string name="trailer_none">There is no trailer for this movie yet.</string>
+    <string name="close">Close</string>
 </resources>

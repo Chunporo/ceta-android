@@ -59,6 +59,10 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
     val movie = ui.movie
     val snackbar = remember { SnackbarHostState() }
     var showReview by rememberSaveable { mutableStateOf(false) }
+    var showTrailer by rememberSaveable { mutableStateOf(false) }
+    var noTrailer by remember { mutableStateOf(false) }
+    val noTrailerText = stringResource(R.string.trailer_none)
+    LaunchedEffect(noTrailer) { if (noTrailer) { snackbar.showSnackbar(noTrailerText); noTrailer = false } }
     val uri = LocalUriHandler.current
     val context = androidx.compose.ui.platform.LocalContext.current
     val problem = ui.problem?.let { stringResource(ErrorMapper.messageFor(it)) }
@@ -76,7 +80,7 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
                     // Behind everything, scrolling with it: the poster blurred into a soft glow under the content.
                     PosterGlow(movie.posterUrl, Modifier.align(Alignment.TopCenter).offset(y = 170.dp))
                     Column(Modifier.fillMaxWidth()) {
-                        Header(movie, onBack, onTrailer = { uri.openUri(trailerLink(movie)) }, onShare = { shareMovie(context, movie) })
+                        Header(movie, onBack, onTrailer = { if (youtubeId(movie.trailerUrl) != null) showTrailer = true else noTrailer = true }, onShare = { shareMovie(context, movie) })
                         Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                             Text(movie.title, color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 32.sp, modifier = Modifier.padding(top = 14.dp))
                             StatsRow(movie)
@@ -92,6 +96,7 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
         }
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp))
     }
+    youtubeId(movie.trailerUrl)?.let { id -> if (showTrailer) TrailerDialog(id, movie.title) { showTrailer = false } }
     if (showReview) ReviewDialog(
         existing = ui.myReview, busy = ui.busy,
         onSubmit = { rating, comment -> vm.saveReview(rating, comment); showReview = false },
@@ -99,10 +104,6 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
         onDismiss = { showReview = false },
     )
 }
-
-/** The movie's trailer, or a YouTube search for it when the catalogue has none, so the Trailer button is always there as in the design. */
-internal fun trailerLink(movie: Movie): String =
-    movie.trailerUrl?.takeIf { it.isNotBlank() } ?: "https://www.youtube.com/results?search_query=" + android.net.Uri.encode(movie.title + " trailer")
 
 private fun shareMovie(context: android.content.Context, movie: Movie) {
     val text = movie.title + (movie.trailerUrl?.let { "\n$it" } ?: "")
