@@ -74,6 +74,7 @@ data class TicketShowtimeDto(
     val cinemaAddress: String? = null,
     val format: String? = null,
     val posterUrl: String? = null,
+    val ageRating: String? = null,
 )
 
 data class TicketDto(

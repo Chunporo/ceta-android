@@ -41,9 +41,10 @@ fun AccountTab(
     val c = Ceta.colors
     val loyalty by vm.loyalty.collectAsState()
     val name by vm.displayName.collectAsState()
+    val contact by vm.contact.collectAsState()
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding().verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (signedIn) {
-            Header(name, (loyalty as? UiState.Content)?.data, onProfile)
+            Header(name, contact, (loyalty as? UiState.Content)?.data, onProfile)
             when (val l = loyalty) {
                 UiState.Loading -> Box(Modifier.fillMaxWidth().height(96.dp)) { CircularProgressIndicator(Modifier.align(Alignment.Center), color = c.ac) }
                 is UiState.Error -> ErrorBox(l.error, vm::load, Modifier.height(140.dp))
@@ -98,7 +99,7 @@ private fun LanguagePills(english: Boolean, onChange: (Boolean) -> Unit) {
 }
 
 @Composable
-private fun Header(name: String?, loyalty: Loyalty?, onEdit: () -> Unit) {
+private fun Header(name: String?, contact: String?, loyalty: Loyalty?, onEdit: () -> Unit) {
     val c = Ceta.colors
     val initials = com.ceta.cinema.ui.screen.account.initialsOf(name)
     Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -107,7 +108,8 @@ private fun Header(name: String?, loyalty: Loyalty?, onEdit: () -> Unit) {
         }
         Column(Modifier.weight(1f)) {
             Text(name ?: "CETA", color = c.tx, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
-            loyalty?.let { Text(stringResource(if (it.isTopTier) R.string.tier_vip else R.string.tier_member), color = c.mu, fontSize = 13.sp) }
+            // The phone number or email under the name, like the design; the member tier moves onto the points card.
+            (contact ?: loyalty?.let { stringResource(if (it.isTopTier) R.string.tier_vip else R.string.tier_member) })?.let { Text(it, color = c.mu, fontSize = 13.sp, maxLines = 1) }
         }
         Box(Modifier.size(44.dp).clip(CircleShape).background(c.sf).clickable(onClick = onEdit), contentAlignment = Alignment.Center) {
             Icon(Icons.Rounded.Edit, null, tint = c.tx, modifier = Modifier.size(21.dp))
@@ -122,7 +124,11 @@ private fun PointsCard(l: Loyalty) {
     Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(c.ac)) {
         Box(Modifier.align(Alignment.TopEnd).offset(x = 40.dp, y = (-40).dp).size(160.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.12f)))
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text("CETA STAR", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.4.sp)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text("CETA STAR", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.4.sp, modifier = Modifier.weight(1f))
+                Text(stringResource(if (l.isTopTier) R.string.tier_vip else R.string.tier_member), color = Color.White.copy(alpha = 0.9f), fontSize = 11.sp,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace, letterSpacing = 0.5.sp)
+            }
             Column {
                 Text(thousands(l.balance), color = Color.White, fontSize = 36.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 36.sp)
                 Text(stringResource(R.string.ds_points), color = Color.White.copy(alpha = 0.9f), fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))

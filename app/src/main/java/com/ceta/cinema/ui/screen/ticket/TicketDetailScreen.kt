@@ -151,10 +151,13 @@ private fun Header(t: Ticket) {
                 fontFamily = FontFamily.Monospace, letterSpacing = 1.1.sp)
         }
         Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
-            Text(
-                t.format.label, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clip(RoundedCornerShape(7.dp)).background(Color.White.copy(alpha = 0.2f)).padding(horizontal = 8.dp, vertical = 3.dp),
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                AgeBadge(t.ageRating)
+                Text(
+                    t.format.label, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clip(RoundedCornerShape(7.dp)).background(Color.White.copy(alpha = 0.2f)).padding(horizontal = 8.dp, vertical = 3.dp),
+                )
+            }
             Text(t.movieTitle, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(top = 6.dp), maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }

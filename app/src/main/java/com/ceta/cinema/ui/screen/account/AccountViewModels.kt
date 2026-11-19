@@ -32,12 +32,18 @@ class AccountViewModel @Inject constructor(
     val displayName: StateFlow<String?> = settings.settings.map { it.displayName }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
     private val _loyalty = MutableStateFlow<UiState<Loyalty>>(UiState.Loading)
     val loyalty: StateFlow<UiState<Loyalty>> = _loyalty
+    private val _contact = MutableStateFlow<String?>(null)
+    /** The phone number (shown as +84 912 345 678) or the email under the name, as in the design; null until known. */
+    val contact: StateFlow<String?> = _contact
 
     init { load() }
 
     fun load() {
         if (signedIn.value != true) return
         _loyalty.value = UiState.Loading
+        viewModelScope.launch {
+            (account.profile() as? ApiResult.Ok)?.data?.let { p -> _contact.value = p.phone?.let(com.ceta.cinema.core.PhoneNumber::display) ?: p.email }
+        }
         viewModelScope.launch {
             _loyalty.value = when (val r = account.loyalty()) {
                 is ApiResult.Ok -> UiState.Content(r.data)

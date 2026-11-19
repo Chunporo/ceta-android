@@ -150,6 +150,7 @@ data class Ticket(
     val id: Long, val bookingId: Long, val code: String, val seatLabel: String, val price: Long, val qrPayload: String, val used: Boolean,
     val showtimeId: Long, val movieTitle: String, val posterUrl: String?, val cinemaName: String?, val cinemaAddress: String?,
     val roomName: String, val format: ShowFormat, val start: Instant, val end: Instant?,
+    val ageRating: String? = null,
 )
 
 data class AppNotification(

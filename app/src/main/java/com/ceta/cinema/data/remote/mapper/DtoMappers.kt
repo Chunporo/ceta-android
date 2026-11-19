@@ -79,7 +79,7 @@ fun TicketDto.toDomain() = Ticket(
     showtimeId = showtime.showtimeId, movieTitle = showtime.movieTitle, posterUrl = showtime.posterUrl,
     cinemaName = showtime.cinemaName, cinemaAddress = showtime.cinemaAddress, roomName = showtime.roomName,
     format = ShowFormat.parse(showtime.format), start = showtime.startTime.toInstantOrNull() ?: Instant.EPOCH,
-    end = showtime.endTime.toInstantOrNull(),
+    end = showtime.endTime.toInstantOrNull(), ageRating = showtime.ageRating,
 )
 
 fun NotificationDto.toDomain() = AppNotification(id, type, title, body, bookingId, movieId, createdAt.toInstantOrNull(), read)
