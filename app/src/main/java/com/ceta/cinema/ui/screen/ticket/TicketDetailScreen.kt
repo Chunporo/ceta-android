@@ -141,7 +141,14 @@ private fun Content(ui: TicketDetailUi, soon: String) {
 private fun Header(t: Ticket) {
     Box(Modifier.fillMaxWidth().height(150.dp)) {
         Poster(t.posterUrl, t.movieTitle, Modifier.fillMaxSize())
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.3f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.7f))))
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color.Black.copy(alpha = 0.25f), 0.35f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.7f))))
+        // The stub's masthead: the logo in its inverted form (white tile, accent C), the name, and "ADMIT ONE" on the right.
+        Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            CetaWordmark(26.dp, 15.sp, tile = Color.White, mark = Ceta.colors.ac, textColor = Color.White, spacingEm = 0.02f, gap = 7.dp)
+            Spacer(Modifier.weight(1f))
+            Text(stringResource(R.string.ticket_admit_one), color = Color.White.copy(alpha = 0.85f), fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace, letterSpacing = 1.1.sp)
+        }
         Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
             Text(
                 t.format.label, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
@@ -173,22 +180,27 @@ private fun Fields(t: Ticket, ui: TicketDetailUi, seatsText: String) {
 private fun Field(modifier: Modifier, label: Int, value: String, size: Int = 15) {
     val c = Ceta.colors
     Column(modifier) {
-        Text(stringResource(label), color = c.mu, fontSize = 11.5.sp)
+        Text(stringResource(label), color = c.mu, fontSize = 12.sp)
         Text(value, color = c.tx, fontSize = size.sp, fontWeight = FontWeight.Bold)
     }
 }
 
-/** The tear-off line: a dashed rule with a notch cut out of each edge. */
+/** The tear-off line (design item 7): a 32dp notch in the page colour at each edge, half of it outside the card, and a row of round dots. */
 @Composable
 private fun Perforation() {
     val c = Ceta.colors
     Box(Modifier.fillMaxWidth().height(28.dp), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxWidth().height(28.dp)) {
-            val r = 14.dp.toPx()
+            val r = 16.dp.toPx()
             drawCircle(c.bg, r, Offset(0f, size.height / 2f))
             drawCircle(c.bg, r, Offset(size.width, size.height / 2f))
-            drawLine(c.ln2, Offset(22.dp.toPx(), size.height / 2f), Offset(size.width - 22.dp.toPx(), size.height / 2f), 2.dp.toPx(),
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 5.dp.toPx())))
+            // 4dp dots every 12dp, centred between the 22dp margins.
+            val pitch = 12.dp.toPx()
+            val from = 22.dp.toPx()
+            val room = size.width - 2 * from
+            val count = (room / pitch).toInt().coerceAtLeast(1)
+            val start = from + (room - (count - 1) * pitch) / 2f
+            for (i in 0 until count) drawCircle(c.ln2, 2.dp.toPx(), Offset(start + i * pitch, size.height / 2f))
         }
     }
 }
@@ -234,7 +246,7 @@ private fun QrCard(ticket: Ticket, index: Int, count: Int) {
                 )
             }
         }
-        Text(ticket.code, color = Ceta.colors.tx, fontSize = 18.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp, fontFamily = FontFamily.Monospace)
+        Text(ticket.code, color = Ceta.colors.tx, fontSize = 18.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.16.sp, fontFamily = FontFamily.Monospace)
         if (count > 1) Text("${ticket.seatLabel}  (${index + 1}/$count)", color = Ceta.colors.mu, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
     }
 }

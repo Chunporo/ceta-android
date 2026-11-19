@@ -58,10 +58,10 @@ fun CetaLogo(size: Dp, modifier: Modifier = Modifier, tile: Color = Ceta.colors.
 /** The logo with the "CETA" wordmark (800 weight, letter-spacing -0.03em) beside it, as in the onboarding, home and ticket headers. */
 @Composable
 fun CetaWordmark(logoSize: Dp, textSize: androidx.compose.ui.unit.TextUnit, modifier: Modifier = Modifier,
-                 tile: Color = Ceta.colors.ac, mark: Color = Color.White, textColor: Color = Ceta.colors.tx) {
+                 tile: Color = Ceta.colors.ac, mark: Color = Color.White, textColor: Color = Ceta.colors.tx, spacingEm: Float = -0.03f, gap: Dp? = null) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         CetaLogo(logoSize, tile = tile, mark = mark)
-        Spacer(Modifier.width((logoSize.value * 0.28f).dp))
-        Text("CETA", color = textColor, fontSize = textSize, fontWeight = FontWeight.ExtraBold, letterSpacing = (textSize.value * -0.03f).sp)
+        Spacer(Modifier.width(gap ?: (logoSize.value * 0.28f).dp))
+        Text("CETA", color = textColor, fontSize = textSize, fontWeight = FontWeight.ExtraBold, letterSpacing = (textSize.value * spacingEm).sp)
     }
 }

@@ -155,4 +155,5 @@
     <string name="order_summary_seats">Ghế: %1$s</string>
     <string name="order_summary_snacks">Bắp nước ×%1$d</string>
     <string name="lone_seat_warning">Ghế %1$s sẽ bị trống lẻ. Hãy chọn thêm ghế này hoặc dời vị trí.</string>
+    <string name="ticket_admit_one" translatable="false">ADMIT ONE</string>
 </resources>
