@@ -54,8 +54,9 @@ import kotlin.math.min
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private val STEP = 240.dp
-private val CARD_H = 350.dp
+/** Larger than the design's 240x350 so the centred poster stands out (2:3 like every poster); the neighbours still peek in from the sides. */
+private val STEP = 280.dp
+private val CARD_H = 420.dp
 private const val AUTOPLAY_MS = 4_500L
 private const val IDLE_MS = 7_000L
 
