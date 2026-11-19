@@ -203,7 +203,7 @@ private fun People(movie: Movie) {
     // (name, line under the name, photo): the director first, then the actors with the character they play when we know it.
     val directorLabel = stringResource(R.string.ds_director)
     val actorLabel = stringResource(R.string.ds_actor)
-    val people = listOfNotNull(movie.director?.takeIf { it.isNotBlank() }?.let { Triple(it, directorLabel, null as String?) }) +
+    val people = listOfNotNull(movie.director?.takeIf { it.isNotBlank() }?.let { Triple(it, directorLabel, movie.directorPhotoUrl) }) +
         movie.castMembers.map { Triple(it.name, it.role ?: actorLabel, it.photoUrl) }
     Column {
         Text(stringResource(R.string.ds_cast), color = c.tx, style = MaterialTheme.typography.titleMedium)

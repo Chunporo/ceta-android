@@ -14,6 +14,7 @@ data class MovieDto(
     val releaseDate: String? = null,
     val trailerUrl: String? = null,
     val director: String? = null,
+    val directorPhotoUrl: String? = null,
     val language: String? = null,
     val description: String? = null,
     val ratingScore: Double? = null,

@@ -63,6 +63,7 @@ data class Movie(
     val description: String?, val ratingAverage: Double?, val ratingCount: Long, val fromPrice: Long?,
     val cast: List<String>, val genres: List<String>, val formats: Set<ShowFormat>,
     val castMembers: List<CastMember> = cast.map { CastMember(it, null, null) },
+    val directorPhotoUrl: String? = null,
 ) {
     val isNowShowing: Boolean get() = status == MovieStatus.NOW_SHOWING || status == MovieStatus.EARLY_ACCESS
 }
