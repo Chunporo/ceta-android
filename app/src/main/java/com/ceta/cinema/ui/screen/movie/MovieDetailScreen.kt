@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil3.compose.SubcomposeAsyncImage
+import androidx.compose.ui.layout.ContentScale
 import com.ceta.cinema.R
 import com.ceta.cinema.core.ErrorMapper
 import com.ceta.cinema.core.Formatters
@@ -167,21 +169,30 @@ private fun Synopsis(text: String?) {
 
 @Composable
 private fun People(movie: Movie) {
-    if (movie.director.isNullOrBlank() && movie.cast.isEmpty()) return
+    if (movie.director.isNullOrBlank() && movie.castMembers.isEmpty()) return
     val c = Ceta.colors
-    val people = listOfNotNull(movie.director?.takeIf { it.isNotBlank() }?.let { it to R.string.ds_director }) + movie.cast.map { it to R.string.ds_actor }
+    // (name, line under the name, photo): the director first, then the actors with the character they play when we know it.
+    val directorLabel = stringResource(R.string.ds_director)
+    val actorLabel = stringResource(R.string.ds_actor)
+    val people = listOfNotNull(movie.director?.takeIf { it.isNotBlank() }?.let { Triple(it, directorLabel, null as String?) }) +
+        movie.castMembers.map { Triple(it.name, it.role ?: actorLabel, it.photoUrl) }
     Column {
         Text(stringResource(R.string.ds_cast), color = c.tx, style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(10.dp))
         androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             items(people.size) { i ->
-                val (name, role) = people[i]
-                Column(Modifier.width(72.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(Modifier.size(56.dp).clip(CircleShape).background(c.sf2), contentAlignment = Alignment.Center) {
-                        Text(name.split(' ').mapNotNull { it.firstOrNull() }.takeLast(2).joinToString("").uppercase(), color = c.tx, style = MaterialTheme.typography.titleSmall)
+                val (name, line, photo) = people[i]
+                val initials = name.split(' ').mapNotNull { it.firstOrNull() }.takeLast(2).joinToString("").uppercase()
+                Column(Modifier.width(76.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(Modifier.size(64.dp).clip(CircleShape).background(c.sf2), contentAlignment = Alignment.Center) {
+                        if (photo == null) Text(initials, color = c.tx, style = MaterialTheme.typography.titleSmall)
+                        else SubcomposeAsyncImage(model = photo, contentDescription = name, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(),
+                            loading = { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(initials, color = c.mu, style = MaterialTheme.typography.titleSmall) } },
+                            error = { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(initials, color = c.tx, style = MaterialTheme.typography.titleSmall) } })
                     }
-                    Text(name, color = c.tx, style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    Text(stringResource(role), color = c.mu, style = MaterialTheme.typography.labelSmall)
+                    Spacer(Modifier.height(4.dp))
+                    Text(name, color = c.tx, style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    Text(line, color = c.mu, style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
             }
         }

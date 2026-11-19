@@ -54,11 +54,15 @@ enum class MovieStatus { NOW_SHOWING, COMING_SOON, EARLY_ACCESS, UNKNOWN;
 
 data class Genre(val id: Long, val name: String, val slug: String)
 
+/** An actor: the character they play and a profile photo are optional. */
+data class CastMember(val name: String, val role: String?, val photoUrl: String?)
+
 data class Movie(
     val id: String, val title: String, val posterUrl: String?, val ageRating: String?, val status: MovieStatus,
     val durationMin: Int?, val releaseDate: LocalDate?, val trailerUrl: String?, val director: String?, val language: String?,
     val description: String?, val ratingAverage: Double?, val ratingCount: Long, val fromPrice: Long?,
     val cast: List<String>, val genres: List<String>, val formats: Set<ShowFormat>,
+    val castMembers: List<CastMember> = cast.map { CastMember(it, null, null) },
 ) {
     val isNowShowing: Boolean get() = status == MovieStatus.NOW_SHOWING || status == MovieStatus.EARLY_ACCESS
 }

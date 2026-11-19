@@ -16,6 +16,8 @@ fun MovieDto.toDomain() = Movie(
     durationMin = duration, releaseDate = releaseDate.toLocalDateOrNull(), trailerUrl = trailerUrl, director = director,
     language = language, description = description, ratingAverage = ratingAverage, ratingCount = ratingCount, fromPrice = fromPrice,
     cast = cast, genres = genres.mapNotNull { it.name }, formats = formats.map { ShowFormat.parse(it) }.toSet(),
+    castMembers = if (castMembers.isNotEmpty()) castMembers.map { CastMember(it.name, it.role?.takeIf { r -> r.isNotBlank() }, it.photoUrl?.takeIf { u -> u.isNotBlank() }) }
+    else cast.map { CastMember(it, null, null) },
 )
 
 fun CinemaDto.toDomain() = Cinema(id, name, city, address, latitude, longitude, imax)

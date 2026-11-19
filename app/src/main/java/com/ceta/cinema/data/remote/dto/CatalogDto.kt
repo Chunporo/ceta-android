@@ -21,9 +21,12 @@ data class MovieDto(
     val ratingCount: Long = 0,
     val fromPrice: Long? = null,
     val cast: List<String> = emptyList(),
+    val castMembers: List<CastMemberDto> = emptyList(),   // name + character + photo; older servers only send `cast`
     val formats: List<String> = emptyList(),
     val genres: List<GenreDto> = emptyList(),
 )
+
+data class CastMemberDto(val name: String, val role: String? = null, val photoUrl: String? = null)
 
 data class MovieSummaryDto(val id: String, val title: String, val slug: String? = null, val posterUrl: String? = null)
 data class RoomSummaryDto(val id: Long? = null, val code: String? = null, val name: String? = null)
