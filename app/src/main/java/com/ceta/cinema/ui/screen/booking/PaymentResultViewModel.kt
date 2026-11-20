@@ -31,6 +31,8 @@ class PaymentResultViewModel @Inject constructor(
     private val tickets: TicketRepository,
 ) : ViewModel() {
     private val bookingId: Long = checkNotNull(savedState["bookingId"])
+    /** The return link said the gateway declined. */
+    private val declined: Boolean = savedState.get<Boolean>("failed") == true
     private val _state = MutableStateFlow(PaymentResultUi())
     val state: StateFlow<PaymentResultUi> = _state
     private var polling: Job? = null
@@ -48,10 +50,10 @@ class PaymentResultViewModel @Inject constructor(
             for (seconds in listOf(0L) + PaymentPolling.DELAYS_SECONDS) { // look at once (the customer may already be back), then back off
                 if (seconds > 0) delay(seconds * 1000)
                 val booking = (bookings.get(bookingId) as? ApiResult.Ok)?.data ?: continue // a hiccup: try again at the next interval
-                val outcome = PaymentPolling.outcome(booking)
+                val outcome = PaymentPolling.outcome(booking, declined)
                 _state.update { it.copy(outcome = outcome, booking = booking) }
                 if (outcome.terminal) {
-                    bookings.forgetPending()
+                    if (outcome != PaymentOutcome.FAILED) bookings.forgetPending() // a declined order is still held: the customer may retry
                     if (outcome == PaymentOutcome.PAID) tickets.forget() // the new tickets must show up in "My tickets" right away
                     return@launch
                 }

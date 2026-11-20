@@ -41,13 +41,15 @@ class MainViewModel @Inject constructor(
     fun openTab(tab: Tab) { _requestedTab.value = tab }
     fun tabShown() { _requestedTab.value = null }
 
-    private val _paymentReturn = Channel<Long>(Channel.BUFFERED)
-    /** The customer came back from the VNPay page: the order to ask the server about. */
-    val paymentReturn: Flow<Long> = _paymentReturn.receiveAsFlow()
+    data class PaymentReturn(val bookingId: Long, val declined: Boolean)
+
+    private val _paymentReturn = Channel<PaymentReturn>(Channel.BUFFERED)
+    /** The customer came back from the payment page: the order to ask the server about, and whether the link said it was declined. */
+    val paymentReturn: Flow<PaymentReturn> = _paymentReturn.receiveAsFlow()
 
     /** The deep link only says "back from payment"; which order it was comes from what was saved when it was created. */
-    fun onPaymentReturn() {
-        viewModelScope.launch { settingsStore.settings.first().pendingBookingId?.let { _paymentReturn.send(it) } }
+    fun onPaymentReturn(declined: Boolean = false) {
+        viewModelScope.launch { settingsStore.settings.first().pendingBookingId?.let { _paymentReturn.send(PaymentReturn(it, declined)) } }
     }
 
     init {

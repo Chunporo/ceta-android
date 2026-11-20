@@ -163,4 +163,17 @@
     <string name="hold_expired_body">Seats %1$s went back to the cinema. You have not been charged.</string>
     <string name="hold_expired_body_noseats">The seats went back to the cinema. You have not been charged.</string>
     <string name="hold_expired_other_show">Choose another showtime</string>
+    <string name="payfail_title">Payment didn’t go through</string>
+    <string name="payfail_sub">%1$s declined the payment. You have not been charged.</string>
+    <string name="payfail_held">Your seats are still held</string>
+    <string name="payfail_movie">Movie</string>
+    <string name="payfail_amount">Amount</string>
+    <string name="payfail_method">Method</string>
+    <string name="payfail_support">Charged anyway? Contact support</string>
+    <string name="payfail_retry">Try again with %1$s</string>
+    <string name="payfail_other">Choose another method</string>
+    <string name="payfail_cancel">Cancel booking</string>
+    <string name="method_short_vnpay">VNPay</string>
+    <string name="method_short_momo">MoMo</string>
+    <string name="method_short_vietqr">VietQR</string>
 </resources>

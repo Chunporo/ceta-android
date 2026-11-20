@@ -71,6 +71,13 @@ class HoldClockAndPaymentTest {
         }
     }
 
+    @Test fun aDeclineHintOnlyMattersWhileTheOrderIsStillPending() {
+        assertEquals(PaymentOutcome.FAILED, PaymentPolling.outcome(booking(BookingStatus.PENDING), declined = true))
+        assertEquals("the server wins over the link", PaymentOutcome.PAID, PaymentPolling.outcome(booking(BookingStatus.PAID), declined = true))
+        assertEquals(PaymentOutcome.PROCESSING, PaymentPolling.outcome(booking(BookingStatus.PENDING), declined = false))
+        assertTrue(PaymentOutcome.FAILED.terminal)
+    }
+
     @Test fun expiredCancelledAndRefundedHaveTheirOwnEnds() {
         assertEquals(PaymentOutcome.EXPIRED, PaymentPolling.outcome(booking(BookingStatus.EXPIRED)))
         assertEquals(PaymentOutcome.CANCELLED, PaymentPolling.outcome(booking(BookingStatus.CANCELLED)))

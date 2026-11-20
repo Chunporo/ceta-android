@@ -44,6 +44,7 @@ import com.ceta.cinema.ui.screen.showtime.ShowtimePickerScreen
 import com.ceta.cinema.ui.screen.booking.CheckoutScreen
 import com.ceta.cinema.ui.screen.booking.ComboScreen
 import com.ceta.cinema.ui.screen.booking.HoldExpiredScreen
+import com.ceta.cinema.ui.screen.booking.PayFailScreen
 import com.ceta.cinema.ui.screen.booking.PaymentResultScreen
 import com.ceta.cinema.ui.screen.booking.VietQrScreen
 import com.ceta.cinema.ui.screen.ticket.TicketDetailScreen
@@ -82,7 +83,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
     }
 
     // Back from the VNPay page (deep link): ask the server about the saved order.
-    LaunchedEffect(Unit) { main.paymentReturn.collect { if (known) nav.navigate(Routes.paymentResult(it)) } }
+    LaunchedEffect(Unit) { main.paymentReturn.collect { if (known) nav.navigate(Routes.paymentResult(it.bookingId, it.declined)) } }
 
     NavHost(navController = nav, startDestination = start) {
         composable(Routes.ONBOARD) {
@@ -182,8 +183,22 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                 onPaid = { id -> nav.navigate(Routes.paymentResult(id)) { popUpTo(Routes.VIETQR) { inclusive = true } } },
             )
         }
-        composable(Routes.PAYMENT_RESULT, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) {
+        composable(Routes.PAY_FAIL, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) {
+            PayFailScreen(
+                onClose = { nav.popBackStack(Routes.CHECKOUT, inclusive = false) },
+                onPickOther = { nav.popBackStack(Routes.CHECKOUT, inclusive = false) },
+                onSupport = { nav.navigate(Routes.HELP) },
+                onCancelled = { main.openTab(Tab.HOME); nav.navigate(Routes.MAIN) { popUpTo(0) } },
+                onRetried = { id -> nav.navigate(Routes.paymentResult(id)) { popUpTo(Routes.PAY_FAIL) { inclusive = true } } },
+                onHoldExpired = { showtimeId, seats -> showHoldExpired(nav, showtimeId, seats) },
+            )
+        }
+        composable(Routes.PAYMENT_RESULT, arguments = listOf(
+            navArgument("bookingId") { type = NavType.LongType },
+            navArgument("failed") { type = NavType.BoolType; defaultValue = false },
+        )) { entry ->
             PaymentResultScreen(
+                onDeclined = { nav.navigate(Routes.payFail(entry.arguments?.getLong("bookingId") ?: 0L)) { popUpTo(Routes.PAYMENT_RESULT) { inclusive = true } } },
                 onViewTickets = { main.openTab(Tab.TICKETS); nav.navigate(Routes.MAIN) { popUpTo(0) } },
                 onHome = { main.openTab(Tab.HOME); nav.navigate(Routes.MAIN) { popUpTo(0) } },
                 onChooseSeats = { nav.popBackStack(Routes.SEAT_MAP, inclusive = false) },

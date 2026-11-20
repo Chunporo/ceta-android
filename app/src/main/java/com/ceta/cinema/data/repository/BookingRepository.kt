@@ -47,8 +47,13 @@ class BookingRepository @Inject constructor(private val api: CetaApi, private va
     suspend fun history(page: Int = 0): ApiResult<List<BookingSummary>> = safeApiCall { api.bookings(page).items.map { it.toDomain() } }
 
     /** The VNPay URL to open in a Custom Tab. Never decide a payment from what happens in the tab: ask [get]. */
+    private val lastProvider = java.util.concurrent.ConcurrentHashMap<Long, PaymentProvider>()
+
+    /** The method last used for an order (in memory only): the "payment failed" page names it and retries with it. */
+    fun lastProvider(bookingId: Long): PaymentProvider = lastProvider[bookingId] ?: PaymentProvider.VNPAY
+
     suspend fun paymentUrl(bookingId: Long, provider: PaymentProvider = PaymentProvider.VNPAY): ApiResult<String> =
-        safeApiCall { api.createPaymentUrl(PaymentUrlRequest(bookingId, provider.code.takeIf { provider != PaymentProvider.VNPAY })).payUrl }
+        safeApiCall { api.createPaymentUrl(PaymentUrlRequest(bookingId, provider.code.takeIf { provider != PaymentProvider.VNPAY })).payUrl }.also { if (it is ApiResult.Ok) lastProvider[bookingId] = provider }
 
     /** The methods the server has switched on; an unknown code is ignored so an older app survives a newer server. */
     suspend fun paymentMethods(): ApiResult<List<PaymentProvider>> =

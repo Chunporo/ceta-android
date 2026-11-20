@@ -37,14 +37,16 @@ import com.ceta.cinema.ui.theme.cardSurface
 /** What happened to the payment, as the server tells it. There is deliberately no back button while it is still being confirmed. */
 @Composable
 fun PaymentResultScreen(
-    onViewTickets: () -> Unit, onHome: () -> Unit, onChooseSeats: () -> Unit,
+    onViewTickets: () -> Unit, onHome: () -> Unit, onChooseSeats: () -> Unit, onDeclined: () -> Unit = {},
     vm: PaymentResultViewModel = hiltViewModel(),
 ) {
     val ui by vm.state.collectAsState()
     val c = Ceta.colors
     val orderId = ui.booking?.id
+    androidx.compose.runtime.LaunchedEffect(ui.outcome) { if (ui.outcome == PaymentOutcome.FAILED) onDeclined() }
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding().padding(28.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         when (ui.outcome) {
+            PaymentOutcome.FAILED -> Unit // moves on to the "payment failed" page at once
             PaymentOutcome.PROCESSING -> {
                 CircularProgressIndicator(color = c.ac, modifier = Modifier.size(56.dp))
                 Message(R.string.result_pending_title, R.string.result_pending_body)

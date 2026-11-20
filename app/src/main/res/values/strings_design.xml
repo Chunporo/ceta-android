@@ -164,4 +164,17 @@
     <string name="hold_expired_body">Ghế %1$s đã được trả lại cho rạp. Bạn chưa bị trừ tiền.</string>
     <string name="hold_expired_body_noseats">Ghế đã được trả lại cho rạp. Bạn chưa bị trừ tiền.</string>
     <string name="hold_expired_other_show">Chọn suất khác</string>
+    <string name="payfail_title">Thanh toán chưa thành công</string>
+    <string name="payfail_sub">%1$s đã từ chối giao dịch. Bạn chưa bị trừ tiền.</string>
+    <string name="payfail_held">Ghế vẫn đang được giữ cho bạn</string>
+    <string name="payfail_movie">Phim</string>
+    <string name="payfail_amount">Số tiền</string>
+    <string name="payfail_method">Phương thức</string>
+    <string name="payfail_support">Đã bị trừ tiền? Liên hệ hỗ trợ</string>
+    <string name="payfail_retry">Thử lại với %1$s</string>
+    <string name="payfail_other">Chọn phương thức khác</string>
+    <string name="payfail_cancel">Hủy đặt vé</string>
+    <string name="method_short_vnpay">VNPay</string>
+    <string name="method_short_momo">MoMo</string>
+    <string name="method_short_vietqr">VietQR</string>
 </resources>

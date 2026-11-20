@@ -447,4 +447,44 @@ class BookingFlowViewModelsTest {
         eventually { calls >= 1 }
         pump { vm.state.value.outcome == PaymentOutcome.PAID }
     }
+
+    // ---- payment declined (design item 10)
+
+    private fun payFail() = PayFailViewModel(SavedStateHandle(mapOf("bookingId" to 42L)), BookingRepository(api(), settings), CatalogRepository(api(), offline), clock)
+
+    @Test fun aDeclinedReturnLinkOnAPendingOrderEndsInFailedAndKeepsTheOrderToRetry() = runTest {
+        setup()
+        settings.setPendingBooking(42, 0)
+        answers["GET /api/v1/bookings/42"] = ok(booking("PENDING"))
+        val vm = PaymentResultViewModel(SavedStateHandle(mapOf("bookingId" to 42L, "failed" to true)), BookingRepository(api(), settings), TicketRepository(api(), offline))
+        pump { vm.state.value.outcome == PaymentOutcome.FAILED }
+        assertEquals("the order is still held, so it is not forgotten", 42L, settings.settings.first().pendingBookingId)
+    }
+
+    @Test fun payFailShowsTheServersCountdownAndRetriesWithTheSameMethod() = runTest {
+        setup()
+        answers["GET /api/v1/bookings/42"] = ok(booking("PENDING", secs = 300))
+        answers["POST /api/v1/payments/vnpay/create-url"] = ok("""{"payUrl":"http://momo.test/pay?orderId=42_2","txnRef":"42_2"}""")
+        val repo = BookingRepository(api(), settings)
+        repo.paymentUrl(42, com.ceta.cinema.domain.model.PaymentProvider.MOMO) // the method the customer had used
+        val vm = PayFailViewModel(SavedStateHandle(mapOf("bookingId" to 42L)), repo, CatalogRepository(api(), offline), clock)
+        eventually { vm.state.value.booking != null }
+        assertEquals(com.ceta.cinema.domain.model.PaymentProvider.MOMO, vm.state.value.method)
+        assertEquals(300L, vm.state.value.secondsLeft)
+        vm.retry()
+        val event = vm.events.first()
+        assertEquals("http://momo.test/pay?orderId=42_2", (event as PayFailEvent.Retry).url)
+        assertTrue(bodies.last().contains("MOMO"))
+    }
+
+    @Test fun cancellingFromPayFailReleasesTheBooking() = runTest {
+        setup()
+        answers["GET /api/v1/bookings/42"] = ok(booking("PENDING"))
+        answers["POST /api/v1/bookings/42/cancel"] = { MockResponse().setResponseCode(204) }
+        answers["DELETE /api/v1/bookings/42"] = { MockResponse().setResponseCode(204) }
+        val vm = payFail()
+        eventually { vm.state.value.booking != null }
+        vm.cancelBooking()
+        assertEquals(PayFailEvent.Cancelled, vm.events.first())
+    }
 }
