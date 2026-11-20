@@ -41,6 +41,12 @@ class MainViewModel @Inject constructor(
     fun openTab(tab: Tab) { _requestedTab.value = tab }
     fun tabShown() { _requestedTab.value = null }
 
+    private val _focusCinema = MutableStateFlow<Long?>(null)
+    /** A cinema picked elsewhere (a search result): the Cinemas tab opens its card. */
+    val focusCinema: StateFlow<Long?> = _focusCinema
+    fun focusCinema(id: Long) { _focusCinema.value = id }
+    fun cinemaFocused() { _focusCinema.value = null }
+
     private val _cancelledNotice = MutableStateFlow(false)
     /** A paid ticket was just cancelled: My tickets opens on the Cancelled tab and says so once. */
     val cancelledNotice: StateFlow<Boolean> = _cancelledNotice

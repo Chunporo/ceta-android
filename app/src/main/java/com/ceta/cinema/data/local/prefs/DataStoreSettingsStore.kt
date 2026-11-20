@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.ceta.cinema.domain.usecase.foldForSearch
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -70,6 +71,12 @@ class DataStoreSettingsStore @Inject constructor(@ApplicationContext private val
 
     private fun decodeRatings(raw: String?): Map<String, Int> =
         (raw ?: "").lineSequence().mapNotNull { line -> line.split('=').takeIf { it.size == 2 }?.let { (k, v) -> v.toIntOrNull()?.let { n -> k to n } } }.toMap()
+
+    override suspend fun removeRecentSearch(query: String) {
+        val key = query.foldForSearch()
+        val next = settings.first().recentSearches.filterNot { it.foldForSearch() == key }
+        context.settingsDataStore.edit { if (next.isEmpty()) it.remove(recent) else it[recent] = next.joinToString("\n") }
+    }
 
     override suspend fun clearRecentSearches() { context.settingsDataStore.edit { it.remove(recent) } }
 }

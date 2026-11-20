@@ -44,8 +44,9 @@ import com.ceta.cinema.ui.theme.cardSurface
 import java.time.Instant
 
 @Composable
-fun CinemasTab(onMovie: (String) -> Unit, onShow: (Long) -> Unit, vm: CinemasViewModel = hiltViewModel()) {
+fun CinemasTab(onMovie: (String) -> Unit, onShow: (Long) -> Unit, focusCinemaId: Long? = null, onCinemaFocused: () -> Unit = {}, vm: CinemasViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
+    androidx.compose.runtime.LaunchedEffect(focusCinemaId) { if (focusCinemaId != null) { vm.focus(focusCinemaId); onCinemaFocused() } }
     val offline by vm.offline.collectAsState()
     val c = Ceta.colors
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding()) {

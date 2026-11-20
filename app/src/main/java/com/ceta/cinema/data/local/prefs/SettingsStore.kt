@@ -1,5 +1,6 @@
 package com.ceta.cinema.data.local.prefs
 
+import com.ceta.cinema.domain.usecase.foldForSearch
 import kotlinx.coroutines.flow.Flow
 
 /** Non-sensitive app settings. Dark is the design's default look; Vietnamese its default language. */
@@ -31,6 +32,8 @@ interface SettingsStore {
     /** Most recent first, no duplicates, at most [MAX_RECENT]. */
     suspend fun addRecentSearch(query: String)
     suspend fun clearRecentSearches()
+    /** Drops one recent search (the chip's own x). Accents and case are ignored, like when adding. */
+    suspend fun removeRecentSearch(query: String)
     /** Remembers [stars] (1..5) for a ticket code; the same code again replaces it. */
     suspend fun setTicketRating(code: String, stars: Int)
 
@@ -43,5 +46,6 @@ interface SettingsStore {
 fun List<String>.withRecent(query: String): List<String> {
     val q = query.trim()
     if (q.isEmpty()) return this
-    return (listOf(q) + filterNot { it.equals(q, ignoreCase = true) }).take(SettingsStore.MAX_RECENT)
+    val key = q.foldForSearch()
+    return (listOf(q) + filterNot { it.foldForSearch() == key }).take(SettingsStore.MAX_RECENT)
 }

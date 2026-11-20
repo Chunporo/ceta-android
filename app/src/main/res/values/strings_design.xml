@@ -195,4 +195,21 @@
     <string name="cancel_confirm">Hủy vé</string>
     <string name="cancel_done_toast">Đã hủy vé. Điểm CETA đã được cộng vào tài khoản.</string>
     <string name="stamp_cancelled">ĐÃ HỦY</string>
+    <string name="search_ph">Phim, diễn viên, rạp…</string>
+    <string name="search_clear">Xóa nội dung tìm kiếm</string>
+    <string name="search_clear_all">Xóa tất cả</string>
+    <string name="search_remove_recent">Xóa “%1$s” khỏi tìm kiếm gần đây</string>
+    <string name="search_trending">Tìm nhiều tuần này</string>
+    <string name="search_movies_count">%1$d phim</string>
+    <string name="search_section_movies">Phim</string>
+    <string name="search_section_cinemas">Rạp</string>
+    <string name="search_filter_all">Tất cả</string>
+    <string name="search_filter_now">Đang chiếu</string>
+    <string name="search_filter_soon">Sắp chiếu</string>
+    <string name="search_filter_cinema">Rạp</string>
+    <string name="search_has_person">Có %1$s</string>
+    <string name="search_other_shows">Suất khác</string>
+    <string name="search_release">Khởi chiếu %1$s</string>
+    <string name="search_no_results">Không có kết quả cho “%1$s”</string>
+    <string name="search_no_results_hint">Kiểm tra lại chính tả hoặc thử tìm theo thể loại, tên diễn viên, tên rạp.</string>
 </resources>

@@ -13,6 +13,7 @@ import com.ceta.cinema.data.repository.CatalogRepository
 import com.ceta.cinema.data.repository.SessionRepository
 import com.ceta.cinema.ui.screen.home.HomeViewModel
 import com.ceta.cinema.ui.screen.movie.MovieDetailViewModel
+import com.ceta.cinema.data.repository.MockTrendingRepository
 import com.ceta.cinema.ui.screen.search.SearchViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -145,71 +146,95 @@ class ScreenViewModelsTest {
 
     // ---- Search
 
-    @Test fun searchWaitsForAPauseInTypingThenAsksOnce() = runTest {
-        setup()
-        answers["GET /api/v1/movies?q="] = ok("""[{"id":"m1","title":"Dune"}]""")
-        answers["GET /api/v1/genres"] = ok("[]")
-        val vm = SearchViewModel(CatalogRepository(api(), offline), settings)
+    private val searchMovies = """[
+        {"id":"m1","title":"Mùa Hè Rực Lửa","status":"NOW_SHOWING","ratingAverage":8.2,"ratingCount":30,"genres":[{"id":1,"name":"Hành động","slug":"x"}],"director":"Lê Văn Đạo","cast":["Thu Trang","Tiến Luật"],"formats":[]},
+        {"id":"m2","title":"Dune","status":"NOW_SHOWING","genres":[{"id":1,"name":"Khoa học viễn tưởng","slug":"x"}],"cast":["Timothée Chalamet"],"formats":[]},
+        {"id":"m3","title":"Căn Nhà Số 9","status":"COMING_SOON","releaseDate":"2026-12-05","genres":[{"id":1,"name":"Kinh dị","slug":"x"}],"cast":[],"formats":[]}]"""
+    private val searchCinemas = """[{"id":1,"name":"CETA Landmark","city":"HCM","address":"208 Nguyễn Hữu Cảnh, Bình Thạnh","imax":true},
+        {"id":2,"name":"CETA Tây Hồ","city":"HN","address":"Xuân La, Tây Hồ","imax":false}]"""
 
-        vm.onQuery("d"); vm.onQuery("du"); vm.onQuery("dun")
+    private fun searchVm(): SearchViewModel {
+        answers["GET /api/v1/movies"] = ok(searchMovies)
+        answers["GET /api/v1/cinemas"] = ok(searchCinemas)
+        answers["GET /api/v1/genres"] = ok("""[{"id":1,"name":"Hành động","slug":"hanh-dong"},{"id":2,"name":"Kinh dị","slug":"kinh-di"}]""")
+        answers["GET /api/v1/showtimes"] = ok("[]")
+        val vm = SearchViewModel(CatalogRepository(api(), offline), settings, MockTrendingRepository(CatalogRepository(api(), offline)), java.time.Clock.systemUTC())
+        eventually { !vm.state.value.loading }
+        return vm
+    }
+
+    @Test fun theIdleScreenHasGenreTilesWithCountsAndTrendingMovies() = runTest {
+        setup()
+        val vm = searchVm()
+        val s = vm.state.value
+        assertEquals(listOf("Hành động" to 1, "Kinh dị" to 1), s.genres.map { it.genre.name to it.count })
+        assertEquals("only films in cinemas are trending", setOf("Mùa Hè Rực Lửa", "Dune"), s.trending.map { it.movie.title }.toSet())
+        assertTrue(s.idle)
+    }
+
+    @Test fun typingWaitsForAPauseThenFiltersLocallyIgnoringAccents() = runTest {
+        setup()
+        val vm = searchVm()
+        val before = requests.size
+        vm.onQuery("m"); vm.onQuery("mua"); vm.onQuery("mua he")
         advanceTimeBy(SearchViewModel.DEBOUNCE_MS - 1)
-        assertTrue("nothing is asked before the pause", requests.none { it.contains("q=") })
+        assertNull("nothing is searched before the pause", vm.state.value.results)
         advanceTimeBy(2)
         eventually { vm.state.value.results != null }
+        assertEquals(listOf("Mùa Hè Rực Lửa"), vm.state.value.results!!.movies.map { it.movie.title })
+        assertTrue("search does not hit the network for the match", requests.drop(before).none { it.contains("q=") })
+    }
 
-        assertEquals(1, requests.count { it.contains("q=") })
-        assertTrue(requests.single { it.contains("q=") }.contains("q=dun"))
-        assertEquals(listOf("Dune"), vm.state.value.results!!.map { it.title })
+    @Test fun aPersonMatchNamesThePersonAndACinemaMatchesByNameOrAddress() = runTest {
+        setup()
+        val vm = searchVm()
+        vm.pickRecent("thu trang")
+        eventually { vm.state.value.results != null }
+        assertEquals("Thu Trang", vm.state.value.results!!.movies.single().person)
+
+        vm.pickRecent("tay ho")
+        eventually { vm.state.value.results?.cinemas?.isNotEmpty() == true }
+        assertEquals(listOf("CETA Tây Hồ"), vm.state.value.results!!.cinemas.map { it.name })
     }
 
     @Test fun clearingTheBoxGoesBackToTheIdleScreen() = runTest {
         setup()
-        answers["GET /api/v1/genres"] = ok("[]")
-        val vm = SearchViewModel(CatalogRepository(api(), offline), settings)
+        val vm = searchVm()
         vm.onQuery("dune")
         vm.onQuery("")
         advanceTimeBy(1_000)
         assertTrue(vm.state.value.idle)
         assertNull(vm.state.value.results)
-        assertTrue(requests.none { it.contains("q=") })
     }
 
-    @Test fun pickingAGenreSearchesBySlugAndClearsTheText() = runTest {
+    @Test fun pickingAGenreSearchesByItsNameAndKeepsItInTheBox() = runTest {
         setup()
-        answers["GET /api/v1/genres"] = ok("""[{"id":1,"name":"Hành động","slug":"hanh-dong"}]""")
-        answers["GET /api/v1/movies?genre=hanh-dong"] = ok("""[{"id":"m1","title":"Action movie"}]""")
-        val vm = SearchViewModel(CatalogRepository(api(), offline), settings)
-        eventually { vm.state.value.genres.isNotEmpty() }
-
-        vm.pickGenre(vm.state.value.genres.first())
-
+        val vm = searchVm()
+        vm.pickGenre(vm.state.value.genres.first().genre)
         eventually { vm.state.value.results != null }
-        assertEquals("", vm.state.value.query)
-        assertEquals("Hành động", vm.state.value.genre?.name)
-        assertFalse(vm.state.value.idle)
-        assertEquals(listOf("Action movie"), vm.state.value.results!!.map { it.title })
+        assertEquals("Hành động", vm.state.value.query)
+        assertEquals(listOf("Mùa Hè Rực Lửa"), vm.state.value.results!!.movies.map { it.movie.title })
     }
 
-    @Test fun onlyWhatTheCustomerActsOnIsRemembered() = runTest {
+    @Test fun onlyWhatTheCustomerActsOnIsRememberedAndEachChipCanBeRemoved() = runTest {
         setup()
-        answers["GET /api/v1/genres"] = ok("[]")
-        answers["GET /api/v1/movies?q="] = ok("[]")
-        val vm = SearchViewModel(CatalogRepository(api(), offline), settings)
+        val vm = searchVm()
         vm.onQuery("dune")
         assertTrue("typing alone is not remembered", settings.current.recentSearches.isEmpty())
         vm.remember()
-        assertEquals(listOf("dune"), settings.current.recentSearches)
-        assertEquals(listOf("dune"), vm.state.value.recents)
+        eventually { vm.state.value.recents == listOf("dune") }
+        vm.onQuery("Mùa hè"); vm.remember()
+        eventually { vm.state.value.recents == listOf("Mùa hè", "dune") }
+        vm.removeRecent("DUNE")
+        eventually { vm.state.value.recents == listOf("Mùa hè") }
         vm.clearRecents()
-        assertTrue(settings.current.recentSearches.isEmpty())
+        eventually { vm.state.value.recents.isEmpty() }
     }
 
-    @Test fun aSearchThatFailsShowsAnErrorNotAnEmptyResult() = runTest {
+    @Test fun aCatalogThatCannotBeLoadedShowsAnErrorNotAnEmptyResult() = runTest {
         setup()
         answers["GET /api/v1/genres"] = ok("[]")
-        val vm = SearchViewModel(CatalogRepository(api(), offline), settings)
-        vm.onQuery("dune")
-        advanceTimeBy(400)
+        val vm = SearchViewModel(CatalogRepository(api(), offline), settings, MockTrendingRepository(CatalogRepository(api(), offline)), java.time.Clock.systemUTC())
         eventually { vm.state.value.error != null }
         assertNull(vm.state.value.results)
     }

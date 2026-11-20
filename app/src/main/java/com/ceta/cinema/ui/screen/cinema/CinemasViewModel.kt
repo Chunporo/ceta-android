@@ -42,6 +42,8 @@ class CinemasViewModel @Inject constructor(
     private val _state = MutableStateFlow<UiState<CinemasUi>>(UiState.Loading)
     val state: StateFlow<UiState<CinemasUi>> = _state
 
+    private var pendingFocus: Long? = null
+
     init { load() }
 
     fun load() {
@@ -56,8 +58,20 @@ class CinemasViewModel @Inject constructor(
                     else UiState.Content(CinemasUi(cinemas, city = cinemas.map { it.city }.distinct().sorted().let { if ("HCM" in it) "HCM" else it.first() }))
                 }
             }
-            openFirst() // the design opens the first cinema of the city straight away, with today's showings
+            // A cinema picked from search wins over the default first card.
+            val wanted = pendingFocus
+            if (wanted != null && current()?.cinemas?.any { it.id == wanted } == true) focus(wanted) else openFirst() // the design opens the first cinema of the city straight away, with today's showings
         }
+    }
+
+    /** Opens one cinema's card (and its city), for example after tapping it in the search results. Waits for the list if it is still loading. */
+    fun focus(cinemaId: Long) {
+        val ui = current()
+        val cinema = ui?.cinemas?.firstOrNull { it.id == cinemaId }
+        if (cinema == null) { pendingFocus = cinemaId; return }
+        pendingFocus = null
+        update { it.copy(city = cinema.city, open = null) }
+        open(cinemaId)
     }
 
     fun selectCity(city: String) {

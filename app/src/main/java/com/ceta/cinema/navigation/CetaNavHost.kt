@@ -71,6 +71,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
     }
     val nav = rememberNavController()
     val cancelledNotice by main.cancelledNotice.collectAsState()
+    val focusCinema by main.focusCinema.collectAsState()
 
     // Signing in leaves the auth screens; losing the session (sign-out or an expired refresh token) returns to Login.
     val previous = remember { mutableStateOf(known) }
@@ -112,7 +113,15 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
         }
         composable(Routes.REGISTER) { RegisterScreen(onBackToLogin = { nav.popBackStack() }) }
         composable(Routes.FORGOT_PASSWORD) { ForgotPasswordScreen(onBack = { nav.popBackStack() }) }
-        composable(Routes.SEARCH) { SearchScreen(onBack = { nav.popBackStack() }, onMovie = { nav.navigate(Routes.movieDetail(it)) }) }
+        composable(Routes.SEARCH) {
+            SearchScreen(
+                onBack = { nav.popBackStack() }, onMovie = { nav.navigate(Routes.movieDetail(it)) },
+                // Booking needs an account; browsing does not.
+                onShow = { id -> if (known) nav.navigate(Routes.seatMap(id)) else nav.navigate(Routes.LOGIN) },
+                onShowtimes = { nav.navigate(Routes.showtimes(it)) },
+                onCinema = { id -> main.focusCinema(id); main.openTab(Tab.CINEMAS); nav.popBackStack(Routes.MAIN, inclusive = false) },
+            )
+        }
         composable(Routes.MOVIE_DETAIL, arguments = listOf(navArgument("movieId") { type = NavType.StringType })) {
             MovieDetailScreen(onBack = { nav.popBackStack() }, onBook = { nav.navigate(Routes.showtimes(it)) }, onLogin = { nav.navigate(Routes.LOGIN) })
         }
@@ -219,6 +228,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                         onShow = { id -> if (known) nav.navigate(Routes.seatMap(id)) else nav.navigate(Routes.LOGIN) },
                     )
                     Tab.CINEMAS -> CinemasTab(
+                        focusCinemaId = focusCinema, onCinemaFocused = main::cinemaFocused,
                         onMovie = { nav.navigate(Routes.movieDetail(it)) },
                         // Booking needs an account; browsing the cinemas does not.
                         onShow = { id -> if (known) nav.navigate(Routes.seatMap(id)) else nav.navigate(Routes.LOGIN) },
