@@ -37,7 +37,7 @@ private val Panel = Color(0xFF202027)   // the dark UI card of the key art
 
 /**
  * The key art of an onboarding page (design item 13): the panel's background and the small illustration built from real UI pieces.
- * The design lays these over a photo of a cinema; there is no licensed photo, so the panel is a dark gradient with the page's glow.
+ * Over a cinema photo (a development stock photo, see DevPhotos), a dark veil and the page's glow.
  */
 @Composable
 fun OnboardingArt(page: Int, modifier: Modifier = Modifier) {
@@ -45,12 +45,16 @@ fun OnboardingArt(page: Int, modifier: Modifier = Modifier) {
     val glow = when (page) { 0 -> c.ac; 1 -> c.ac2; else -> Color(0xFFE2A53A) }  // hues 32, 295, 60
     Box(
         modifier.drawBehind {
-            drawRect(Brush.verticalGradient(listOf(Color(0xFF241A1C), Color(0xFF101014))))
-            drawRect(Brush.verticalGradient(listOf(Color(0xFF101014).copy(alpha = 0.62f), Color(0xFF101014).copy(alpha = 0.88f))))
-            drawRect(Brush.radialGradient(listOf(glow.copy(alpha = 0.45f), Color.Transparent), Offset(size.width, 0f), size.width * 0.9f))
+            drawRect(Color(0xFF101014))
         },
         contentAlignment = Alignment.Center,
     ) {
+        // A cinema photo (cover), a dark veil that deepens downwards and the page's glow in the top right corner.
+        androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(com.ceta.cinema.ui.component.DevPhotos.onboarding(page)), null, Modifier.matchParentSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+        Box(Modifier.matchParentSize().drawBehind {
+            drawRect(Brush.verticalGradient(listOf(Color(0xFF101014).copy(alpha = 0.62f), Color(0xFF101014).copy(alpha = 0.88f))))
+            drawRect(Brush.radialGradient(listOf(glow.copy(alpha = 0.45f), Color.Transparent), Offset(size.width, 0f), size.width * 0.9f))
+        })
         Box(Modifier.padding(bottom = 36.dp)) {
             when (page) { 0 -> BookingArt(); 1 -> SeatMapArt(); else -> MemberArt() }
         }

@@ -117,7 +117,11 @@ private fun ComboRow(combo: Combo, english: Boolean, quantity: Int, onChange: (I
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         // A product photo when the CMS has one; otherwise the vector illustration of that product.
-        if (combo.imageUrl.isNullOrBlank()) SnackArt(combo.code, combo.name, Modifier.size(84.dp).clip(RoundedCornerShape(16.dp)))
+        val photo = DevPhotos.snack(combo.code)
+        if (combo.imageUrl.isNullOrBlank() && photo != null) androidx.compose.foundation.Image(
+            androidx.compose.ui.res.painterResource(photo), null, Modifier.size(84.dp).clip(RoundedCornerShape(16.dp)).background(c.sf2), contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+        )
+        else if (combo.imageUrl.isNullOrBlank()) SnackArt(combo.code, combo.name, Modifier.size(84.dp).clip(RoundedCornerShape(16.dp)))
         else Poster(combo.imageUrl, "combo${combo.id}", Modifier.size(84.dp).clip(RoundedCornerShape(16.dp)))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(combo.title(english), color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.Bold)

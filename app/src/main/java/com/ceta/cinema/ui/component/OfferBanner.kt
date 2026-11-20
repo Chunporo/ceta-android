@@ -33,7 +33,9 @@ fun OfferBanner(promo: Promotion, modifier: Modifier = Modifier, highlightSize: 
     val hue = offerHue(promo)
     val dark = Color.hsv(hue, 0.72f, 0.27f)
     Box(modifier) {
-        if (promo.imageUrl.isNullOrBlank()) {
+        val dev = if (promo.imageUrl.isNullOrBlank()) DevPhotos.promo(promo.code) else null
+        if (dev != null) androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(dev), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+        else if (promo.imageUrl.isNullOrBlank()) {
             Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(Color.hsv(hue, 0.6f, 0.62f), Color.hsv((hue + 40) % 360, 0.65f, 0.45f)))))
         } else AsyncImage(promo.imageUrl, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         // 100deg overlay: nearly solid under the title, lighter in the middle, a little darker again under the highlight.
