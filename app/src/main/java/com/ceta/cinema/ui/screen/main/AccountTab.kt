@@ -25,6 +25,8 @@ import com.ceta.cinema.R
 import com.ceta.cinema.core.UiState
 import com.ceta.cinema.data.local.prefs.AppSettings
 import com.ceta.cinema.domain.model.Loyalty
+import com.ceta.cinema.domain.usecase.MembershipPolicy
+import com.ceta.cinema.ui.component.CetaSheet
 import com.ceta.cinema.ui.component.*
 import com.ceta.cinema.ui.screen.account.AccountViewModel
 import com.ceta.cinema.ui.theme.Ceta
@@ -42,6 +44,9 @@ fun AccountTab(
     val loyalty by vm.loyalty.collectAsState()
     val name by vm.displayName.collectAsState()
     val contact by vm.contact.collectAsState()
+    val card by vm.card.collectAsState()
+    var codeOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    var tiersOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding().verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (signedIn) {
             Header(name, contact, (loyalty as? UiState.Content)?.data, onProfile)
@@ -49,7 +54,16 @@ fun AccountTab(
                 UiState.Loading -> Box(Modifier.fillMaxWidth().height(96.dp)) { CircularProgressIndicator(Modifier.align(Alignment.Center), color = c.ac) }
                 is UiState.Error -> ErrorBox(l.error, vm::load, Modifier.height(140.dp))
                 is UiState.Empty -> Unit
-                is UiState.Content -> { PointsCard(l.data); Stats(l.data) }
+                is UiState.Content -> {
+                    val spend = MembershipPolicy.spendOf(l.data.lifetimeEarned)
+                    val tier = MembershipPolicy.tierOf(spend)
+                    MemberCard(tier, l.data.balance, card.expiring, spend, card.year, onClick = { codeOpen = true })
+                    PerksRow(tier, onAllTiers = { tiersOpen = true })
+                    PointsHistoryCard(card.history, onSeeAll = onHistory)
+                    Stats(l.data)
+                    if (codeOpen) CetaSheet(onDismiss = { codeOpen = false }) { MemberCodeContent(card.code, onClose = { codeOpen = false }) }
+                    if (tiersOpen) CetaSheet(onDismiss = { tiersOpen = false }) { TiersContent(tier) }
+                }
             }
         } else {
             Text(stringResource(R.string.ds_nav_account), color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold)
@@ -113,32 +127,6 @@ private fun Header(name: String?, contact: String?, loyalty: Loyalty?, onEdit: (
         }
         Box(Modifier.size(44.dp).clip(CircleShape).background(c.sf).clickable(onClick = onEdit), contentAlignment = Alignment.Center) {
             Icon(Icons.Rounded.Edit, null, tint = c.tx, modifier = Modifier.size(21.dp))
-        }
-    }
-}
-
-/** The accent loyalty card with a soft circle in the corner, big balance and a white progress bar. */
-@Composable
-private fun PointsCard(l: Loyalty) {
-    val c = Ceta.colors
-    Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(c.ac)) {
-        Box(Modifier.align(Alignment.TopEnd).offset(x = 40.dp, y = (-40).dp).size(160.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.12f)))
-        Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("CETA STAR", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.4.sp, modifier = Modifier.weight(1f))
-                Text(stringResource(if (l.isTopTier) R.string.tier_vip else R.string.tier_member), color = Color.White.copy(alpha = 0.9f), fontSize = 11.sp,
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace, letterSpacing = 0.5.sp)
-            }
-            Column {
-                Text(thousands(l.balance), color = Color.White, fontSize = 36.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 36.sp)
-                Text(stringResource(R.string.ds_points), color = Color.White.copy(alpha = 0.9f), fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
-            }
-            Column {
-                Box(Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color.White.copy(alpha = 0.25f))) {
-                    Box(Modifier.fillMaxWidth(l.progressToNextTier.coerceAtLeast(0.02f)).fillMaxHeight().clip(RoundedCornerShape(4.dp)).background(Color.White))
-                }
-                Text(if (l.isTopTier) stringResource(R.string.top_tier) else stringResource(R.string.to_next_tier, thousands(l.pointsToNextTier)), color = Color.White.copy(alpha = 0.9f), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
-            }
         }
     }
 }

@@ -7,6 +7,7 @@ import com.ceta.cinema.data.*
 import com.ceta.cinema.data.local.prefs.AppSettings
 import com.ceta.cinema.data.repository.AccountRepository
 import com.ceta.cinema.data.repository.BookingRepository
+import com.ceta.cinema.data.repository.MockMembershipRepository
 import com.ceta.cinema.data.repository.SessionRepository
 import com.ceta.cinema.domain.model.BookingStatus
 import com.ceta.cinema.domain.model.Loyalty
@@ -73,7 +74,7 @@ class AccountViewModelsTest {
     @Test fun theAccountShowsNamePointsTierAndCounters() = runTest {
         setup()
         answers["GET /api/v1/me/loyalty"] = ok(loyaltyJson)
-        val vm = AccountViewModel(AccountRepository(api()), session(true), settings)
+        val vm = AccountViewModel(AccountRepository(api()), MockMembershipRepository(BookingRepository(api(), settings)), java.time.Clock.systemUTC(), session(true), settings)
         eventually { vm.loyalty.value is UiState.Content }
         val l = (vm.loyalty.value as UiState.Content).data
         assertEquals("Minh", vm.displayName.value)
@@ -84,7 +85,7 @@ class AccountViewModelsTest {
 
     @Test fun aGuestNeverAsksForPoints() = runTest {
         setup()
-        AccountViewModel(AccountRepository(api()), session(false), settings)
+        AccountViewModel(AccountRepository(api()), MockMembershipRepository(BookingRepository(api(), settings)), java.time.Clock.systemUTC(), session(false), settings)
         Thread.sleep(100)
         assertTrue(requests.isEmpty())
     }

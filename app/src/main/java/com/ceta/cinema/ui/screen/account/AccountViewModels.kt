@@ -25,6 +25,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val account: AccountRepository,
+    private val membership: com.ceta.cinema.data.repository.MembershipRepository,
+    private val clock: java.time.Clock,
     session: SessionRepository,
     settings: SettingsStore,
 ) : ViewModel() {
@@ -36,6 +38,10 @@ class AccountViewModel @Inject constructor(
     /** The phone number (shown as +84 912 345 678) or the email under the name, as in the design; null until known. */
     val contact: StateFlow<String?> = _contact
 
+    private val _card = MutableStateFlow(MemberCardExtras())
+    /** What the membership card adds to the balance: the latest points movements, expiring points and the counter code. */
+    val card: StateFlow<MemberCardExtras> = _card
+
     init { load() }
 
     fun load() {
@@ -46,12 +52,25 @@ class AccountViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _loyalty.value = when (val r = account.loyalty()) {
-                is ApiResult.Ok -> UiState.Content(r.data)
+                is ApiResult.Ok -> UiState.Content(r.data).also { content ->
+                    val today = java.time.LocalDate.now(clock.withZone(com.ceta.cinema.core.CinemaZone))
+                    _card.value = MemberCardExtras(
+                        history = membership.history(), expiring = membership.expiring(content.data.balance, today),
+                        code = membership.memberCode(_contact.value ?: content.data.lifetimeEarned.toString()), year = today.year,
+                    )
+                }
                 is ApiResult.Err -> UiState.Error(r.error)
             }
         }
     }
 }
+
+data class MemberCardExtras(
+    val history: List<com.ceta.cinema.domain.usecase.PointsEntry> = emptyList(),
+    val expiring: com.ceta.cinema.domain.usecase.ExpiringPoints? = null,
+    val code: String = "",
+    val year: Int = 0,
+)
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(private val bookings: BookingRepository) : ViewModel() {
