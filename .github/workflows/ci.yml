@@ -32,14 +32,15 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       # app/google-services.json belongs to the real Firebase project and is not in the repo. The plugin only needs a file of the
-      # right shape for the three application ids, so CI builds with a placeholder (nothing here talks to Firebase).
+      # right shape for the three application ids, so CI builds with a placeholder (nothing here talks to Firebase). The web OAuth client is needed because the plugin
+      # turns it into R.string.default_web_client_id, which the sign-in code reads.
       - name: Placeholder google-services.json
         run: |
           python3 - <<'PY'
           import json
           clients = [{
               "client_info": {"mobilesdk_app_id": f"1:000000000000:android:{i:020x}", "android_client_info": {"package_name": pkg}},
-              "oauth_client": [], "api_key": [{"current_key": "AIzaSyCI-placeholder-not-a-real-key-0000000"}],
+              "oauth_client": [{"client_id": "000000000000-ci.apps.googleusercontent.com", "client_type": 3}], "api_key": [{"current_key": "AIzaSyCI-placeholder-not-a-real-key-0000000"}],
               "services": {"appinvite_service": {"other_platform_oauth_client": []}},
           } for i, pkg in enumerate(["com.ceta.cinema", "com.ceta.cinema.debug", "com.ceta.cinema.staging"], 1)]
           json.dump({"project_info": {"project_number": "000000000000", "project_id": "ceta-ci", "storage_bucket": "ceta-ci.appspot.com"},
