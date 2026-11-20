@@ -31,7 +31,7 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      # app/google-services.json belongs to the real Firebase project and is not in the repo. The plugin only needs a file of the
+      # CI overwrites app/google-services.json (the real Firebase project file) with a placeholder so nothing here talks to Firebase. The plugin only needs a file of the
       # right shape for the three application ids, so CI builds with a placeholder (nothing here talks to Firebase). The web OAuth client is needed because the plugin
       # turns it into R.string.default_web_client_id, which the sign-in code reads.
       - name: Placeholder google-services.json

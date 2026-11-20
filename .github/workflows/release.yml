@@ -1,0 +1,73 @@
+name: Release
+
+# Push a tag such as v1.0.0 (or run the workflow by hand) to build the signed production APK and publish it as a GitHub Release.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version name, for example 1.0.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Signed APK to GitHub Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Accept Android SDK licences
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Version
+        id: v
+        run: |
+          raw="${{ github.event.inputs.version || github.ref_name }}"
+          echo "name=${raw#v}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${raw#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Keystore
+        run: |
+          echo "${{ secrets.CETA_KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "CETA_KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - name: Unit tests
+        run: ./gradlew --no-daemon testProdReleaseUnitTest
+
+      - name: Build signed APK
+        env:
+          CETA_KEYSTORE_PASSWORD: ${{ secrets.CETA_KEYSTORE_PASSWORD }}
+          CETA_KEY_ALIAS: ${{ secrets.CETA_KEY_ALIAS }}
+          CETA_KEY_PASSWORD: ${{ secrets.CETA_KEY_PASSWORD }}
+        run: >
+          ./gradlew --no-daemon assembleProdRelease
+          -PversionCode=${{ github.run_number }}
+          -PversionName=${{ steps.v.outputs.name }}
+          -PapiBaseUrl=${{ vars.API_BASE_URL }}
+
+      - name: Name and checksum
+        run: |
+          mkdir out
+          cp app/build/outputs/apk/prod/release/app-prod-release.apk "out/CETA-${{ steps.v.outputs.name }}.apk"
+          (cd out && sha256sum "CETA-${{ steps.v.outputs.name }}.apk" > SHA256SUMS.txt)
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "${{ steps.v.outputs.tag }}" out/*
+          --title "CETA ${{ steps.v.outputs.name }}"
+          --generate-notes
+          --notes "Portfolio build. Payments run against sandbox gateways; some screens (trending, points history, tier perks) use sample data."

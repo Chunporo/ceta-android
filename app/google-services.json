@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "601662404416-a41b2memrur1bj2n2vidodigvamf80bn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ceta.cinema",
+            "certificate_hash": "9aba0a4f45bc77ad3926f1f85eedd29eab6901ea"
+          }
+        },
+        {
           "client_id": "601662404416-s59mf468ku2ospmu11c98psgpkqv9mi7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

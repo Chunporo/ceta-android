@@ -6,6 +6,12 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+// The production API address; the release workflow passes -PapiBaseUrl=... once a host exists.
+val prodApiBaseUrl = providers.gradleProperty("apiBaseUrl").orElse("https://api.ceta.vn/api/v1/").get()
+// versionCode follows the CI run number when it is given (-PversionCode=...), so every release installs over the last.
+val releaseVersionCode = providers.gradleProperty("versionCode").map(String::toInt).orElse(1).get()
+val releaseVersionName = providers.gradleProperty("versionName").orElse("1.0").get()
+
 android {
     namespace = "com.ceta.cinema"
     compileSdk { version = release(37) }
@@ -14,8 +20,8 @@ android {
         applicationId = "com.ceta.cinema"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = releaseVersionCode
+        versionName = releaseVersionName
         buildConfigField("String", "PAYMENT_RETURN_SCHEME", "\"ceta\"")
     }
 
@@ -34,12 +40,24 @@ android {
         }
         create("prod") {
             dimension = "env"
-            buildConfigField("String", "API_BASE_URL", "\"https://api.ceta.vn/api/v1/\"")
+            buildConfigField("String", "API_BASE_URL", "\"$prodApiBaseUrl\"")
+        }
+    }
+
+    // Signed only when the keystore comes in through the environment (the release workflow); a local build stays unsigned.
+    val keystorePath = System.getenv("CETA_KEYSTORE_FILE")
+    signingConfigs {
+        if (keystorePath != null) create("release") {
+            storeFile = file(keystorePath)
+            storePassword = System.getenv("CETA_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("CETA_KEY_ALIAS")
+            keyPassword = System.getenv("CETA_KEY_PASSWORD")
         }
     }
 
     buildTypes {
         release {
+            if (keystorePath != null) signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
