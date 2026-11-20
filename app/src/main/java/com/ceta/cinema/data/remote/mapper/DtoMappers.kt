@@ -43,6 +43,7 @@ fun ComboDto.toDomain() = Combo(id, name, nameEn, description, descriptionEn, im
 fun PromotionDto.toDomain() = Promotion(
     id = id, code = code, title = title, titleEn = titleEn, description = description, descriptionEn = descriptionEn,
     imageUrl = imageUrl, validUntil = validUntil.toInstantOrNull(),
+    percentOff = percentOff, fixedPrice = fixedPrice, formats = formats,
     kind = runCatching { PromotionKind.valueOf(kind) }.getOrDefault(PromotionKind.COUNTER_PERK), // unknown = not applicable online
 )
 

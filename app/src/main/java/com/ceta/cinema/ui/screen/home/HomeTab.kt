@@ -160,19 +160,16 @@ private fun PosterRow(row: List<Movie>, onMovie: (String) -> Unit) {
     }
 }
 
-/** A gradient promo tile as in the design: title on top, expiry and the code chip at the bottom. */
+/** A promo tile as in the design: the offer banner with the title on the left, the big highlight on the right, expiry and code below. */
 @Composable
 private fun OfferChip(promo: Promotion, onClick: () -> Unit) {
     val english = LocalConfiguration.current.locales[0].language == "en"
-    val hue = (promo.code.hashCode().toUInt().toLong() % 360).toFloat()
-    Column(
-        Modifier.size(width = 250.dp, height = 120.dp).clip(RoundedCornerShape(22.dp))
-            .background(Brush.linearGradient(listOf(Color.hsv(hue, 0.6f, 0.62f), Color.hsv((hue + 40) % 360, 0.65f, 0.45f))))
-            .clickable(onClick = onClick).padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(promo.title(english), color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 20.sp, maxLines = 2)
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+    OfferBanner(promo, Modifier.size(width = 250.dp, height = 120.dp).clip(RoundedCornerShape(22.dp)).clickable(onClick = onClick), highlightSize = 34.sp) {
+        Text(
+            promo.title(english), color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 20.sp, maxLines = 3,
+            modifier = Modifier.align(Alignment.TopStart).fillMaxWidth(0.55f).padding(start = 16.dp, top = 16.dp),
+        )
+        Row(Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(promo.validUntil?.let { stringResource(R.string.ds_until) + " " + Formatters.date(Formatters.localDate(it)) }.orEmpty(), color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp, modifier = Modifier.weight(1f))
             Text(promo.code, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.Monospace,
                 modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Color.White.copy(alpha = 0.22f)).padding(horizontal = 9.dp, vertical = 4.dp))

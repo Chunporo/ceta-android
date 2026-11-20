@@ -73,12 +73,13 @@ fun OffersTab(onLogin: () -> Unit, vm: OffersViewModel = hiltViewModel()) {
 private fun OfferCard(promo: Promotion, saved: Boolean, busy: Boolean, onToggle: () -> Unit) {
     val c = Ceta.colors
     val english = LocalConfiguration.current.locales[0].language == "en"
-    val hue = (promo.code.hashCode().toUInt().toLong() % 360).toFloat()
-    Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(24.dp))) {
-        Box(
-            Modifier.fillMaxWidth().height(120.dp).background(Brush.linearGradient(listOf(Color.hsv(hue, 0.6f, 0.62f), Color.hsv((hue + 40) % 360, 0.65f, 0.45f)))).padding(16.dp),
-            contentAlignment = Alignment.BottomStart,
-        ) { Text(promo.title(english), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, maxLines = 2) }
+    Column(Modifier.fillMaxWidth().cardSurface(RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp))) {
+        OfferBanner(promo, Modifier.fillMaxWidth().height(120.dp), highlightSize = 44.sp) {
+            Text(
+                promo.title(english), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 26.sp, maxLines = 3,
+                modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth(0.55f).padding(16.dp),
+            )
+        }
         Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             promo.detail(english)?.let { Text(it, color = c.tx, fontSize = 14.sp, lineHeight = 21.sp) }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {

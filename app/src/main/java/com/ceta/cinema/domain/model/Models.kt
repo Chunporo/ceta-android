@@ -97,7 +97,19 @@ enum class PromotionKind { PERCENT_OFF, FIXED_TICKET_PRICE, COUNTER_PERK }
 data class Promotion(
     val id: Long, val code: String, val title: String, val titleEn: String?, val description: String?, val descriptionEn: String?,
     val imageUrl: String?, val kind: PromotionKind, val validUntil: Instant?,
+    val percentOff: Int? = null, val fixedPrice: Long? = null, val formats: List<String> = emptyList(),
 ) {
+    /**
+     * The big word on the banner: 50K, -20%, 49K, IMAX.
+     * TODO(backend): a `highlight` field on the promotion; until then it is worked out from the rules.
+     */
+    val highlight: String? get() = when {
+        kind == PromotionKind.PERCENT_OFF && percentOff != null -> "−$percentOff%"
+        kind == PromotionKind.FIXED_TICKET_PRICE && fixedPrice != null -> "${fixedPrice / 1000}K"
+        "IMAX" in formats -> "IMAX"
+        else -> null
+    }
+
     fun title(english: Boolean) = if (english && !titleEn.isNullOrBlank()) titleEn else title
     fun detail(english: Boolean) = if (english && !descriptionEn.isNullOrBlank()) descriptionEn else description
     /** A counter perk is shown but cannot be typed into checkout. */
