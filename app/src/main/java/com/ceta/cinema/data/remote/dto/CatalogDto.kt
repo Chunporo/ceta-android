@@ -20,12 +20,15 @@ data class MovieDto(
     val ratingScore: Double? = null,
     val ratingAverage: Double? = null,       // 0..10 from customer reviews, null when nobody reviewed
     val ratingCount: Long = 0,
+    val externalRatings: List<ExternalRatingDto> = emptyList(),   // IMDb / Rotten Tomatoes / Metacritic / TMDB; absent on older servers
     val fromPrice: Long? = null,
     val cast: List<String> = emptyList(),
     val castMembers: List<CastMemberDto> = emptyList(),   // name + character + photo; older servers only send `cast`
     val formats: List<String> = emptyList(),
     val genres: List<GenreDto> = emptyList(),
 )
+
+data class ExternalRatingDto(val source: String, val value: Double, val scale: Int = 10, val votes: Long? = null)
 
 data class CastMemberDto(val name: String, val role: String? = null, val photoUrl: String? = null)
 

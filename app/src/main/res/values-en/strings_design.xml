@@ -245,4 +245,5 @@
     <string name="perk_v4">Unlimited showtime changes</string>
     <string name="ob_art_paid">Paid</string>
     <string name="ob_art_points">CETA points</string>
+    <string name="external_scores_note">Scores from other sites, via OMDb and TMDB. Not part of the CETA customers’ score.</string>
 </resources>

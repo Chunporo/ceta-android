@@ -57,6 +57,18 @@ data class Genre(val id: Long, val name: String, val slug: String)
 /** An actor: the character they play and a profile photo are optional. */
 data class CastMember(val name: String, val role: String?, val photoUrl: String?)
 
+/** A score another site gives the film, shown beside (never mixed into) the customers' score. */
+data class ExternalRating(val source: Source, val value: Double, val scale: Int, val votes: Long?) {
+    enum class Source(val label: String) { IMDB("IMDb"), ROTTEN_TOMATOES("Rotten Tomatoes"), METACRITIC("Metacritic"), TMDB("TMDB") }
+
+    /** 7.4 for the sites out of 10, 87% for Rotten Tomatoes, 71 for Metacritic. */
+    val display: String get() = when {
+        source == Source.ROTTEN_TOMATOES -> "${value.toInt()}%"
+        scale == 100 -> value.toInt().toString()
+        else -> "%.1f".format(java.util.Locale.ROOT, value)
+    }
+}
+
 data class Movie(
     val id: String, val title: String, val posterUrl: String?, val ageRating: String?, val status: MovieStatus,
     val durationMin: Int?, val releaseDate: LocalDate?, val trailerUrl: String?, val director: String?, val language: String?,
@@ -64,6 +76,7 @@ data class Movie(
     val cast: List<String>, val genres: List<String>, val formats: Set<ShowFormat>,
     val castMembers: List<CastMember> = cast.map { CastMember(it, null, null) },
     val directorPhotoUrl: String? = null,
+    val externalRatings: List<ExternalRating> = emptyList(),
 ) {
     val isNowShowing: Boolean get() = status == MovieStatus.NOW_SHOWING || status == MovieStatus.EARLY_ACCESS
 }
