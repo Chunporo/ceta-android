@@ -37,3 +37,12 @@ fun Localized(language: String, content: @Composable () -> Unit) {
     }
     CompositionLocalProvider(LocalContext provides context, LocalConfiguration provides context.resources.configuration, content = content)
 }
+
+/**
+ * A dialog or bottom sheet opens its own window whose composition resets LocalContext to the plain activity, so its strings would
+ * come back in the phone's language. Capture [LocalContext] outside the window and wrap the window's content in this.
+ */
+@Composable
+fun KeepLocale(context: Context, content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalContext provides context, LocalConfiguration provides context.resources.configuration, content = content)
+}

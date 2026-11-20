@@ -153,11 +153,13 @@ private fun Content(ui: TicketDetailUi, soon: String, vm: TicketDetailViewModel)
 @Composable
 private fun CancelSheet(ui: TicketDetailUi, seatsText: String, onKeep: () -> Unit, onConfirm: () -> Unit) {
     val c = Ceta.colors
+    val appContext = LocalContext.current
     androidx.compose.material3.ModalBottomSheet(
         onDismissRequest = onKeep, containerColor = c.sf, scrimColor = Color.Black.copy(alpha = 0.58f),
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
         dragHandle = { Box(Modifier.padding(top = 12.dp, bottom = 4.dp).size(width = 40.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(c.ln2)) },
     ) {
+      com.ceta.cinema.ui.KeepLocale(appContext) {
         Column(Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Text(stringResource(R.string.cancel_sheet_title), color = c.tx, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
             Text(stringResource(R.string.cancel_sheet_body), color = c.mu, fontSize = 14.sp, lineHeight = 21.sp)
@@ -183,6 +185,7 @@ private fun CancelSheet(ui: TicketDetailUi, seatsText: String, onKeep: () -> Uni
                 ) { Text(stringResource(R.string.cancel_confirm), fontWeight = FontWeight.Bold) }
             }
         }
+      }
     }
 }
 

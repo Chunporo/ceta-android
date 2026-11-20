@@ -49,7 +49,9 @@ fun TrailerDialog(videoId: String, title: String, onClose: () -> Unit) {
     val uri = LocalUriHandler.current
     var failed by remember(videoId) { mutableStateOf(false) }
     var loading by remember(videoId) { mutableStateOf(true) }
+    val appContext = androidx.compose.ui.platform.LocalContext.current
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
+        com.ceta.cinema.ui.KeepLocale(appContext) {
         Box(Modifier.fillMaxSize().background(Color.Black)) {
             Column(Modifier.align(Alignment.Center).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f)) {
@@ -90,6 +92,7 @@ fun TrailerDialog(videoId: String, title: String, onClose: () -> Unit) {
             Box(Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(12.dp).size(44.dp).clip(CircleShape).background(Color(0x66FFFFFF)).clickable(onClick = onClose), contentAlignment = Alignment.Center) {
                 Icon(Icons.Rounded.Close, stringResource(R.string.close), tint = Color.White, modifier = Modifier.size(22.dp))
             }
+        }
         }
     }
 }
