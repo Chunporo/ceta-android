@@ -61,6 +61,9 @@ data class BookingHistoryDto(
     val roomName: String? = null, val seatNames: List<String> = emptyList(),
 )
 
+/** POST /bookings/{id}/cancel on a PAID booking: it becomes REFUNDED and the money goes through the refund queue. */
+data class CancelPaidDto(val bookingId: Long, val status: String, val refundAmount: Long = 0)
+
 data class PaymentUrlRequest(val bookingId: Long, val provider: String? = null)
 data class PaymentMethodDto(val code: String, val enabled: Boolean = false)
 data class PaymentUrlDto(val payUrl: String, val txnRef: String)

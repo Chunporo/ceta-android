@@ -18,5 +18,6 @@ class FakeSettingsStore(initial: AppSettings = AppSettings()) : SettingsStore {
     override suspend fun setPendingBooking(bookingId: Long, holdUntilMillis: Long) { state.value = state.value.copy(pendingBookingId = bookingId, pendingHoldUntilMillis = holdUntilMillis) }
     override suspend fun clearPendingBooking() { state.value = state.value.copy(pendingBookingId = null, pendingHoldUntilMillis = 0) }
     override suspend fun addRecentSearch(query: String) { state.value = state.value.copy(recentSearches = state.value.recentSearches.withRecent(query)) }
+    override suspend fun setTicketRating(code: String, stars: Int) { state.value = state.value.copy(ticketRatings = state.value.ticketRatings + (code to stars.coerceIn(1, 5))) }
     override suspend fun clearRecentSearches() { state.value = state.value.copy(recentSearches = emptyList()) }
 }

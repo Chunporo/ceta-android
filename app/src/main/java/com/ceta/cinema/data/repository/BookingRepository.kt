@@ -31,6 +31,9 @@ class BookingRepository @Inject constructor(private val api: CetaApi, private va
         if (it is ApiResult.Ok) settings.clearPendingBooking()
     }
 
+    /** Cancels a PAID order (the customer's own cancel, until the show is close). Returns the amount owed back. */
+    suspend fun cancelPaid(id: Long): ApiResult<Long> = safeApiCall { api.cancelPaidBooking(id).refundAmount }
+
     /** Called once an order has reached an end state (paid, expired, cancelled, refunded). */
     suspend fun forgetPending() = settings.clearPendingBooking()
 

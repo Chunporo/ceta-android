@@ -15,6 +15,8 @@ data class AppSettings(
     val pendingHoldUntilMillis: Long = 0,
     /** The customer chose to browse without an account; remembered so a restart does not ask again. */
     val guestMode: Boolean = false,
+    /** The stars (1..5) the customer gave a watched show, by ticket code. TODO(backend): move to POST /movies/{id}/review once a ticket knows its movie id. */
+    val ticketRatings: Map<String, Int> = emptyMap(),
 )
 
 interface SettingsStore {
@@ -29,6 +31,8 @@ interface SettingsStore {
     /** Most recent first, no duplicates, at most [MAX_RECENT]. */
     suspend fun addRecentSearch(query: String)
     suspend fun clearRecentSearches()
+    /** Remembers [stars] (1..5) for a ticket code; the same code again replaces it. */
+    suspend fun setTicketRating(code: String, stars: Int)
 
     companion object {
         const val MAX_RECENT = 6

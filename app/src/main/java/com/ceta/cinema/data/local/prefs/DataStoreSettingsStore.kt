@@ -24,6 +24,7 @@ class DataStoreSettingsStore @Inject constructor(@ApplicationContext private val
     private val name = stringPreferencesKey("display_name")
     private val guest = booleanPreferencesKey("guest_mode")
     private val pendingId = longPreferencesKey("pending_booking_id")
+    private val ratings = stringPreferencesKey("ticket_ratings")
     private val pendingUntil = longPreferencesKey("pending_hold_until")
 
     override val settings: Flow<AppSettings> = context.settingsDataStore.data.map {
@@ -36,6 +37,7 @@ class DataStoreSettingsStore @Inject constructor(@ApplicationContext private val
             pendingBookingId = it[pendingId],
             pendingHoldUntilMillis = it[pendingUntil] ?: 0,
             guestMode = it[guest] ?: false,
+            ticketRatings = decodeRatings(it[ratings]),
         )
     }
 
@@ -60,6 +62,14 @@ class DataStoreSettingsStore @Inject constructor(@ApplicationContext private val
         val current = settings.first().recentSearches
         context.settingsDataStore.edit { it[recent] = current.withRecent(query).joinToString("\n") }
     }
+
+    override suspend fun setTicketRating(code: String, stars: Int) {
+        val next = settings.first().ticketRatings + (code to stars.coerceIn(1, 5))
+        context.settingsDataStore.edit { it[ratings] = next.entries.joinToString("\n") { (k, v) -> "$k=$v" } }
+    }
+
+    private fun decodeRatings(raw: String?): Map<String, Int> =
+        (raw ?: "").lineSequence().mapNotNull { line -> line.split('=').takeIf { it.size == 2 }?.let { (k, v) -> v.toIntOrNull()?.let { n -> k to n } } }.toMap()
 
     override suspend fun clearRecentSearches() { context.settingsDataStore.edit { it.remove(recent) } }
 }

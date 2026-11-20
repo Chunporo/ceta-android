@@ -177,4 +177,22 @@
     <string name="method_short_vnpay">VNPay</string>
     <string name="method_short_momo">MoMo</string>
     <string name="method_short_vietqr">VietQR</string>
+    <string name="tickets_cancelled">Đã hủy</string>
+    <string name="tickets_empty_watched">Bạn chưa xem phim nào cùng CETA.</string>
+    <string name="tickets_empty_cancelled">Không có vé đã hủy.</string>
+    <string name="when_today">Hôm nay</string>
+    <string name="when_tomorrow">Ngày mai</string>
+    <string name="when_days">Còn %1$d ngày</string>
+    <string name="rate_prompt">Bạn thấy phim thế nào?</string>
+    <string name="rate_done">Bạn đã chấm %1$d/5</string>
+    <string name="rate_star">Chấm %1$d sao</string>
+    <string name="refunded_points">Đã hoàn %1$s vào điểm CETA</string>
+    <string name="cancel_ticket">Hủy vé</string>
+    <string name="cancel_sheet_title">Hủy vé này?</string>
+    <string name="cancel_sheet_body">Bạn được hoàn 100% giá trị vé vào điểm CETA (1 điểm = 1đ) để dùng cho lần đặt sau. Chỉ hủy được trước giờ chiếu ít nhất 2 tiếng.</string>
+    <string name="cancel_points_back">Số điểm hoàn</string>
+    <string name="cancel_keep">Giữ vé</string>
+    <string name="cancel_confirm">Hủy vé</string>
+    <string name="cancel_done_toast">Đã hủy vé. Điểm CETA đã được cộng vào tài khoản.</string>
+    <string name="stamp_cancelled">ĐÃ HỦY</string>
 </resources>

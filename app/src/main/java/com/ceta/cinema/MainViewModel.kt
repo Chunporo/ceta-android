@@ -41,6 +41,12 @@ class MainViewModel @Inject constructor(
     fun openTab(tab: Tab) { _requestedTab.value = tab }
     fun tabShown() { _requestedTab.value = null }
 
+    private val _cancelledNotice = MutableStateFlow(false)
+    /** A paid ticket was just cancelled: My tickets opens on the Cancelled tab and says so once. */
+    val cancelledNotice: StateFlow<Boolean> = _cancelledNotice
+    fun ticketCancelled() { _cancelledNotice.value = true }
+    fun cancelledNoticeShown() { _cancelledNotice.value = false }
+
     data class PaymentReturn(val bookingId: Long, val declined: Boolean)
 
     private val _paymentReturn = Channel<PaymentReturn>(Channel.BUFFERED)

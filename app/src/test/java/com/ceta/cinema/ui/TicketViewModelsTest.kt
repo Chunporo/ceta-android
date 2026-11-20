@@ -9,6 +9,8 @@ import com.ceta.cinema.data.*
 import com.ceta.cinema.data.repository.BookingRepository
 import com.ceta.cinema.data.repository.SessionRepository
 import com.ceta.cinema.data.repository.TicketRepository
+import kotlinx.coroutines.flow.first
+import com.ceta.cinema.ui.screen.ticket.TicketDetailEvent
 import com.ceta.cinema.ui.screen.ticket.TicketDetailViewModel
 import com.ceta.cinema.ui.screen.ticket.TicketsViewModel
 import kotlinx.coroutines.Dispatchers
@@ -67,6 +69,28 @@ class TicketViewModelsTest {
         """{"ticketId":$id,"bookingId":$booking,"code":"T$id","seatId":$id,"seatLabel":"$seat","price":85000,"showtime":{"showtimeId":3,"startTime":"$start","endTime":"$end","movieTitle":"Dune","roomName":"R1","cinemaName":"CETA Landmark","format":"IMAX"},"qrPayload":"CETA1.$id.x.y","used":$used}"""
     private fun page(vararg items: String) = """{"items":[${items.joinToString(",")}],"page":0,"size":50,"totalItems":${items.size},"totalPages":1}"""
 
+    @Test fun aRefundedOrderMovesToCancelledWithItsRefundAndLeavesUpcoming() = runTest {
+        setup()
+        answers["GET /api/v1/tickets/my"] = {
+            json(page(ticketJson(1, 5, "F7", "2026-11-19T12:00:00Z", "2026-11-19T14:00:00Z"), ticketJson(3, 6, "A1", "2026-11-19T15:00:00Z", "2026-11-19T17:00:00Z")))
+        }
+        answers["GET /api/v1/bookings"] = { json("""{"items":[{"id":5,"status":"REFUNDED","totalAmount":85000},{"id":6,"status":"PAID","totalAmount":85000}],"page":0,"size":20,"totalItems":2,"totalPages":1}""") }
+        val vm = TicketsViewModel(TicketRepository(api(), offline), BookingRepository(api(), settings), settings, session(true), offline, clock)
+        eventually { vm.state.value is UiState.Content }
+        val data = (vm.state.value as UiState.Content).data
+        assertEquals(listOf(6L), data.upcoming.map { it.bookingId })
+        assertEquals(listOf(5L to 85_000L), data.cancelled.map { it.group.bookingId to it.refund })
+    }
+
+    @Test fun ratingAWatchedShowIsRememberedByTicketCode() = runTest {
+        setup()
+        val vm = TicketsViewModel(TicketRepository(api(), offline), BookingRepository(api(), settings), settings, session(true), offline, clock)
+        vm.rate("T3", 4)
+        eventually { vm.ratings.value["T3"] == 4 }
+        vm.rate("T3", 5)
+        eventually { vm.ratings.value["T3"] == 5 }
+    }
+
     @Test fun theListSplitsUpcomingFromWatchedAndGroupsSeatsPerOrder() = runTest {
         setup()
         answers["GET /api/v1/tickets/my"] = {
@@ -74,7 +98,7 @@ class TicketViewModelsTest {
                 ticketJson(1, 5, "F7", "2026-11-19T12:00:00Z", "2026-11-19T14:00:00Z"), ticketJson(2, 5, "F8", "2026-11-19T12:00:00Z", "2026-11-19T14:00:00Z"),
                 ticketJson(3, 6, "A1", "2026-11-10T12:00:00Z", "2026-11-10T14:00:00Z", used = true)))
         }
-        val vm = TicketsViewModel(TicketRepository(api(), offline), session(true), offline, clock)
+        val vm = TicketsViewModel(TicketRepository(api(), offline), BookingRepository(api(), settings), settings, session(true), offline, clock)
         eventually { vm.state.value is UiState.Content }
         val data = (vm.state.value as UiState.Content).data
         assertEquals(listOf(listOf("F7", "F8")), data.upcoming.map { it.seats })
@@ -84,7 +108,7 @@ class TicketViewModelsTest {
 
     @Test fun aGuestNeverAsksForTickets() = runTest {
         setup()
-        val vm = TicketsViewModel(TicketRepository(api(), offline), session(false), offline, clock)
+        val vm = TicketsViewModel(TicketRepository(api(), offline), BookingRepository(api(), settings), settings, session(false), offline, clock)
         Thread.sleep(100)
         assertTrue(requests.isEmpty())
         assertEquals(false, vm.signedIn.value)
@@ -92,7 +116,7 @@ class TicketViewModelsTest {
 
     @Test fun aFailedLoadIsAnErrorThatCanBeRetried() = runTest {
         setup()
-        val vm = TicketsViewModel(TicketRepository(api(), offline), session(true), offline, clock)
+        val vm = TicketsViewModel(TicketRepository(api(), offline), BookingRepository(api(), settings), settings, session(true), offline, clock)
         eventually { vm.state.value is UiState.Error }
         answers["GET /api/v1/tickets/my"] = { json(page()) }
         vm.load(forceRefresh = true)
@@ -106,7 +130,7 @@ class TicketViewModelsTest {
             ticketJson(2, 5, "F8", "2026-11-19T12:00:00Z", "2026-11-19T14:00:00Z"), ticketJson(1, 5, "F7", "2026-11-19T12:00:00Z", "2026-11-19T14:00:00Z", used = true),
             ticketJson(3, 6, "A1", "2026-11-19T12:00:00Z", "2026-11-19T14:00:00Z"))) }
         answers["GET /api/v1/bookings/5"] = { json("""{"id":5,"status":"PAID","totalAmount":289000,"seats":[],"tickets":[],"comboAmount":119000,"combos":[{"comboId":2,"name":"Combo Đôi","quantity":1,"unitPrice":119000}],"refundRequired":false}""") }
-        val vm = TicketDetailViewModel(SavedStateHandle(mapOf("bookingId" to 5L)), TicketRepository(api(), offline), BookingRepository(api(), settings))
+        val vm = TicketDetailViewModel(SavedStateHandle(mapOf("bookingId" to 5L)), TicketRepository(api(), offline), BookingRepository(api(), settings), clock)
         eventually { vm.state.value is UiState.Content }
         val ui = (vm.state.value as UiState.Content).data
         assertEquals(listOf("F7", "F8"), ui.tickets.map { it.seatLabel })
@@ -117,7 +141,7 @@ class TicketViewModelsTest {
     @Test fun theQrOpensEvenIfTheOrderDetailCannotBeLoaded() = runTest {
         setup()
         answers["GET /api/v1/tickets/my"] = { json(page(ticketJson(1, 5, "F7", "2026-11-19T12:00:00Z", "2026-11-19T14:00:00Z"))) }
-        val vm = TicketDetailViewModel(SavedStateHandle(mapOf("bookingId" to 5L)), TicketRepository(api(), offline), BookingRepository(api(), settings))
+        val vm = TicketDetailViewModel(SavedStateHandle(mapOf("bookingId" to 5L)), TicketRepository(api(), offline), BookingRepository(api(), settings), clock)
         eventually { vm.state.value is UiState.Content }
         assertTrue((vm.state.value as UiState.Content).data.combos.isEmpty())
     }
@@ -125,8 +149,48 @@ class TicketViewModelsTest {
     @Test fun someoneElsesOrderIsNotFound() = runTest {
         setup()
         answers["GET /api/v1/tickets/my"] = { json(page(ticketJson(1, 5, "F7", "2026-11-19T12:00:00Z", "2026-11-19T14:00:00Z"))) }
-        val vm = TicketDetailViewModel(SavedStateHandle(mapOf("bookingId" to 99L)), TicketRepository(api(), offline), BookingRepository(api(), settings))
+        val vm = TicketDetailViewModel(SavedStateHandle(mapOf("bookingId" to 99L)), TicketRepository(api(), offline), BookingRepository(api(), settings), clock)
         eventually { vm.state.value is UiState.Error }
         assertEquals("TICKET_NOT_FOUND", (vm.state.value as UiState.Error).error.code)
+    }
+
+    // ---- cancelling a paid ticket (design item 9)
+
+    private fun paidOrder(status: String = "PAID") = """{"id":5,"status":"$status","totalAmount":170000,"seats":[],"tickets":[],"refundRequired":false}"""
+
+    @Test fun cancelIsOfferedOnlyOnAPaidOrderWithTwoHoursToGo() = runTest {
+        setup()
+        answers["GET /api/v1/tickets/my"] = { json(page(ticketJson(1, 5, "F7", "2026-11-19T12:00:00Z", "2026-11-19T14:00:00Z"))) }
+        answers["GET /api/v1/bookings/5"] = { json(paidOrder()) }
+        val vm = TicketDetailViewModel(SavedStateHandle(mapOf("bookingId" to 5L)), TicketRepository(api(), offline), BookingRepository(api(), settings), clock)
+        eventually { vm.state.value is UiState.Content }
+        val ui = (vm.state.value as UiState.Content).data
+        assertTrue("a day away: cancellable", ui.canCancel)
+        assertEquals(170_000L, ui.refund)
+    }
+
+    @Test fun aRefundedOrderShowsItsQrAsCancelledAndOffersNoCancel() = runTest {
+        setup()
+        answers["GET /api/v1/tickets/my"] = { json(page(ticketJson(1, 5, "F7", "2026-11-19T12:00:00Z", "2026-11-19T14:00:00Z"))) }
+        answers["GET /api/v1/bookings/5"] = { json(paidOrder("REFUNDED")) }
+        val vm = TicketDetailViewModel(SavedStateHandle(mapOf("bookingId" to 5L)), TicketRepository(api(), offline), BookingRepository(api(), settings), clock)
+        eventually { vm.state.value is UiState.Content }
+        val ui = (vm.state.value as UiState.Content).data
+        assertTrue(ui.cancelled)
+        assertFalse(ui.canCancel)
+    }
+
+    @Test fun confirmingTheCancelCallsTheServerOnceAndLeaves() = runTest {
+        setup()
+        answers["GET /api/v1/tickets/my"] = { json(page(ticketJson(1, 5, "F7", "2099-11-19T12:00:00Z", "2099-11-19T14:00:00Z"))) }
+        answers["GET /api/v1/bookings/5"] = { json(paidOrder()) }
+        answers["POST /api/v1/bookings/5/cancel"] = { json("""{"bookingId":5,"status":"REFUNDED","refundAmount":170000}""") }
+        val vm = TicketDetailViewModel(SavedStateHandle(mapOf("bookingId" to 5L)), TicketRepository(api(), offline), BookingRepository(api(), settings), clock)
+        eventually { vm.state.value is UiState.Content }
+        assertTrue((vm.state.value as UiState.Content).data.canCancel)
+        vm.cancel(); vm.cancel() // a double tap
+        assertEquals(TicketDetailEvent.Cancelled, vm.events.first())
+        assertEquals(1, requests.count { it == "POST /api/v1/bookings/5/cancel" })
+        assertTrue((vm.state.value as UiState.Content).data.cancelled)
     }
 }

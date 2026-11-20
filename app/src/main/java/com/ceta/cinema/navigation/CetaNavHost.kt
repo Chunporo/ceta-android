@@ -17,6 +17,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ceta.cinema.MainViewModel
+import com.ceta.cinema.R
+import androidx.compose.ui.res.stringResource
 import com.ceta.cinema.data.local.prefs.AppSettings
 import com.ceta.cinema.ui.screen.auth.EmailLoginScreen
 import com.ceta.cinema.ui.screen.auth.ForgotPasswordScreen
@@ -68,6 +70,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
         }
     }
     val nav = rememberNavController()
+    val cancelledNotice by main.cancelledNotice.collectAsState()
 
     // Signing in leaves the auth screens; losing the session (sign-out or an expired refresh token) returns to Login.
     val previous = remember { mutableStateOf(known) }
@@ -134,7 +137,9 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                 },
             )
         }
-        composable(Routes.TICKET_DETAIL, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) { TicketDetailScreen(onBack = { nav.popBackStack() }) }
+        composable(Routes.TICKET_DETAIL, arguments = listOf(navArgument("bookingId") { type = NavType.LongType })) {
+            TicketDetailScreen(onBack = { nav.popBackStack() }, onCancelled = { main.ticketCancelled(); main.openTab(Tab.TICKETS); nav.navigate(Routes.MAIN) { popUpTo(0) } })
+        }
         composable(Routes.HISTORY) {
             HistoryScreen(onBack = { nav.popBackStack() }, onOpen = { order ->
                 when (order.status) {
@@ -222,6 +227,7 @@ fun CetaNavHost(main: MainViewModel, settings: AppSettings) {
                     Tab.TICKETS -> TicketsTab(
                         onTicket = { nav.navigate(Routes.ticketDetail(it)) }, onBook = { main.openTab(Tab.HOME) },
                         onSignIn = { nav.navigate(Routes.LOGIN) },
+                        startOnCancelled = cancelledNotice, notice = if (cancelledNotice) stringResource(R.string.cancel_done_toast) else null, onNoticeShown = main::cancelledNoticeShown,
                     )
                     Tab.ACCOUNT -> AccountTab(settings, known, main::setDark, main::setLanguage,
                         onSignIn = { nav.navigate(Routes.LOGIN) }, onSignOut = main::signOut,

@@ -70,6 +70,7 @@ interface CetaApi {
     @POST("bookings") suspend fun createBooking(@Body body: CreateBookingRequest): CreateBookingDto
     @GET("bookings/{id}") suspend fun booking(@Path("id") id: Long): BookingDto
     @DELETE("bookings/{id}") suspend fun cancelBooking(@Path("id") id: Long)
+    @POST("bookings/{id}/cancel") suspend fun cancelPaidBooking(@Path("id") id: Long): CancelPaidDto
     @PUT("bookings/{id}/extras") suspend fun updateExtras(@Path("id") id: Long, @Body body: BookingExtrasRequest): BookingExtrasDto
     @GET("bookings") suspend fun bookings(@Query("page") page: Int = 0, @Query("size") size: Int = 20): PageDto<BookingHistoryDto>
 

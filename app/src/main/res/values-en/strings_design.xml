@@ -176,4 +176,22 @@
     <string name="method_short_vnpay">VNPay</string>
     <string name="method_short_momo">MoMo</string>
     <string name="method_short_vietqr">VietQR</string>
+    <string name="tickets_cancelled">Cancelled</string>
+    <string name="tickets_empty_watched">You haven’t watched anything with CETA yet.</string>
+    <string name="tickets_empty_cancelled">No cancelled tickets.</string>
+    <string name="when_today">Today</string>
+    <string name="when_tomorrow">Tomorrow</string>
+    <string name="when_days">In %1$d days</string>
+    <string name="rate_prompt">How was the movie?</string>
+    <string name="rate_done">You rated it %1$d/5</string>
+    <string name="rate_star">Rate %1$d stars</string>
+    <string name="refunded_points">%1$s refunded to CETA points</string>
+    <string name="cancel_ticket">Cancel ticket</string>
+    <string name="cancel_sheet_title">Cancel this ticket?</string>
+    <string name="cancel_sheet_body">You get 100% of the ticket value back as CETA points (1 point = 1đ) to use on your next booking. Tickets can only be cancelled at least 2 hours before the show.</string>
+    <string name="cancel_points_back">Points refunded</string>
+    <string name="cancel_keep">Keep ticket</string>
+    <string name="cancel_confirm">Cancel ticket</string>
+    <string name="cancel_done_toast">Ticket cancelled. CETA points have been added to your account.</string>
+    <string name="stamp_cancelled">CANCELLED</string>
 </resources>
