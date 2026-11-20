@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main, dev]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Unit tests and debug build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      # Installs the Android SDK and accepts its licences, so Gradle can fetch the platform it needs.
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # app/google-services.json belongs to the real Firebase project and is not in the repo. The plugin only needs a file of the
+      # right shape for the three application ids, so CI builds with a placeholder (nothing here talks to Firebase).
+      - name: Placeholder google-services.json
+        run: |
+          python3 - <<'PY'
+          import json
+          clients = [{
+              "client_info": {"mobilesdk_app_id": f"1:000000000000:android:{i:020x}", "android_client_info": {"package_name": pkg}},
+              "oauth_client": [], "api_key": [{"current_key": "AIzaSyCI-placeholder-not-a-real-key-0000000"}],
+              "services": {"appinvite_service": {"other_platform_oauth_client": []}},
+          } for i, pkg in enumerate(["com.ceta.cinema", "com.ceta.cinema.debug", "com.ceta.cinema.staging"], 1)]
+          json.dump({"project_info": {"project_number": "000000000000", "project_id": "ceta-ci", "storage_bucket": "ceta-ci.appspot.com"},
+                     "client": clients, "configuration_version": "1"}, open("app/google-services.json", "w"))
+          PY
+
+      - name: Unit tests
+        run: ./gradlew --no-daemon testDevDebugUnitTest
+
+      - name: Debug build
+        run: ./gradlew --no-daemon assembleDevDebug
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: app/build/reports/tests
+          retention-days: 7
