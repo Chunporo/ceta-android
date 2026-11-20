@@ -38,7 +38,7 @@ fun SeatDto.toDomain() = Seat(
     price = price ?: 0L,
 )
 
-fun ComboDto.toDomain() = Combo(id, name, nameEn, description, descriptionEn, imageUrl, price)
+fun ComboDto.toDomain() = Combo(id, name, nameEn, description, descriptionEn, imageUrl, price, code)
 
 fun PromotionDto.toDomain() = Promotion(
     id = id, code = code, title = title, titleEn = titleEn, description = description, descriptionEn = descriptionEn,

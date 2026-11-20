@@ -87,7 +87,7 @@ data class Showtime(
     val filled: Float? get() = if (availableSeats != null && totalSeats != null && totalSeats > 0) 1f - availableSeats.toFloat() / totalSeats else null
 }
 
-data class Combo(val id: Long, val name: String, val nameEn: String?, val description: String?, val descriptionEn: String?, val imageUrl: String?, val price: Long) {
+data class Combo(val id: Long, val name: String, val nameEn: String?, val description: String?, val descriptionEn: String?, val imageUrl: String?, val price: Long, val code: String? = null) {
     fun title(english: Boolean) = if (english && !nameEn.isNullOrBlank()) nameEn else name
     fun detail(english: Boolean) = if (english && !descriptionEn.isNullOrBlank()) descriptionEn else description
 }
