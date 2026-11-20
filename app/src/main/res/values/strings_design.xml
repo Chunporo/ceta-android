@@ -244,4 +244,6 @@
     <string name="perk_v2">2 vé 2D miễn phí tháng sinh nhật</string>
     <string name="perk_v3">Phòng chờ VIP và bắp nước miễn phí</string>
     <string name="perk_v4">Đổi suất không giới hạn</string>
+    <string name="ob_art_paid">Đã thanh toán</string>
+    <string name="ob_art_points">điểm CETA</string>
 </resources>

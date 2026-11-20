@@ -4,9 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Bolt
-import androidx.compose.material.icons.rounded.EventSeat
-import androidx.compose.material.icons.rounded.Redeem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,16 +32,16 @@ import com.ceta.cinema.ui.component.PrimaryButton
 import com.ceta.cinema.ui.theme.Ceta
 
 private val pages = listOf(
-    Triple(R.string.ob_title_1, R.string.ob_body_1, Icons.Rounded.Bolt),
-    Triple(R.string.ob_title_2, R.string.ob_body_2, Icons.Rounded.EventSeat),
-    Triple(R.string.ob_title_3, R.string.ob_body_3, Icons.Rounded.Redeem),
+    R.string.ob_title_1 to R.string.ob_body_1,
+    R.string.ob_title_2 to R.string.ob_body_2,
+    R.string.ob_title_3 to R.string.ob_body_3,
 )
 
 @Composable
 fun OnboardingScreen(onFinish: () -> Unit) {
     val c = Ceta.colors
     var index by rememberSaveable { mutableIntStateOf(0) }
-    val (title, body, icon) = pages[index]
+    val (title, body) = pages[index]
     val last = index == pages.lastIndex
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding().padding(horizontal = 20.dp, vertical = 16.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -55,15 +51,8 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             }
         }
         Spacer(Modifier.height(16.dp))
-        // The key-art panel: a soft gradient with the page's icon in a frosted tile at the top left, as in the design.
-        Box(
-            Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(28.dp))
-                .background(Brush.linearGradient(listOf(c.ac.copy(alpha = 0.55f), c.ac2.copy(alpha = 0.35f), c.ac3.copy(alpha = 0.3f)))),
-        ) {
-            Box(Modifier.padding(22.dp).size(84.dp).clip(RoundedCornerShape(24.dp)).background(Color.White.copy(alpha = 0.22f)), contentAlignment = Alignment.Center) {
-                Icon(icon, null, tint = Color.White, modifier = Modifier.size(44.dp))
-            }
-        }
+        // The key art: a dark panel with the page's glow and a small illustration built from real UI pieces.
+        OnboardingArt(index, Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(28.dp)))
         Spacer(Modifier.height(24.dp))
         Text(stringResource(title), color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 33.sp, letterSpacing = (-0.56).sp, modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(10.dp))

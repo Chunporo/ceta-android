@@ -243,4 +243,6 @@
     <string name="perk_v2">2 free 2D tickets in your birthday month</string>
     <string name="perk_v3">VIP lounge with free snacks</string>
     <string name="perk_v4">Unlimited showtime changes</string>
+    <string name="ob_art_paid">Paid</string>
+    <string name="ob_art_points">CETA points</string>
 </resources>
