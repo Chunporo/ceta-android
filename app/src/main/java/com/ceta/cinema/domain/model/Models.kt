@@ -130,6 +130,8 @@ data class Booking(
     val movieTitle: String?, val roomName: String?, val startTime: Instant?, val refundRequired: Boolean,
     val comboAmount: Long, val combos: List<ComboLine>, val discountAmount: Long, val voucherCode: String?,
     val pointsAmount: Long, val pointsUsed: Int,
+    /** The show this order is for; null from an older server. */
+    val showtimeId: Long? = null,
 ) {
     val seatsAmount: Long get() = seats.sumOf { it.price }
 }

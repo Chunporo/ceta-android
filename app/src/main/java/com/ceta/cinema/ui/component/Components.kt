@@ -33,12 +33,13 @@ import com.ceta.cinema.ui.theme.Ceta
 import com.ceta.cinema.ui.theme.ageColor
 import com.ceta.cinema.R
 
+/** [pill] is the batch-3 button: 56 tall with fully round ends. The older screens keep the 52 / 16 shape. */
 @Composable
-fun PrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, loading: Boolean = false) {
+fun PrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, loading: Boolean = false, pill: Boolean = false) {
     val c = Ceta.colors
     Button(
-        onClick = onClick, enabled = enabled && !loading, modifier = modifier.fillMaxWidth().height(52.dp),
-        shape = RoundedCornerShape(16.dp),
+        onClick = onClick, enabled = enabled && !loading, modifier = modifier.fillMaxWidth().height(if (pill) 56.dp else 52.dp),
+        shape = RoundedCornerShape(if (pill) 28.dp else 16.dp),
         colors = ButtonDefaults.buttonColors(containerColor = c.ac, contentColor = Color.White, disabledContainerColor = c.ln2, disabledContentColor = c.mu),
     ) {
         if (loading) CircularProgressIndicator(Modifier.size(22.dp), color = Color.White, strokeWidth = 2.5.dp)
@@ -47,11 +48,11 @@ fun PrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifi
 }
 
 @Composable
-fun OutlineButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, icon: ImageVector? = null) {
+fun OutlineButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, icon: ImageVector? = null, pill: Boolean = false) {
     val c = Ceta.colors
     OutlinedButton(
-        onClick = onClick, enabled = enabled, modifier = modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, c.ln2), colors = ButtonDefaults.outlinedButtonColors(contentColor = c.tx),
+        onClick = onClick, enabled = enabled, modifier = modifier.fillMaxWidth().height(if (pill) 56.dp else 52.dp), shape = RoundedCornerShape(if (pill) 28.dp else 16.dp),
+        border = BorderStroke(if (pill) 1.5.dp else 1.dp, c.ln2), colors = ButtonDefaults.outlinedButtonColors(contentColor = c.tx),
     ) {
         if (icon != null) { Icon(icon, null, Modifier.size(20.dp)); Spacer(Modifier.width(8.dp)) }
         Text(text, style = MaterialTheme.typography.labelLarge)

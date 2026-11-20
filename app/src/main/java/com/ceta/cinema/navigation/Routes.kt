@@ -15,6 +15,8 @@ object Routes {
     fun showtimes(movieId: String) = "showtimes/$movieId"
     const val SEAT_MAP = "seats/{showtimeId}"
     fun seatMap(showtimeId: Long) = "seats/$showtimeId"
+    const val HOLD_EXPIRED = "hold-expired/{showtimeId}?seats={seats}"
+    fun holdExpired(showtimeId: Long, seats: List<String>) = "hold-expired/$showtimeId?seats=${android.net.Uri.encode(seats.joinToString(","))}"
     const val TICKET_DETAIL = "tickets/{bookingId}"
     fun ticketDetail(bookingId: Long) = "tickets/$bookingId"
     const val HISTORY = "history"

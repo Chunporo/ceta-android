@@ -64,7 +64,7 @@ fun BookingDto.toDomain() = Booking(
     seats = seats.map { it.toDomain() }, tickets = tickets.map { BookingTicketRef(it.ticketId, it.seatId, it.label, it.code) },
     movieTitle = movieTitle, roomName = roomName, startTime = startTime.toInstantOrNull(), refundRequired = refundRequired,
     comboAmount = comboAmount, combos = combos.map { it.toDomain() }, discountAmount = discountAmount, voucherCode = voucherCode,
-    pointsAmount = pointsAmount, pointsUsed = pointsUsed,
+    pointsAmount = pointsAmount, pointsUsed = pointsUsed, showtimeId = showtimeId,
 )
 
 fun BookingExtrasDto.toDomain() = Extras(totalAmount, comboAmount, discountAmount, voucherCode, combos.map { it.toDomain() }, pointsAmount, pointsUsed)

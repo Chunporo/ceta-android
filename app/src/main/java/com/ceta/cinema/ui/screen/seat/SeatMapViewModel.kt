@@ -32,8 +32,6 @@ sealed interface SeatMessage {
     data class Failed(val error: ApiError) : SeatMessage
     /** Two minutes left of the 10 minutes since the first seat was chosen. */
     data object HoldWarning : SeatMessage
-    /** Ten minutes passed: the chosen seats were cleared. */
-    data object HoldExpired : SeatMessage
 }
 
 data class SeatMapUi(
@@ -72,6 +70,10 @@ class SeatMapViewModel @Inject constructor(
     private val _booked = Channel<Long>(Channel.BUFFERED)
     /** The id of the booking just created: the screen moves on to checkout. */
     val booked: Flow<Long> = _booked.receiveAsFlow()
+
+    private val _holdExpired = Channel<List<String>>(Channel.BUFFERED)
+    /** The hold ran out: the labels of the seats that were chosen. The screen moves to the "hold expired" page (design item 11). */
+    val holdExpired: Flow<List<String>> = _holdExpired.receiveAsFlow()
 
     init { load() }
 
@@ -124,19 +126,19 @@ class SeatMapViewModel @Inject constructor(
 
     /** Called once a second while the screen is visible. */
     fun tick() {
-        // Checkout or snacks ran out of time and sent the customer back here: start again with no seat chosen.
-        if (savedState.get<Boolean>(HOLD_EXPIRED_KEY) == true) { savedState[HOLD_EXPIRED_KEY] = false; clearSelection(SeatMessage.HoldExpired); return }
         if (!hold.isRunning()) return
-        if (hold.isExpired()) { clearSelection(SeatMessage.HoldExpired); return }
+        if (hold.isExpired()) { expire(); return }
         update {
             val next = it.withHold()
             if (next.holdWarning && !warned) { warned = true; next.copy(message = SeatMessage.HoldWarning) } else next
         }
     }
 
-    private fun clearSelection(message: SeatMessage) {
+    private fun expire() {
+        val labels = current()?.selectedSeats?.map { it.label }.orEmpty()
         hold.stop(); warned = false
-        update { it.copy(selected = emptySet(), conflicts = emptySet(), message = message, holdSecondsLeft = null, holdWarning = false) }
+        update { it.copy(selected = emptySet(), conflicts = emptySet(), holdSecondsLeft = null, holdWarning = false) }
+        _holdExpired.trySend(labels)
     }
 
     private fun SeatMapUi.withHold() = if (hold.isRunning()) copy(holdSecondsLeft = hold.remainingSeconds(), holdWarning = hold.isWarning())
@@ -165,8 +167,6 @@ class SeatMapViewModel @Inject constructor(
             }
         }
     }
-
-    companion object { const val HOLD_EXPIRED_KEY = "holdExpired" }
 
     private fun current(): SeatMapUi? = (_state.value as? UiState.Content)?.data
 

@@ -44,7 +44,7 @@ import com.ceta.cinema.ui.theme.Ceta
 import com.ceta.cinema.ui.theme.cardSurface
 
 @Composable
-fun ComboScreen(onBack: () -> Unit, onNext: () -> Unit, onChooseSeats: () -> Unit, onHoldExpired: () -> Unit = {}, vm: ComboViewModel = hiltViewModel()) {
+fun ComboScreen(onBack: () -> Unit, onNext: () -> Unit, onChooseSeats: () -> Unit, onHoldExpired: (Long?, List<String>) -> Unit = { _, _ -> }, vm: ComboViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
     val c = Ceta.colors
     EverySecond(vm::tick)
@@ -60,11 +60,11 @@ fun ComboScreen(onBack: () -> Unit, onNext: () -> Unit, onChooseSeats: () -> Uni
 }
 
 @Composable
-private fun Content(ui: ComboUi, vm: ComboViewModel, onBack: () -> Unit, onChooseSeats: () -> Unit, onHoldExpired: () -> Unit) {
+private fun Content(ui: ComboUi, vm: ComboViewModel, onBack: () -> Unit, onChooseSeats: () -> Unit, onHoldExpired: (Long?, List<String>) -> Unit) {
     val c = Ceta.colors
     val english = LocalConfiguration.current.locales[0].language == "en"
     val snackbar = remember { SnackbarHostState() }
-    HoldToasts("b${ui.booking.id}", ui.warning, ui.expired, snackbar, onHoldExpired)
+    HoldToasts("b${ui.booking.id}", ui.warning, ui.expired, snackbar) { onHoldExpired(ui.booking.showtimeId, ui.booking.seats.map { it.label }) }
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {

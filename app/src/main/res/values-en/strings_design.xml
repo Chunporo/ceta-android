@@ -159,4 +159,8 @@
     <string name="trailer_open_youtube">Open on YouTube</string>
     <string name="trailer_none">There is no trailer for this movie yet.</string>
     <string name="close">Close</string>
+    <string name="hold_expired_title">Seat hold expired</string>
+    <string name="hold_expired_body">Seats %1$s went back to the cinema. You have not been charged.</string>
+    <string name="hold_expired_body_noseats">The seats went back to the cinema. You have not been charged.</string>
+    <string name="hold_expired_other_show">Choose another showtime</string>
 </resources>

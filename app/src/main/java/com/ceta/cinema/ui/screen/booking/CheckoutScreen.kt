@@ -42,7 +42,7 @@ import com.ceta.cinema.ui.theme.Ceta
 import com.ceta.cinema.ui.theme.cardSurface
 
 @Composable
-fun CheckoutScreen(onBack: () -> Unit, onPaying: (Long) -> Unit, onVietQr: (Long, String, String) -> Unit, onChooseSeats: () -> Unit, onHoldExpired: () -> Unit = {}, vm: CheckoutViewModel = hiltViewModel()) {
+fun CheckoutScreen(onBack: () -> Unit, onPaying: (Long) -> Unit, onVietQr: (Long, String, String) -> Unit, onChooseSeats: () -> Unit, onHoldExpired: (Long?, List<String>) -> Unit = { _, _ -> }, vm: CheckoutViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
     val c = Ceta.colors
     val context = LocalContext.current
@@ -68,11 +68,11 @@ fun CheckoutScreen(onBack: () -> Unit, onPaying: (Long) -> Unit, onVietQr: (Long
 }
 
 @Composable
-private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, onChooseSeats: () -> Unit, onHoldExpired: () -> Unit) {
+private fun Content(ui: CheckoutUi, vm: CheckoutViewModel, onBack: () -> Unit, onChooseSeats: () -> Unit, onHoldExpired: (Long?, List<String>) -> Unit) {
     val c = Ceta.colors
     val b = ui.booking
     val snackbar = androidx.compose.runtime.remember { androidx.compose.material3.SnackbarHostState() }
-    HoldToasts("b${b.id}", ui.warning, ui.expired, snackbar, onHoldExpired)
+    HoldToasts("b${b.id}", ui.warning, ui.expired, snackbar) { onHoldExpired(b.showtimeId, b.seats.map { it.label }) }
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {

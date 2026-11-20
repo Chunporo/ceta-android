@@ -160,4 +160,8 @@
     <string name="trailer_open_youtube">Mở trên YouTube</string>
     <string name="trailer_none">Chưa có trailer cho phim này.</string>
     <string name="close">Đóng</string>
+    <string name="hold_expired_title">Hết thời gian giữ ghế</string>
+    <string name="hold_expired_body">Ghế %1$s đã được trả lại cho rạp. Bạn chưa bị trừ tiền.</string>
+    <string name="hold_expired_body_noseats">Ghế đã được trả lại cho rạp. Bạn chưa bị trừ tiền.</string>
+    <string name="hold_expired_other_show">Chọn suất khác</string>
 </resources>

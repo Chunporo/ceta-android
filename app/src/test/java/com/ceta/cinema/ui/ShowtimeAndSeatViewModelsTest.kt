@@ -204,7 +204,7 @@ class ShowtimeAndSeatViewModelsTest {
 
         clock.advanceMinutes(2); vm.tick()
         assertTrue(ui(vm).selected.isEmpty())
-        assertEquals(SeatMessage.HoldExpired, ui(vm).message)
+        assertEquals("the seats that were chosen are reported", listOf("A1", "A2"), vm.holdExpired.first().sorted())
         assertNull(ui(vm).holdSecondsLeft)
     }
 
@@ -220,20 +220,6 @@ class ShowtimeAndSeatViewModelsTest {
         assertNull(ui(vm).holdSecondsLeft)
         vm.onSeat(2)
         assertEquals(600L, ui(vm).holdSecondsLeft)
-    }
-
-    @Test fun beingSentBackFromCheckoutAfterTheHoldRanOutClearsTheSeats() = runTest {
-        setup()
-        seatApi()
-        val state = SavedStateHandle(mapOf("showtimeId" to 501L))
-        val vm = seatMap(Hand(), state)
-        eventually { vm.state.value is UiState.Content }
-        vm.onSeat(1); vm.onSeat(2)
-        state[SeatMapViewModel.HOLD_EXPIRED_KEY] = true
-        vm.tick()                                   // the screen ticks once a second and picks the flag up
-        assertEquals(SeatMessage.HoldExpired, ui(vm).message)
-        assertNull(ui(vm).holdSecondsLeft)
-        assertEquals("the flag is consumed", false, state.get<Boolean>(SeatMapViewModel.HOLD_EXPIRED_KEY))
     }
 
     @Test fun aRefreshDropsASeatSomeoneElseJustTookAndSaysSo() = runTest {

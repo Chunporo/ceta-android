@@ -43,6 +43,7 @@ data class BookingDto(
     val voucherCode: String? = null,
     val pointsAmount: Long = 0,
     val pointsUsed: Int = 0,
+    val showtimeId: Long? = null,
 )
 
 /** The full desired state of the order's extras (snacks, voucher, points); see PUT /bookings/{id}/extras. */

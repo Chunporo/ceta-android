@@ -54,7 +54,7 @@ import com.ceta.cinema.ui.theme.Ceta
 import kotlinx.coroutines.delay
 
 @Composable
-fun SeatMapScreen(onBack: () -> Unit, onBooked: (Long) -> Unit, vm: SeatMapViewModel = hiltViewModel()) {
+fun SeatMapScreen(onBack: () -> Unit, onBooked: (Long) -> Unit, onHoldExpired: (List<String>) -> Unit, vm: SeatMapViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
     val c = Ceta.colors
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -63,6 +63,7 @@ fun SeatMapScreen(onBack: () -> Unit, onBooked: (Long) -> Unit, vm: SeatMapViewM
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { while (true) { delay(REFRESH_MS); vm.refresh() } }
     }
     LaunchedEffect(Unit) { vm.booked.collect(onBooked) }
+    LaunchedEffect(Unit) { vm.holdExpired.collect(onHoldExpired) }
     EverySecond(vm::tick)
     Column(Modifier.fillMaxSize().background(c.bg).systemBarsPadding()) {
         when (val s = state) {
@@ -221,5 +222,4 @@ private fun messageText(message: SeatMessage): String = when (message) {
     is SeatMessage.SeatsTaken -> stringResource(R.string.seat_taken, message.labels.joinToString(", "))
     is SeatMessage.Failed -> stringResource(ErrorMapper.messageFor(message.error))
     SeatMessage.HoldWarning -> stringResource(R.string.hold_warn_toast)
-    SeatMessage.HoldExpired -> stringResource(R.string.ds_hold_expired)
 }
