@@ -84,7 +84,7 @@ private fun DetailContent(ui: MovieDetailUi, vm: MovieDetailViewModel, onBack: (
                         Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                             Text(movie.title, color = c.tx, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 32.sp, modifier = Modifier.padding(top = 14.dp))
                             StatsRow(movie)
-                            ExternalScores(movie)
+                            ExternalScores(movie.externalRatings, Modifier.padding(top = 12.dp))
                             Synopsis(movie.description)
                             People(movie)
                             Reviews(ui, onWrite = { if (vm.requestReview()) showReview = true })
@@ -176,29 +176,6 @@ private fun StatsRow(movie: Movie) {
             if (movie.ratingCount > 0) "${Formatters.votes(movie.ratingCount)} ${stringResource(R.string.ds_votes)}" else stringResource(R.string.movie_not_rated), big = true)
         Stat(Modifier.weight(1.35f), movie.releaseDate?.let(Formatters::date) ?: "—", stringResource(R.string.ds_release))
         Stat(Modifier.weight(0.8f), movie.language ?: "—", stringResource(R.string.ds_language))
-    }
-}
-
-/** What other sites say about the film: IMDb, Rotten Tomatoes, Metacritic, TMDB. Shown apart from the CETA customers' score above. */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun ExternalScores(movie: Movie) {
-    if (movie.externalRatings.isEmpty()) return
-    val c = Ceta.colors
-    Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            movie.externalRatings.forEach { r ->
-                Row(
-                    Modifier.clip(RoundedCornerShape(12.dp)).background(c.sf).padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Text(r.source.label, color = c.mu, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                    Text(r.display, color = c.tx, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
-                    r.votes?.let { Text(Formatters.votes(it), color = c.mu, fontSize = 12.sp) }
-                }
-            }
-        }
-        Text(stringResource(R.string.external_scores_note), color = c.mu, fontSize = 11.sp)
     }
 }
 

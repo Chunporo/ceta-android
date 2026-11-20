@@ -247,4 +247,7 @@
     <string name="ob_art_paid">Đã thanh toán</string>
     <string name="ob_art_points">điểm CETA</string>
     <string name="external_scores_note">Điểm từ các trang khác, qua OMDb và TMDB. Không tính vào điểm của khách CETA.</string>
+    <string name="score_caption_tomatometer">Tomatometer</string>
+    <string name="score_caption_critics">Phê bình</string>
+    <string name="score_caption_users">Người dùng</string>
 </resources>
