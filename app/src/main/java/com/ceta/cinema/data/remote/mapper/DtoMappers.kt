@@ -19,6 +19,7 @@ fun MovieDto.toDomain() = Movie(
     castMembers = if (castMembers.isNotEmpty()) castMembers.map { CastMember(it.name, it.role?.takeIf { r -> r.isNotBlank() }, it.photoUrl?.takeIf { u -> u.isNotBlank() }) }
     else cast.map { CastMember(it, null, null) },
     directorPhotoUrl = directorPhotoUrl?.takeIf { it.isNotBlank() },
+    backdropUrl = backdropUrl?.takeIf { it.isNotBlank() },
     externalRatings = externalRatings.mapNotNull { r ->
         runCatching { ExternalRating.Source.valueOf(r.source) }.getOrNull()?.let { ExternalRating(it, r.value, r.scale, r.votes) } // an unknown site is ignored
     },

@@ -136,7 +136,8 @@ private fun Header(movie: Movie, onBack: () -> Unit, onTrailer: () -> Unit, onSh
     val c = Ceta.colors
     Box(Modifier.fillMaxWidth()) {
     Box(Modifier.fillMaxWidth().height(250.dp)) {
-        Poster(movie.posterUrl, movie.id, Modifier.fillMaxSize())
+        // The wide still when the film has one; a poster cropped to a banner is the fallback.
+        Poster(movie.backdropUrl ?: movie.posterUrl, movie.id, Modifier.fillMaxSize())
         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.55f to Color.Transparent, 1f to c.bg.copy(alpha = 0.55f))))
         Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(44.dp).clip(CircleShape).background(Color(0x73000000)).clickable(onClick = onBack), contentAlignment = Alignment.Center) {

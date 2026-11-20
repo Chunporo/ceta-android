@@ -15,6 +15,7 @@ data class MovieDto(
     val trailerUrl: String? = null,
     val director: String? = null,
     val directorPhotoUrl: String? = null,
+    val backdropUrl: String? = null,           // a landscape still; older servers send none
     val language: String? = null,
     val description: String? = null,
     val ratingScore: Double? = null,

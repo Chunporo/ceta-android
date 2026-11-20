@@ -76,6 +76,8 @@ data class Movie(
     val cast: List<String>, val genres: List<String>, val formats: Set<ShowFormat>,
     val castMembers: List<CastMember> = cast.map { CastMember(it, null, null) },
     val directorPhotoUrl: String? = null,
+    /** A landscape still for the header of the movie page; the poster is used when there is none. */
+    val backdropUrl: String? = null,
     val externalRatings: List<ExternalRating> = emptyList(),
 ) {
     val isNowShowing: Boolean get() = status == MovieStatus.NOW_SHOWING || status == MovieStatus.EARLY_ACCESS
