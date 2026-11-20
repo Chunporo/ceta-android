@@ -188,7 +188,7 @@
     <string name="refunded_points">%1$s refunded to CETA points</string>
     <string name="cancel_ticket">Cancel ticket</string>
     <string name="cancel_sheet_title">Cancel this ticket?</string>
-    <string name="cancel_sheet_body">You get 100% of the ticket value back as CETA points (1 point = 1đ) to use on your next booking. Tickets can only be cancelled at least 2 hours before the show.</string>
+    <string name="cancel_sheet_body" formatted="false">You get 100% of the ticket value back as CETA points (1 point = 1đ) to use on your next booking. Tickets can only be cancelled at least 2 hours before the show.</string>
     <string name="cancel_points_back">Points refunded</string>
     <string name="cancel_keep">Keep ticket</string>
     <string name="cancel_confirm">Cancel ticket</string>
@@ -229,17 +229,17 @@
     <string name="tier_req_member">Free to join</string>
     <string name="tier_req_star">Spend 2,500,000đ or more per year</string>
     <string name="tier_req_vip">Spend 5,000,000đ or more per year</string>
-    <string name="tier_perks_member">5% points · Tuesday deals · Welcome gift</string>
-    <string name="tier_perks_star">7% points · Birthday combo · 1 free showtime change a month</string>
-    <string name="tier_perks_vip">10% points · 2 birthday tickets · VIP lounge · Unlimited showtime changes</string>
-    <string name="perk_m1">Earn 5% of every order as points</string>
+    <string name="tier_perks_member" formatted="false">5% points · Tuesday deals · Welcome gift</string>
+    <string name="tier_perks_star" formatted="false">7% points · Birthday combo · 1 free showtime change a month</string>
+    <string name="tier_perks_vip" formatted="false">10% points · 2 birthday tickets · VIP lounge · Unlimited showtime changes</string>
+    <string name="perk_m1" formatted="false">Earn 5% of every order as points</string>
     <string name="perk_m2">50,000đ off every Tuesday</string>
     <string name="perk_m3">Welcome gift for new members</string>
-    <string name="perk_s1">Earn 7% of every order as points</string>
+    <string name="perk_s1" formatted="false">Earn 7% of every order as points</string>
     <string name="perk_s2">Free Solo Combo in your birthday month</string>
     <string name="perk_s3">One free showtime change per month</string>
     <string name="perk_s4">Early access to special screenings</string>
-    <string name="perk_v1">Earn 10% of every order as points</string>
+    <string name="perk_v1" formatted="false">Earn 10% of every order as points</string>
     <string name="perk_v2">2 free 2D tickets in your birthday month</string>
     <string name="perk_v3">VIP lounge with free snacks</string>
     <string name="perk_v4">Unlimited showtime changes</string>

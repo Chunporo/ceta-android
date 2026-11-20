@@ -50,8 +50,20 @@ jobs:
       - name: Unit tests
         run: ./gradlew --no-daemon testDevDebugUnitTest
 
+      # Lint fails the build on errors only; its warnings (unused resources, newer library versions) are in the report.
+      - name: Lint
+        run: ./gradlew --no-daemon lintDevDebug
+
       - name: Debug build
         run: ./gradlew --no-daemon assembleDevDebug
+
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-devDebug.html
+          retention-days: 7
 
       - name: Upload test reports
         if: failure()

@@ -31,8 +31,9 @@ fun Context.findActivity(): Activity? {
 @Composable
 fun Localized(language: String, content: @Composable () -> Unit) {
     val base = LocalContext.current
-    val context = remember(base, language) {
-        val config = Configuration(base.resources.configuration).apply { setLocale(Locale.forLanguageTag(language)) }
+    val baseConfig = LocalConfiguration.current
+    val context = remember(base, baseConfig, language) {
+        val config = Configuration(baseConfig).apply { setLocale(Locale.forLanguageTag(language)) }
         LocalizedContext(base, base.createConfigurationContext(config).resources)
     }
     CompositionLocalProvider(LocalContext provides context, LocalConfiguration provides context.resources.configuration, content = content)

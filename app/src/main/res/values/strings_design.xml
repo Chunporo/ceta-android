@@ -189,7 +189,7 @@
     <string name="refunded_points">Đã hoàn %1$s vào điểm CETA</string>
     <string name="cancel_ticket">Hủy vé</string>
     <string name="cancel_sheet_title">Hủy vé này?</string>
-    <string name="cancel_sheet_body">Bạn được hoàn 100% giá trị vé vào điểm CETA (1 điểm = 1đ) để dùng cho lần đặt sau. Chỉ hủy được trước giờ chiếu ít nhất 2 tiếng.</string>
+    <string name="cancel_sheet_body" formatted="false">Bạn được hoàn 100% giá trị vé vào điểm CETA (1 điểm = 1đ) để dùng cho lần đặt sau. Chỉ hủy được trước giờ chiếu ít nhất 2 tiếng.</string>
     <string name="cancel_points_back">Số điểm hoàn</string>
     <string name="cancel_keep">Giữ vé</string>
     <string name="cancel_confirm">Hủy vé</string>
@@ -230,17 +230,17 @@
     <string name="tier_req_member">Đăng ký miễn phí</string>
     <string name="tier_req_star">Chi tiêu từ 2.500.000đ/năm</string>
     <string name="tier_req_vip">Chi tiêu từ 5.000.000đ/năm</string>
-    <string name="tier_perks_member">Tích 5% điểm · Ưu đãi Thứ Ba · Quà chào mừng</string>
-    <string name="tier_perks_star">Tích 7% điểm · Combo sinh nhật · Đổi suất 1 lần/tháng</string>
-    <string name="tier_perks_vip">Tích 10% điểm · 2 vé sinh nhật · Phòng chờ VIP · Đổi suất không giới hạn</string>
-    <string name="perk_m1">Tích 5% giá trị đơn thành điểm</string>
+    <string name="tier_perks_member" formatted="false">Tích 5% điểm · Ưu đãi Thứ Ba · Quà chào mừng</string>
+    <string name="tier_perks_star" formatted="false">Tích 7% điểm · Combo sinh nhật · Đổi suất 1 lần/tháng</string>
+    <string name="tier_perks_vip" formatted="false">Tích 10% điểm · 2 vé sinh nhật · Phòng chờ VIP · Đổi suất không giới hạn</string>
+    <string name="perk_m1" formatted="false">Tích 5% giá trị đơn thành điểm</string>
     <string name="perk_m2">Giảm 50.000đ mỗi Thứ Ba</string>
     <string name="perk_m3">Quà chào mừng thành viên mới</string>
-    <string name="perk_s1">Tích 7% giá trị đơn thành điểm</string>
+    <string name="perk_s1" formatted="false">Tích 7% giá trị đơn thành điểm</string>
     <string name="perk_s2">Combo Solo miễn phí tháng sinh nhật</string>
     <string name="perk_s3">Đổi suất miễn phí 1 lần mỗi tháng</string>
     <string name="perk_s4">Mua vé sớm suất chiếu đặc biệt</string>
-    <string name="perk_v1">Tích 10% giá trị đơn thành điểm</string>
+    <string name="perk_v1" formatted="false">Tích 10% giá trị đơn thành điểm</string>
     <string name="perk_v2">2 vé 2D miễn phí tháng sinh nhật</string>
     <string name="perk_v3">Phòng chờ VIP và bắp nước miễn phí</string>
     <string name="perk_v4">Đổi suất không giới hạn</string>
