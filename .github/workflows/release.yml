@@ -44,7 +44,7 @@ jobs:
           echo "CETA_KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
 
       - name: Unit tests
-        run: ./gradlew --no-daemon testProdReleaseUnitTest
+        run: ./gradlew --no-daemon testDevDebugUnitTest
 
       - name: Build signed APK
         env:
