@@ -185,14 +185,14 @@
     <string name="rate_prompt">How was the movie?</string>
     <string name="rate_done">You rated it %1$d/5</string>
     <string name="rate_star">Rate %1$d stars</string>
-    <string name="refunded_points">%1$s refunded to CETA points</string>
+    <string name="refunded_points">Refund of %1$s requested</string>
     <string name="cancel_ticket">Cancel ticket</string>
     <string name="cancel_sheet_title">Cancel this ticket?</string>
-    <string name="cancel_sheet_body" formatted="false">You get 100% of the ticket value back as CETA points (1 point = 1đ) to use on your next booking. Tickets can only be cancelled at least 2 hours before the show.</string>
-    <string name="cancel_points_back">Points refunded</string>
+    <string name="cancel_sheet_body" formatted="false">You get 100% of the order back to the way you paid; CETA processes the refund by hand. Tickets can only be cancelled at least 60 minutes before the show.</string>
+    <string name="cancel_points_back">Refund amount</string>
     <string name="cancel_keep">Keep ticket</string>
     <string name="cancel_confirm">Cancel ticket</string>
-    <string name="cancel_done_toast">Ticket cancelled. CETA points have been added to your account.</string>
+    <string name="cancel_done_toast">Ticket cancelled. Your refund request has been sent and CETA will process it soon.</string>
     <string name="stamp_cancelled">CANCELLED</string>
     <string name="search_ph">Movies, actors, cinemas…</string>
     <string name="search_clear">Clear search</string>

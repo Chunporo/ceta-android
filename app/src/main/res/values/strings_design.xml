@@ -186,14 +186,14 @@
     <string name="rate_prompt">Bạn thấy phim thế nào?</string>
     <string name="rate_done">Bạn đã chấm %1$d/5</string>
     <string name="rate_star">Chấm %1$d sao</string>
-    <string name="refunded_points">Đã hoàn %1$s vào điểm CETA</string>
+    <string name="refunded_points">Đã gửi yêu cầu hoàn %1$s</string>
     <string name="cancel_ticket">Hủy vé</string>
     <string name="cancel_sheet_title">Hủy vé này?</string>
-    <string name="cancel_sheet_body" formatted="false">Bạn được hoàn 100% giá trị vé vào điểm CETA (1 điểm = 1đ) để dùng cho lần đặt sau. Chỉ hủy được trước giờ chiếu ít nhất 2 tiếng.</string>
-    <string name="cancel_points_back">Số điểm hoàn</string>
+    <string name="cancel_sheet_body" formatted="false">Bạn được hoàn 100% giá trị đơn về phương thức đã thanh toán; CETA sẽ xử lý hoàn tiền thủ công. Chỉ hủy được trước giờ chiếu ít nhất 60 phút.</string>
+    <string name="cancel_points_back">Số tiền hoàn</string>
     <string name="cancel_keep">Giữ vé</string>
     <string name="cancel_confirm">Hủy vé</string>
-    <string name="cancel_done_toast">Đã hủy vé. Điểm CETA đã được cộng vào tài khoản.</string>
+    <string name="cancel_done_toast">Đã hủy vé. Yêu cầu hoàn tiền đã được gửi, CETA sẽ xử lý sớm.</string>
     <string name="stamp_cancelled">ĐÃ HỦY</string>
     <string name="search_ph">Phim, diễn viên, rạp…</string>
     <string name="search_clear">Xóa nội dung tìm kiếm</string>

@@ -11,8 +11,8 @@ class CancelPolicyTest {
     private val show = Instant.parse("2026-11-20T12:00:00Z")
 
     @Test fun aTicketCanBeCancelledUntilTwoHoursBeforeTheShow() {
-        assertTrue(CancelPolicy.canCancel(show, show.minusSeconds(2 * 3600), anyTicketUsed = false))
-        assertFalse(CancelPolicy.canCancel(show, show.minusSeconds(2 * 3600 - 1), anyTicketUsed = false))
+        assertTrue(CancelPolicy.canCancel(show, show.minusSeconds(60 * 60), anyTicketUsed = false))
+        assertFalse(CancelPolicy.canCancel(show, show.minusSeconds(60 * 60 - 1), anyTicketUsed = false))
         assertFalse("a ticket already scanned at the door stays", CancelPolicy.canCancel(show, show.minusSeconds(5 * 3600), anyTicketUsed = true))
     }
 
